@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:Qiwa_Framework_Lib_HTTPRequestAdapter.subflow="Qiwa/Framework/Lib/HTTPRequestAdapter.subflow" xmlns:Qiwa_Framework_Lib_HTTPResponseAdapter.subflow="Qiwa/Framework/Lib/HTTPResponseAdapter.subflow" xmlns:com_qiwa_esb_CheckUserElig.subflow="com/qiwa/esb/CheckUserElig.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/INT_HTTP_ApproveRejectUpdateRDByEmployer.msgflow" nsPrefix="com_qiwa_esb_INT_HTTP_ApproveRejectUpdateRDByEmployer.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="INT_HTTP_ApproveRejectUpdateRDByEmployer" bundleName="com/qiwa/esb/INT_HTTP_ApproveRejectUpdateRDByEmployer" pluginId="ApproveRejectUpdateRDByEmployer"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ApproveRejectUpdateRDByEmployer/icons/full/obj16/INT_HTTP_ApproveRejectUpdateRDByEmployer.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ApproveRejectUpdateRDByEmployer/icons/full/obj30/INT_HTTP_ApproveRejectUpdateRDByEmployer.gif"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_HTTPRequestAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="-81,50" SCHEMA_VALIDATION_ENABLED="true" PROPERTIES_ENABLED="true" ServiceURL="/internal/tc/apprejupdaterdreq" PropertiesGroup="ApproveRejectUpdateRDByEmployer.INT_HTTP_ApproveRejectUpdateRDByEmployer" PropertyFilename="${broker.name}/TERMINATE-CONTRACT.xml">
+        <translation xmi:type="utility:ConstantString" string="HTTPRequestAdapter"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="685,60" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb#HTTP_ApproveRejectUpdateRDByEmployer_Call_UPDATE_SP.Main">
+        <translation xmi:type="utility:ConstantString" string="Call_UPDATE_SP"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_CheckUserElig.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="512,64">
+        <translation xmi:type="utility:ConstantString" string="CheckUserElig"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="280,62" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb#HTTP_ApproveRejectUpdateRDByEmployer_CALL_SP_Search_TerminateContract.Main">
+        <translation xmi:type="utility:ConstantString" string="Search_TerminateContract_sp"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_HTTPResponseAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="873,315">
+        <translation xmi:type="utility:ConstantString" string="HTTPResponseAdapter"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="111,50" dataSource="MWQIWA_DS" filterExpression="esql://routine/com.qiwa.esb#HTTP_ApproveRejectUpdateRDByEmployer_ValidateIDNumber.Main">
+        <translation xmi:type="utility:ConstantString" string="ValidateIDNumber"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="574,314" computeExpression="esql://routine/com.qiwa.esb#HTTP_ApproveRejectUpdateRDByEmployer_Compute.Main">
+        <translation xmi:type="utility:ConstantString" string="Set Headers"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Error" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output2" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

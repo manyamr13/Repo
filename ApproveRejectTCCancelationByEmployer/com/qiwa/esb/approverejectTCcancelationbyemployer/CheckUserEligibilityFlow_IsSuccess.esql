@@ -1,0 +1,26 @@
+BROKER SCHEMA com.qiwa.esb.approverejectTCcancelationbyemployer
+PATH Qiwa.Framework.Lib; 
+
+CREATE FILTER MODULE CheckUserEligibilityFlow_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		--DECLEARING REFRENCE TO THE ApproveRejectTCCancelationByEmployerFlow XML FLOW
+	
+	   DECLARE propertiesRef  REFERENCE TO  Environment.Properties.ApproveRejectTCCancelationByEmployer.HTTP_ApproveRejectTCCancelationByEmployer.Variables;    
+		
+       IF Root.XMLNSC.CheckUserEligibilityRs.Header.ResponseStatus.Code=GetESBSuccessCode() THEN   
+            SET Environment.Variables.Response = Root.XMLNSC.CheckUserEligibilityRs; 	
+    		  RETURN TRUE; 
+		ELSE 
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.CheckUserEligibilityRs.Header.ResponseStatus.Code;
+		
+       END IF;
+
+		
+		
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;

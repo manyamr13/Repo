@@ -1,0 +1,40 @@
+BROKER SCHEMA com.qiwa.esb
+
+
+CREATE FILTER MODULE HTTP_ApproveRejectUpdateRDByEmployer_ValidateIDNumber
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+		BEGIN
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		-- CALL CopyMessageHeaders(); 
+		IF EXISTS(Environment.Properties.ApproveRejectUpdateRDByEmployer.INT_HTTP_ApproveRejectUpdateRDByEmployer[]) THEN
+			  set Environment.Properties.ApproveRejectUpdateRDByEmployer.HTTP_ApproveRejectUpdateRDByEmployer = 
+				  Environment.Properties.ApproveRejectUpdateRDByEmployer.INT_HTTP_ApproveRejectUpdateRDByEmployer;
+			DELETE FIELD Environment.Properties.ApproveRejectUpdateRDByEmployer.INT_HTTP_ApproveRejectUpdateRDByEmployer;
+		END IF; 
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ApproveRejectUpdateRDByEmployer.HTTP_ApproveRejectUpdateRDByEmployer.Variables;
+		
+		  -- 	save the input message and headers
+		SET Environment.Variables.Properties = Root.Properties;
+		SET Environment.Variables.MQMD = Root.MQMD;
+		SET Environment.Variables.MQRFH2 = Root.MQRFH2;
+		SET Environment.Variables.XMLNSC = Root.XMLNSC; 
+	    SET Environment.Variables.Request = Root.XMLNSC.ApproveRejectUpdateRDByEmployerRq;  
+		-- Header.UserInfo.IDNumber is null , return E0000059 ID number is not found
+		 IF  Root.XMLNSC.ApproveRejectUpdateRDByEmployerRq.Header.UserInfo.IDNumber IS  NULL  THEN
+		 	--Send Error code to Set Headers 
+		 	SET Environment.Variables.MWResponse.status = loadedPropertiesRef.IdNumberNotFound;
+		 	RETURN FALSE;
+		 ELSEIF  Root.XMLNSC.ApproveRejectUpdateRDByEmployerRq.Body.IsApproved=0 AND Root.XMLNSC.ApproveRejectUpdateRDByEmployerRq.Body.RejectionReason IS NULL  THEN
+		 	--Send Error code to Set Headers 
+		 	SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingParameters;
+-- 		 	Propagate to Terminal 'out2';
+			Return False; 
+		 ELSE 
+		 	Return True; 
+		  END IF;	
+	
+	END;
+
+END MODULE;

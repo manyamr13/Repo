@@ -1,0 +1,17 @@
+BROKER SCHEMA com.qiwa.esb.approverejectTCcancelationbyemployer
+
+
+CREATE FILTER MODULE CheckUserEligibilityFlow_TimeOutError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		
+		--DECLEARING REFRENCE TO THE ApproveRejectTCCancelationByEmployerFlow XML FLOW
+	
+	   DECLARE propertiesRef  REFERENCE TO  Environment.Properties.ApproveRejectTCCancelationByEmployer.HTTP_ApproveRejectTCCancelationByEmployer; 
+			
+		SET Environment.Variables.MWResponse.status = propertiesRef.Variables.TimeOutError;--'E9999998';    
+		RETURN TRUE;
+	END;
+
+END MODULE;

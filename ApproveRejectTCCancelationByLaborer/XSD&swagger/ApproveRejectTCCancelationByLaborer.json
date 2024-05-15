@@ -1,0 +1,261 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "ApproveRejectTCCancelationByLaborer",
+        "version": "1.0.0",
+        "description": "ApproveRejectTCCancelationByLaborer"
+    },
+    "paths": {
+        "/apprejtccancelbylab": {
+            "post": {
+                "operationId": "ApproveRejectTCCancelationByLaborer",
+                "responses": {
+                    "200": {
+                        "description": "The operation was successful.",
+                        "schema": {
+                            "$ref": "#/definitions/ApproveRejectTCCancelationByLaborerRs_MessageType"
+                        }
+                    }
+                },
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "description": "Approve Reject TC Cancelation By Laborer",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ApproveRejectTCCancelationByLaborerRq_MessageType"
+                        },
+                        "description": "ApproveRejectTCCancelationByLaborerRq",
+                        "required": true
+                    }
+                ]
+            }
+        }
+    },
+    "basePath": "/tc",
+    "definitions": {
+        "ApproveRejectTCCancelationByLaborerRq_MessageType": {
+            "type": "object",
+            "properties": {
+                "ApproveRejectTCCancelationByLaborerRq": {
+                    "$ref": "#/definitions/ApproveRejectTCCancelationByLaborerRq_Type"
+                }
+            }
+        },
+        "ApproveRejectTCCancelationByLaborerRs_MessageType": {
+            "type": "object",
+            "properties": {
+                "ApproveRejectTCCancelationByLaborerRs": {
+                    "$ref": "#/definitions/ApproveRejectTCCancelationByLaborerRs_Type"
+                }
+            }
+        },
+        "ApproveRejectTCCancelationByLaborerRq_Type": {
+            "type": "object",
+            "properties": {
+                "Header": {
+                    "$ref": "#/definitions/ESBXMLRequestHeader_Type"
+                },
+                "Body": {
+                    "$ref": "#/definitions/ApproveRejectTCCancelationByLaborerRq_BodyType"
+                }
+            }
+        },
+        "ApproveRejectTCCancelationByLaborerRq_BodyType": {
+            "type": "object",
+            "properties":{
+                "CancelationRequestId": {
+                    "type": "integer"
+                },
+                "IsApproved": {
+                    "type": "integer"
+                },
+                "RejectionReason": {
+                    "type": "string"
+                }
+            },
+            "required": ["CancelationRequestId","IsApproved"]
+        },
+        
+        "ApproveRejectTCCancelationByLaborerRs_Type": {
+            "type": "object",
+            "properties": {
+                "Header": {
+                    "$ref": "#/definitions/ESBXMLResponseHeader_Type"
+                },
+                "Body": {
+                    "$ref": "#/definitions/ApproveRejectTCCancelationByLaborerRs_BodyType"
+                }
+            }
+        },
+        
+        "ApproveRejectTCCancelationByLaborerRs_BodyType": {
+            "type": "object",
+            "properties": {
+              
+            }
+           
+        },
+        "ESBXMLRequestHeader_Type": {
+            "type": "object",
+            "properties": {
+                "TransactionId": {
+                    "type": "string"
+                },
+                "ChannelId": {
+                    "type": "string"
+                },
+                "SessionId": {
+                    "type": "string"
+                },
+                "RequestTime": {
+                    "type": "string"
+                },
+                "MWRequestTime": {
+                    "type": "string"
+                },
+                "ServiceCode": {
+                    "type": "string"
+                },
+                "DebugFlag": {
+                    "type": "integer"
+                },
+                "UserInfo": {
+                    "$ref": "#/definitions/UserInfo_Type"
+                },
+                "UDF": {
+                    "$ref": "#/definitions/UDF_Type"
+                }
+            },
+            "required": [
+                "ServiceCode",
+                "ChannelId",
+                "TransactionId",
+                "RequestTime"
+            ]
+        },
+        "ESBXMLResponseHeader_Type": {
+            "type": "object",
+            "properties": {
+                "TransactionId": {
+                    "type": "string"
+                },
+                "ChannelId": {
+                    "type": "string"
+                },
+                "SessionId": {
+                    "type": "string"
+                },
+                "RequestTime": {
+                    "type": "string"
+                },
+                "MWRequestTime": {
+                    "type": "string"
+                },
+                "MWResponseime": {
+                    "type": "string"
+                },
+                "ServiceCode": {
+                    "type": "string"
+                },
+                "DebugFlag": {
+                    "type": "integer"
+                },
+                "UserInfo": {
+                    "$ref": "#/definitions/UserInfo_Type"
+                },
+                "UDF": {
+                    "$ref": "#/definitions/UDF_Type"
+                },
+                "ResponseStatus": {
+                    "$ref": "#/definitions/MWResponseStatus_Type"
+                },
+                "BackendError": {
+                    "$ref": "#/definitions/BackendError_Type"
+                }
+            },
+            "required": [
+                "TransactionId",
+                "ChannelId",
+                "RequestTime",
+                "ServiceCode"
+            ]
+        },
+        "UDF_Type": {
+            "type": "object",
+            "properties": {
+                "KeyValueArr": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/KeyValueArr_Type"
+                    }
+                }
+            }
+        },
+        "KeyValueArr_Type": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "Tmstmp_Type": {
+            "type": "object"
+        },
+        "UserInfo_Type": {
+            "type": "object",
+            "properties": {
+                "UserId": {
+                    "type": "integer"
+                },
+                "IDNumber": {
+                    "type": "integer"
+                }
+            }
+        },
+        "MWResponseStatus_Type": {
+            "type": "object",
+            "properties": {
+                "Status": {
+                    "type": "string"
+                },
+                "Code": {
+                    "type": "string"
+                },
+                "ArabicMsg": {
+                    "type": "string"
+                },
+                "EnglishMsg": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "Code",
+                "Status",
+                "ArabicMsg",
+                "EnglishMsg"
+            ]
+        },
+        "BackendError_Type": {
+            "type": "object",
+            "properties": {
+                "ErrorCode": {
+                    "type": "string"
+                },
+                "ErrorDescription": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

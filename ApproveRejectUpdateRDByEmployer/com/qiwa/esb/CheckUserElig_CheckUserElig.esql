@@ -1,0 +1,49 @@
+BROKER SCHEMA com.qiwa.esb
+
+
+CREATE COMPUTE MODULE CheckUserElig_CheckUserElig
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		CALL CopyMessageHeaders();
+		-- ref to properties, Header and Body
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ApproveRejectUpdateRDByEmployer.HTTP_ApproveRejectUpdateRDByEmployer.Variables;
+		DECLARE InBodyRef REFERENCE TO Environment.Variables.Request.Body;
+		DECLARE InHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+		--CheckUserEli  prepare Header
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD 	  = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 	  = Environment.Variables.MQRFH2;
+    -- 	prepare call to check user eli
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		SET OutputRoot.XMLNSC.CheckUserEligibilityRq.Header = InHeaderRef;
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEligibilityRq.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.CheckUserEligibilityRq NAME 'Body';
+		DECLARE rOutBodyRef  REFERENCE TO OutputRoot.XMLNSC.CheckUserEligibilityRq.Body;
+		
+		SET rOutHeaderRef.ServiceCode = loadedPropertiesRef.CheckUserServiceCode; 
+		SET rOutHeaderRef.ChannelId   = loadedPropertiesRef.ChannelId; 
+		-- CheckUser prepare body
+	  	SET rOutBodyRef.UserId = InHeaderRef.UserInfo.UserId;
+		SET rOutBodyRef.IdNo   = InHeaderRef.UserInfo.IDNumber;
+	    SET rOutBodyRef.LaborOfficeId  = Environment.Variables.DB.Search_TerminateContract.LaborOfficeId;   
+		SET rOutBodyRef.EstablishmentSequence =Environment.Variables.DB.Search_TerminateContract.EstablishmentSequence; 
+		SET rOutBodyRef.ServiceId = loadedPropertiesRef.CheckUserServiceId;
+		SET Environment.InternalServiceCaller.callCorrIDOffset = '20'; 
+		RETURN TRUE; 
+	END;
+	
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
