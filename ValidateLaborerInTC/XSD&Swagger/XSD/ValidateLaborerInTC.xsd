@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://Qiwa/TerminateContract/ValidateLaborerInTC/v1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/TerminateContract/ValidateLaborerInTC/v1.0" xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:Q1="http://Qiwa/Common/Types">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+ 
+	<xsd:element name="ValidateLaborerInTCRq" type="bons0:ValidateLaborerInTCRq_Type"/> 
+	<xsd:element name="ValidateLaborerInTCRs" type="bons0:ValidateLaborerInTCRs_Type"/>
+	
+	<complexType name="ValidateLaborerInTCRq_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/> 
+			<xsd:element name="Body" type="bons0:ValidateLaborerInTCRq_BodyType"/> 
+		</sequence>
+	</complexType>
+	
+	<complexType name="ValidateLaborerInTCRs_Type">
+		<sequence>
+			<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+			<xsd:element name="Body" type="bons0:ValidateLaborerInTCRs_BodyType"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="ValidateLaborerInTCRq_BodyType">
+		<all>
+			<element minOccurs="1" name="LaborOfficeId" type="integer"/>
+			<element minOccurs="1" name="SequenceNumber" type="integer"/>
+			<element minOccurs="1" name="LaborerIdNo " type="integer"/>
+			<element name="LaborerTypeId" minOccurs="1" type="bons0:Integer_1_2"/>
+            <element name="RequesterTypeId" minOccurs="1" type="bons0:Integer_1_2"/>
+		</all>  
+	</complexType>
+
+	<complexType name="ValidateLaborerInTCRs_BodyType">
+		<all>
+			<element minOccurs="0" name="ErrorsList"
+				type="bons0:ErrorsList_Type" />
+			<element minOccurs="0" name="EstablishmentName"
+				type="string" />
+			<element minOccurs="1" name="ContractExpiryDate"
+				type="Q1:Dt_Type" />
+			<element minOccurs="1" name="ContractId" type="integer" />
+			<element minOccurs="0" name="LaborerName" type="string" />
+			<element minOccurs="0" name="JobCode" type="string" />
+			<element minOccurs="1" name="NoticePeriod" type="integer" />
+			<element minOccurs="1" name="HasNoContract" type="boolean" />
+			<element minOccurs="1" name="HasQiwaActiveContract"
+				type="boolean" />
+			<element minOccurs="1" name="ProbationPeriod "
+				type="integer" />
+			<xsd:element name="ProbationTerminationRight" type="xsd:integer" minOccurs="1"></xsd:element>
+            <element minOccurs="1" name="ContractStartDate"
+				type="Q1:Dt_Type" />
+		</all>
+	</complexType>		
+			<complexType name="ErrorsList_Type" >
+				<sequence>
+					<element minOccurs="1" maxOccurs="unbounded" name="Error" type="bons0:Error_Type"/>
+				</sequence>
+			</complexType>
+			
+			<complexType name="Error_Type" >
+				<all>
+					<element minOccurs="1" name="ErrorCode" type="integer"/>
+					<element minOccurs="1" name="DescriptionAr" type="string"/>
+					<element minOccurs="1" name="DescriptionEn" type="string"/>         
+				</all>
+			</complexType>	
+		
+
+			<xsd:simpleType name="Integer_1_2">
+				<xsd:restriction base="xsd:integer">
+					<xsd:enumeration value="1"></xsd:enumeration>
+					<xsd:enumeration value="2"></xsd:enumeration>
+				</xsd:restriction>
+			</xsd:simpleType>
+</xsd:schema>

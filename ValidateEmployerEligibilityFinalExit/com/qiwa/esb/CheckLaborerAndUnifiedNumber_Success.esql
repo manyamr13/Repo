@@ -1,0 +1,14 @@
+BROKER SCHEMA com.qiwa.esb
+path Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE CheckLaborerAndUnifiedNumber_Success
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+		BEGIN
+		IF  Root.XMLNSC.CheckLaborerAndUnifiedNumberRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			Return True; 
+	    ELSE
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.CheckLaborerAndUnifiedNumberRs.Header.ResponseStatus.Code; 
+			RETURN FALSE;
+		END IF;
+	END;
+END MODULE;

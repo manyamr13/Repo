@@ -1,0 +1,57 @@
+BROKER SCHEMA com.qiwa.esb.ValidateEmployeeEligibilityReentry
+Path Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE CheckLabAndUniNum_Success
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- refe body header properties
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ValidateEmployeeEligibilityReentry.ValidateEmployeeEligibilityReentryFlow;
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		DECLARE InHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+		DECLARE InBodyRef REFERENCE TO Environment.Variables.Request.Body;
+		-- create header and body 
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs NAME 'Header';
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs NAME 'Body';
+		DECLARE OutBodyRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs.Body; 
+		-- if success return true
+		DECLARE result CHARACTER COALESCE(InputRoot.XMLNSC.sql.(XMLNSC.Attribute)result,'');
+		IF result = 'success' THEN
+			IF (InputRoot.XMLNSC.sql.row[1].column[1].value = 0 AND InputRoot.XMLNSC.sql.row[1].column[2].value = 0) OR
+				(InputRoot.XMLNSC.sql.row[1].column[1].value = 0 AND InputRoot.XMLNSC.sql.row[1].column[2].value = 1) THEN 
+             	CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.C1003,InHeaderRef,OutHeaderRef);
+             	SET OutBodyRef.ContractExpiryDate VALUE = NULL;
+				propagate to terminal 'out1' delete none;
+				RETURN FALSE;
+			ELSEIF (InputRoot.XMLNSC.sql.row[1].column[1].value = 1 AND InputRoot.XMLNSC.sql.row[1].column[2].value = 0) THEN
+            	CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.C1004,InHeaderRef,OutHeaderRef);
+             	SET OutBodyRef.ContractExpiryDate VALUE = NULL;
+				propagate to terminal 'out1' delete none;
+				RETURN FALSE;
+			END IF; 
+			RETURN TRUE;	
+		ELSE 
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.TechnicalError,InHeaderRef,OutHeaderRef);
+			propagate to terminal 'out1' delete none;
+			RETURN FALSE;
+		END IF;			
+	END;
+
+	
+END MODULE;
+
+
+
+
+
+
+		
+		
+
+		
+		
+			
+		
+		

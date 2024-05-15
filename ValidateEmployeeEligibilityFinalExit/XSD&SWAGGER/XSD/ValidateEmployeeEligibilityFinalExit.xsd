@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://Qiwa/TerminateContract/ValidateEmployeeEligibilityFinalExit/v1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:Q1="http://Qiwa/Common/Types" xmlns:bons1="http://Qiwa/TerminateContract/ValidateEmployeeEligibilityFinalExit/v1.0">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<xsd:element name="ValidateEmployeeEligibilityFinalExitRq" type="bons1:ValidateEmployeeEligibilityFinalExitRq_Type"/>
+	<xsd:element name="ValidateEmployeeEligibilityFinalExitRs" type="bons1:ValidateEmployeeEligibilityFinalExitRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="ValidateEmployeeEligibilityFinalExitRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="Q1:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons1:ValidateEmployeeEligibilityFinalExitRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="ValidateEmployeeEligibilityFinalExitRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="Q1:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="1" name="Body" type="bons1:ValidateEmployeeEligibilityFinalExitRs_BodyType"/> 
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="ValidateEmployeeEligibilityFinalExitRq_BodyType">
+		<all>
+			<xsd:element name="IDNumber" type="xsd:string" minOccurs="1"></xsd:element>
+			<xsd:element name="NationalUnifiedNumber" type="xsd:string" minOccurs="1"></xsd:element>
+		</all>
+	</complexType>
+	
+	
+	
+	
+	
+	<complexType name="ValidateEmployeeEligibilityFinalExitRs_BodyType">
+        <xsd:sequence>
+        	<xsd:element name="ContractExpiryDate" type="xsd:date" minOccurs="1" />
+		</xsd:sequence>
+	</complexType>
+
+
+
+	
+</xsd:schema>

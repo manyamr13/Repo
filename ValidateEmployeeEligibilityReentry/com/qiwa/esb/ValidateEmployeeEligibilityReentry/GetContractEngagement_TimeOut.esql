@@ -1,0 +1,12 @@
+BROKER SCHEMA com.qiwa.esb.ValidateEmployeeEligibilityReentry
+
+
+CREATE FILTER MODULE GetContractEngagement_TimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ValidateEmployeeEligibilityReentry.ValidateEmployeeEligibilityReentryFlow.Variables;
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.TechnicalError;
+		RETURN TRUE;
+	END;
+
+END MODULE;
