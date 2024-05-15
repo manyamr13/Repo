@@ -1,0 +1,55 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+
+
+CREATE COMPUTE MODULE ValidateLaborerInTC_Rq
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--CALL CopyMessageHeaders();
+		-- ref to properties, Header and Body
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer.Variables;
+		DECLARE InBodyRef REFERENCE TO Environment.Variables.Request.Body;
+		DECLARE InHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+	 
+		--save Header to output 
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD 	  = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 	  = Environment.Variables.MQRFH2;
+   		
+   		-- 	Prepare Request for ValidateLaborerInTC Service
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		SET OutputRoot.XMLNSC.ValidateLaborerInTCRq.Header = InHeaderRef;
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.ValidateLaborerInTCRq.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateLaborerInTCRq NAME 'Body';
+		DECLARE rOutBodyRef  REFERENCE TO OutputRoot.XMLNSC.ValidateLaborerInTCRq.Body;
+		
+		SET rOutHeaderRef.ServiceCode = loadedPropertiesRef.ValidateLaborerServiceCode; 
+		SET rOutHeaderRef.ChannelId = loadedPropertiesRef.ChannelId; 
+		
+		-- Prepare body for ValidateLaborerInTC
+	  	SET rOutBodyRef.LaborOfficeId = InBodyRef.LaborOfficeId;
+		SET rOutBodyRef.SequenceNumber = InBodyRef.SequenceNumber;
+	    SET rOutBodyRef.LaborerIdNo  = InBodyRef.LaborerIdNo;   
+		SET rOutBodyRef.RequesterTypeId =1; 
+		SET rOutBodyRef.LaborerTypeId = CAST(Environment.Variables.LaborerTypeId AS INT);
+
+   		SET Environment.InternalServiceCaller.callCorrIDOffset = '20';
+        SET OutputLocalEnvironment.Destination.HTTP.RequestURL = loadedPropertiesRef.ValidateTC_Url;
+        -- Call ValidateLaborerInTC Service
+		RETURN TRUE; 
+		
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

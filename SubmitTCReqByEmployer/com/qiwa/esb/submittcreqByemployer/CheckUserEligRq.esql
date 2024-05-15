@@ -1,0 +1,83 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+PATH Qiwa.Framework.Lib;
+ 
+CREATE COMPUTE MODULE CheckUserEligRq
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+
+		IF EXISTS(Environment.Properties.SubmitTCReqByEmployer.HTTP_INT_SubmitTCReqByEmployer[]) THEN
+			SET Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer =
+			Environment.Properties.SubmitTCReqByEmployer.HTTP_INT_SubmitTCReqByEmployer;
+			DELETE FIELD Environment.Properties.SubmitTCReqByEmployer.HTTP_INT_SubmitTCReqByEmployer;
+		END IF;
+
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer.Variables;
+		-- save the input message and headers
+		SET Environment.Variables.Properties = InputRoot.Properties;
+		SET Environment.Variables.MQMD = InputRoot.MQMD;
+		SET Environment.Variables.MQRFH2 = InputRoot.MQRFH2;
+		--SET Environment.Variables.XMLNSC = InputRoot.XMLNSC;
+		SET Environment.Variables.Request = InputRoot.XMLNSC.SubmitTCReqByEmployerRq;
+
+		DECLARE TCFiles CHAR;
+		DECLARE EV REFERENCE TO Environment.Variables;
+		DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.SubmitTCReqByEmployerRq.Header;
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.SubmitTCReqByEmployerRq.Body;	    
+		
+		-- If the IdNumber is null in the header then return error E0000217 and exit the flow.
+		IF NOT EXISTS(rInHeaderRef.UserInfo.IDNumber[]) OR rInHeaderRef.UserInfo.IDNumber IS NULL OR (rInHeaderRef.UserInfo.IDNumber= '')THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.IdNumberNotFound; --E0000217
+			PROPAGATE TO LABEL 'LabelError';
+			RETURN FALSE;
+		--if LaborerIdNo starts with 1 (Saudi), But LaborerBirthDate not present then return error E0001554 and exit the flow.
+		ELSEIf STARTSWITH(rInBodyRef.LaborerIdNo, '1') AND (NOT EXISTS(rInBodyRef.LaborerBirthDate[]) OR rInBodyRef.LaborerBirthDate IS NULL OR rInBodyRef.LaborerBirthDate = '')THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingParam; -- E0001554
+			PROPAGATE TO LABEL 'LabelError';
+			RETURN FALSE;		
+		ELSE
+			SET TCFiles = CAST(rInBodyRef.TCFiles.TCFilesItem[1].TCFileId AS CHAR);
+			DECLARE rTCFiles REFERENCE TO rInBodyRef.TCFiles.TCFilesItem[2];
+			WHILE LASTMOVE(rTCFiles) DO
+				SET TCFiles = TCFiles || ',' || CAST(rTCFiles.TCFileId AS CHAR);
+				MOVE rTCFiles NEXTSIBLING REPEAT NAME;
+			END WHILE;
+			SET Environment.Variables.logicVariable.TCFiles = TCFiles;
+		END IF;
+		
+		--IF THE IDNumber STARTS WITH 1 SET THE LaborerTypeId EQUAL 1 ELSE SET LaborerTypeId EQUAL 2
+		IF STARTSWITH(rInBodyRef.LaborerIdNo, '1') THEN
+			SET Environment.Variables.LaborerTypeId = 1;
+		ELSEIF STARTSWITH(rInBodyRef.LaborerIdNo, '2') THEN
+			SET Environment.Variables.LaborerTypeId = 2;
+		END IF;		
+		
+		-- Prepare Request for CheckUserEligibility Service
+
+		-- Save Output Properties
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+
+		-- Create Header and Body
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		SET OutputRoot.XMLNSC.CheckUserEligibilityRq.Header = rInHeaderRef;
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEligibilityRq.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.CheckUserEligibilityRq NAME 'Body';
+		DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEligibilityRq.Body;
+		SET rOutHeaderRef.ServiceCode = loadedPropertiesRef.CheckUserServiceCode;
+		SET rOutHeaderRef.ChannelId = loadedPropertiesRef.ChannelId;
+		-- Assign The Fields
+		SET rOutBodyRef.IdNo = rInHeaderRef.UserInfo.IDNumber;
+		SET rOutBodyRef.LaborOfficeId = rInBodyRef.LaborOfficeId;
+		SET rOutBodyRef.EstablishmentSequence = rInBodyRef.SequenceNumber;
+		SET rOutBodyRef.ServiceId = loadedPropertiesRef.CheckUserServiceId;
+		SET Environment.InternalServiceCaller.callCorrIDOffset = '20';
+		-- Call CheckUserEligibility
+		RETURN TRUE;
+
+	END;
+END MODULE;
