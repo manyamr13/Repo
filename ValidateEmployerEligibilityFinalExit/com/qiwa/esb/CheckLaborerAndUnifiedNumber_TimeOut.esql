@@ -1,0 +1,12 @@
+BROKER SCHEMA com.qiwa.esb
+
+
+CREATE FILTER MODULE CheckLaborerAndUnifiedNumber_TimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ValidateEmployerEligibilityFinalExit.ValidateEmployerEligibilityFinalExitFlow.Variables; 
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.TechnicalError;
+		RETURN TRUE;
+	END;
+
+END MODULE;
