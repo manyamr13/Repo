@@ -1,0 +1,10 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+
+
+CREATE FILTER MODULE HTTP_SubmitTCReqByEmployer_Filter
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN TRUE;
+	END;
+
+END MODULE;

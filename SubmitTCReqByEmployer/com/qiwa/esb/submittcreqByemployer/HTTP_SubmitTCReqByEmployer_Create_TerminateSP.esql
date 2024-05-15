@@ -1,0 +1,193 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+path Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE HTTP_SubmitTCReqByEmployer_Create_TerminateSP
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		CALL CopyMessageHeaders() ;
+		-- save headers
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD ;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2 ;
+		
+		
+		DECLARE InbodyRef REFERENCE TO Environment.Variables.Request.Body;
+		DECLARE InHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+		
+		
+		DECLARE GetForeignerAllDataRs REFERENCE TO InputRoot.XMLNSC.GetForeignerAllDataRs;
+		
+		
+		--save Header to output
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.SubmitTCReqByEmployerRs NAME 'Header';
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.SubmitTCReqByEmployerRs.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.SubmitTCReqByEmployerRs NAME 'Body';
+		DECLARE OutBodyRef REFERENCE TO OutputRoot.XMLNSC.SubmitTCReqByEmployerRs.Body;
+
+		--DECLARE SubmitTCReqByEmployerRs REFERENCE TO Environment.Variables.SubmitTCReqByEmployerRs;
+		DECLARE RESULTID INT;
+		Declare DirectTerminationReason INT;
+
+--		IF EXISTS(Environment.Properties.SubmitTCReqByEmployerRs.SubmitTCReqByEmployerRs[]) THEN
+--			SET Environment.Properties.SubmitTCReqByEmployerRs.HTTP_INT_SubmitTCReqByEmployerRs =
+--			Environment.Properties.SubmitTCReqByEmployerRs.SubmitTCReqByEmployerRs;
+--			DELETE FIELD Environment.Properties.SubmitTCReqByEmployerRs.SubmitTCReqByEmployerRs;
+--		END IF;
+		
+		
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer.Variables;
+		IF CAST(Environment.Variables.ESB.StatusCode AS INTEGER) = 1 THEN
+			SET DirectTerminationReason = 2;
+			SET RESULTID =  Create_TerminateContractRequest (
+					 				CAST(InbodyRef.LaborOfficeId AS INTEGER),
+									CAST(InbodyRef.SequenceNumber AS INTEGER),
+									CAST(InbodyRef.TCReason AS INTEGER),
+									CAST(DirectTerminationReason AS INTEGER),
+									CAST(Environment.Variables.LaborerTypeId AS INTEGER),
+									COALESCE(Environment.Variables.DB.CheckLaborerActiveContract.EstablishmentName,NULL),-- NULL,
+									COALESCE(CAST(Environment.Variables.DB.CheckLaborerActiveContract.JobCode AS INTEGER),NULL),-- NULL,
+									COALESCE(CAST(Environment.Variables.DB.CheckLaborerActiveContract.ContractId AS INTEGER),NULL),  --NULL,
+									COALESCE(CAST(Environment.Variables.DB.CheckLaborerActiveContract.ContractExpiryDate AS TIMESTAMP),NULL),-- NULL,
+									COALESCE(CAST(Environment.Variables.DB.CheckLaborerActiveContract.ContractStartDate AS TIMESTAMP),NULL),-- NULL,
+									COALESCE(CAST(Environment.Variables.DB.CheckLaborerActiveContract.ProbationPeriod AS INTEGER),NULL),-- NULL,
+									COALESCE(CAST(Environment.Variables.DB.CheckLaborerActiveContract.NoticePeriod AS INTEGER),NULL),-- NULL,
+									COALESCE(CAST(Environment.Variables.DB.CheckLaborerActiveContract.HasNoContract AS INTEGER),NULL),-- NULL,
+									CAST(InbodyRef.LaborerIdNo AS CHARACTER),
+									COALESCE(Environment.Variables.DB.CheckLaborerActiveContract.LaborerName,NULL),-- NULL,
+									CAST(InHeaderRef.UserInfo.IDNumber AS CHARACTER),
+									1,
+									COALESCE(CAST(Environment.Variables.logicVariable.TCFiles AS CHARACTER),NULL),
+									COALESCE(CAST(InHeaderRef.TransactionId AS INTEGER),NULL),
+									Environment.Variables.DB.Resultset[]);
+			                             
+			                                  
+ 			if RESULTID = 0 then  
+		    	SET OutBodyRef.TCRequestId  =	Environment.Variables.DB.Resultset[1].TCRequestId; 		     
+				CALL Create_esbXML_Response_Header( GetESBSuccessCode(),InHeaderRef, OutHeaderRef); 
+			ELSE 
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.FailedToCreateTerminateContractRequest,InHeaderRef,OutHeaderRef);
+				SET OutputRoot.XMLNSC.SubmitTCReqByEmployerRs.Body = NULL;
+			END IF;  
+			RETURN TRUE;
+		ELSEIF CAST(Environment.Variables.ESB.StatusCode AS INTEGER) <> 1 AND CAST(InbodyRef.TCReason AS INTEGER) = CAST(loadedPropertiesRef.TCReason14 AS INTEGER) THEN 
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.EmployeeIsAlive,InHeaderRef,OutHeaderRef);
+			SET OutputRoot.XMLNSC.SubmitTCReqByEmployerRs.Body = NULL;
+			RETURN TRUE;
+		ELSE
+			Propagate to Terminal 'out1' Delete none;
+			Return False ;
+		END IF;
+
+--		IF GetForeignerAllDataRs.Body.Status.PersonStatus.Code= 1 then set DirectTerminationReason = 2;
+--		ELSEIF GetForeignerAllDataRs.Body.AlienPrisonStatus= True then set DirectTerminationReason = 3;
+--		ELSEIF GetForeignerAllDataRs.Body.Status.PersonStatus.Code=4 then set DirectTerminationReason = 4;
+--		ELSE set DirectTerminationReason = NULL;
+--		END IF;            
+--		-- if AlienPrisonStatus= True OR Status.PersonStatus.Code = 1 ‘Dead’ or 4 'LEFT NOT RETURNED' then call Create_TerminateContractRequest only then we will exit the flow
+--		-- else ESB will call “ValidateLaborerInTC ‘VLITC001’ ” ESB service,			
+--		
+--
+--		IF GetForeignerAllDataRs.Body.AlienPrisonStatus= True OR GetForeignerAllDataRs.Body.Status.PersonStatus.Code = 1 OR GetForeignerAllDataRs.Body.Status.PersonStatus.Code = 4 THEN
+----
+----			SET RESULTID = Create_TerminateContractRequest (
+----			CAST(InbodyRef.LaborOfficeId AS INTEGER),
+----			CAST(InbodyRef.SequenceNumber AS INTEGER),
+----			CAST(InbodyRef.TCReason AS INTEGER),
+----			CAST(DirectTerminationReason AS INTEGER),
+----			CAST(Environment.Variables.LaborerTypeId AS INTEGER),
+----			NULL,
+----			NULL,
+----			NULL,
+----			NULL,
+----			NULL,
+----			NULL,
+----			NULL,
+----			NULL,
+----			CAST(InbodyRef.LaborerIdNo AS CHARACTER),
+----			NULL,
+----			CAST(InHeaderRef.UserInfo.IDNumber AS CHARACTER),
+----			1,
+----			COALESCE(CAST(InHeaderRef.TransactionId AS INTEGER),NULL),
+----			Environment.Variables.DB.Resultset[]);
+----			-- Declare LaborerIdNo Integer;
+----			-- set LaborerIdNo = 2437930304;
+----			-- DECLARE RequesterIdNo INT;
+----			-- set RequesterIdNo= 1;
+----			-- SET RESULTID = Create_TerminateContractRequest (
+----			-- 1,
+----			-- 144733,
+----			-- 2,
+----			-- 0,
+----			-- 1,
+----			-- NULL,
+----			-- NULL,
+----			-- NULL,
+----			-- NULL,
+----			-- NULL,
+----			-- NULL,
+----			-- NULL,
+----			-- NULL,
+----			-- NULL,
+----			-- CAST(LaborerIdNo AS CHARACTER),
+----			-- NULL,
+----			-- CAST(RequesterIdNo AS CHARACTER) ,
+----			-- 1,
+----			-- 999999999,
+----			-- Environment.Variables.DB.Resultset[]);
+----			--
+----			if RESULTID = 0 then
+----				SET OutBodyRef.TCRequestId = Environment.Variables.DB.Resultset[1].TCRequestId;
+----				CALL Create_esbXML_Response_Header( GetESBSuccessCode(),InHeaderRef, OutHeaderRef);
+----			ELSE
+----				CALL Create_esbXML_Response_Header(loadedPropertiesRef.FailedToCreateTCRequest,InHeaderRef,OutHeaderRef);
+----			END IF;
+----			RETURN TRUE;
+--
+--
+--		Propagate to Terminal 'out2' Delete none;
+--			Return False;
+--		ELSE
+--			Propagate to Terminal 'out1' Delete none;
+--			Return False;
+--		END IF;
+	END;
+
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	CREATE PROCEDURE Create_TerminateContractRequest  (
+        IN LaborOfficeId     INTEGER,
+		IN SequenceNumber     INTEGER,
+		IN TCReasonId     INTEGER,
+		IN DirectTerminationReasonId     INTEGER,
+		IN LaborerTypeId     INTEGER,
+		IN EstablishmentName     Character,
+		IN JobCode     INTEGER,
+		IN ContractId     INTEGER,
+		IN ContractExpiryDate     TimeStamp,
+		IN ContractStartDate      TimeStamp,
+		IN ProbationPeriod     INTEGER,
+		IN NoticePeriod     INTEGER,
+		IN HasContractOnSystem     INTEGER,
+		IN LaborerIdNo       Character,
+		IN LaborerName       Character,
+		IN RequesterIdNo     Character,
+		IN RequesterTypeId     INTEGER,
+		IN TerminateContractFiles CHARACTER,
+		IN MWTransactionId     INTEGER )
+RETURNS INTEGER LANGUAGE DATABASE DYNAMIC RESULT SETS 1 
+EXTERNAL NAME "dbo.Create_TerminateContractRequest";  
+END MODULE;

@@ -1,0 +1,19 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+
+
+CREATE FILTER MODULE Fault 
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer; 
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.NICFaultErr ;
+  
+		IF  EXISTS(Root.SOAP.Body.*:Fault[]) THEN
+			IF EXISTS(Root.SOAP.Body.*:Fault.*:detail.*:SamisWSFault.*:ErrorCode[]) 
+			   AND Root.SOAP.Body.*:Fault.*:detail.*:SamisWSFault.*:ErrorCode = CAST(loadedPropertiesRef.Variables.NICFunctionalCode AS CHAR) 
+			THEN
+ 			   SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.NICFunctionalErr ; 
+			END IF;
+		END IF; 
+		RETURN TRUE;
+	END;
+END MODULE;

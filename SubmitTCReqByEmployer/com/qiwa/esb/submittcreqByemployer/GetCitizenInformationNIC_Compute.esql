@@ -1,0 +1,81 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+
+
+CREATE COMPUTE MODULE GetCitizenInformationNIC_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	CALL CopyMessageHeaders();
+		-- ref to properties, Header and Body
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer.Variables;
+		DECLARE InBodyRef   REFERENCE TO Environment.Variables.Request.Body;
+		DECLARE InHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+	 	-- Bakr 2022-07-02
+	 	-- CALL Check_LaborerActiveContrac
+	 	DECLARE ResultId INTEGER;
+	 	SET ResultId = Check_LaborerActiveContract(CAST(InBodyRef.LaborOfficeId AS INTEGER),
+											  		CAST(InBodyRef.SequenceNumber AS INTEGER),
+											  		CAST(InBodyRef.LaborerIdNo AS CHARACTER),
+												Environment.Variables.DB.CheckLaborerActiveContract[]);
+		IF ResultId <> 0 THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.NoDataFound;
+			PROPAGATE TO TERMINAL 'out1' DELETE NONE;
+			RETURN FALSE;
+		ELSEIF CAST(Environment.Variables.DB.CheckLaborerActiveContract.HasActiveContracts AS INTEGER) = 0 THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.contractnotactive;
+			PROPAGATE TO TERMINAL 'out1' DELETE NONE;
+			RETURN FALSE;
+		ELSEIF CAST(InBodyRef.TCReason AS INTEGER) = 2 THEN
+			IF Environment.Variables.DB.CheckLaborerActiveContract.ContractExpiryDate IS NULL THEN 
+				SET Environment.Variables.MWResponse.status = loadedPropertiesRef.RenewCtrtExpNullError;
+				PROPAGATE TO TERMINAL 'out1' DELETE NONE;
+				RETURN FALSE;
+			ELSEIF CAST(Environment.Variables.DB.CheckLaborerActiveContract.ContractExpiryDate AS TIMESTAMP) <
+					(CURRENT_TIMESTAMP + CAST(CAST(Environment.Variables.DB.CheckLaborerActiveContract.NoticePeriod AS INTEGER) AS INTERVAL DAY)) THEN
+				SET Environment.Variables.MWResponse.status = loadedPropertiesRef.RenewCtrtExpError;
+				PROPAGATE TO TERMINAL 'out1' DELETE NONE;
+				RETURN FALSE;
+			END IF;
+		END IF;
+		---------- end the update 
+		--save Header to output
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD 	  = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 	  = Environment.Variables.MQRFH2;
+    -- 	prepare call to GetCitizenInformationNICRq 
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		SET OutputRoot.XMLNSC.GetCitizenInformationNICRq.Header = InHeaderRef;
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetCitizenInformationNICRq.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetCitizenInformationNICRq NAME 'Body';
+		DECLARE rOutBodyRef  REFERENCE TO OutputRoot.XMLNSC.GetCitizenInformationNICRq.Body;
+		
+		SET rOutHeaderRef.ServiceCode = loadedPropertiesRef.GetCitizenServiceCode; 
+		SET rOutHeaderRef.ChannelId = loadedPropertiesRef.ChannelId; 
+		-- CheckUser prepare body
+		SET rOutBodyRef.IdNo = InBodyRef.LaborerIdNo;
+	    SET rOutBodyRef.DateOfBirth  =InBodyRef.LaborerBirthDate;   		
+		SET Environment.InternalServiceCaller.callCorrIDOffset = '20';
+		RETURN TRUE; 
+	END;
+ 
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	CREATE PROCEDURE Check_LaborerActiveContract    (IN LaborOfficeId  INTEGER,
+													 IN SequenceNumber INTEGER  ,
+													 IN LaborerIdNumber CHARACTER)
+													RETURNS INTEGER
+
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Check_LaborerActiveContract";
+END MODULE;

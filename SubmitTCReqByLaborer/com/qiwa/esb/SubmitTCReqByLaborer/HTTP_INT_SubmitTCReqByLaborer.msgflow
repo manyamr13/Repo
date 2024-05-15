@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmLabel.msgnode="ComIbmLabel.msgnode" xmlns:Qiwa_Framework_Lib_HTTPResponseAdapter.subflow="Qiwa/Framework/Lib/HTTPResponseAdapter.subflow" xmlns:Qiwa_Framework_Lib_InternalHTTPRequestAdapter.subflow="Qiwa/Framework/Lib/InternalHTTPRequestAdapter.subflow" xmlns:com_qiwa_esb_SubmitTCReqByLaborer_ValidateLaborerInTC.subflow="com/qiwa/esb/SubmitTCReqByLaborer/ValidateLaborerInTC.subflow"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/SubmitTCReqByLaborer/HTTP_INT_SubmitTCReqByLaborer.msgflow" nsPrefix="com_qiwa_esb_SubmitTCReqByLaborer_HTTP_INT_SubmitTCReqByLaborer.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="HTTP_INT_SubmitTCReqByLaborer" bundleName="com/qiwa/esb/SubmitTCReqByLaborer/HTTP_INT_SubmitTCReqByLaborer" pluginId="SubmitTCReqByLaborer"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/SubmitTCReqByLaborer/icons/full/obj16/HTTP_INT_SubmitTCReqByLaborer.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/SubmitTCReqByLaborer/icons/full/obj30/HTTP_INT_SubmitTCReqByLaborer.gif"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_HTTPResponseAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="447,207">
+        <translation xmi:type="utility:ConstantString" string="HTTPResponseAdapter"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_SubmitTCReqByLaborer_ValidateLaborerInTC.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="239,211">
+        <translation xmi:type="utility:ConstantString" string="ValidateLaborerInTC"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="386,311" computeExpression="esql://routine/com.qiwa.esb.SubmitTCReqByLaborer#SetHeader.Main" computeMode="all">
+        <translation xmi:type="utility:ConstantString" string="SetHeader"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="197,311" labelName="LabelError">
+        <translation xmi:type="utility:ConstantString" string="LabelError"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_InternalHTTPRequestAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="44,211" PROPERTIES_ENABLED="true" ServiceURL="/internal/tc/subtcreqbylab" PropertiesGroup="SubmitTCReqByLaborer.HTTP_INT_SubmitTCReqByLaborer" PropertyFilename="${broker.name}/TERMINATE-CONTRACT.xml">
+        <translation xmi:type="utility:ConstantString" string="InternalHTTPRequestAdapter"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Error" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output2" targetTerminalName="InTerminal.Input"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

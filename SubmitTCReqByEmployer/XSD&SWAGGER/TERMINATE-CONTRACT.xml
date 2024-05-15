@@ -1,0 +1,158 @@
+<properties refresh-policy="automatic">
+
+	<group name="SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="ChannelId" value="ESB" />
+			<property name="CheckUserServiceId" value="18" />
+			<property name="One" value="1" />
+			<property name="Two" value="2" />		
+	
+			
+			<property name="CheckUserServiceCode" value="CUE00001" />
+			<property name="ValidateLaborerServiceCode" value="VLITC001" />
+
+			<property name="IdNumberNotFound" value="E0000217" />
+			<property name="MissingParam" value="E0001554" />
+			<property name="NoPrivilege" value="E0000497" />
+
+			<property name="NICFunctionalCode" value="7000" />
+			<property name="NICFaultErr" value="NIC99998" />
+			<property name="NICFunctionalErr" value="E0000374" />
+
+			<property name="ARErrDescPRT1" value=" عفوا، يمكنك اختيار هذا السبب كسبب لإنهاءالعقد فقط قبل" />
+			<property name="ARErrDescPRT2" value=" يوم من تاريخ انتهاء العقد." />
+
+			<property name="ENErrDescPRT1" value="Sorry , you can choose this reason to terminate the contract, only before " />
+			<property name="ENErrDescPRT2" value=" days from the contract expiry date." />
+
+			<property name="Fail" value="E1111111" />
+			<property name="TimeOutError" value="E9999998" />
+			<property name="NICNoDataFound" value="E0000503" />
+			<property name="EmployeeIsAlive" value="E0000851" />
+			<property name="ValidateError" value="E0000022" />
+			<property name="CtrtExpNullError" value="E0000569" />
+			<property name="EXPDateError" value="E0001551" />
+			<property name="RenewCtrtExpError" value="E0000568" />
+			<property name="ProbationError" value="E0000425" />
+			<property name="SPError" value="E0000450" />
+			<property name="AddReleaseDateError" value="E0001553" />
+			<property name="ChkUsrEligTimeOut" value="E0001418" />
+			<property name="ValLabTCTimeOut" value="E0000480" />
+			<property name="NoRightToTerminate" value="E0001268" />
+
+			<property name="AgencyId" value="7001415350" />
+			<property name="AgencyPasspword" value="12345678" />
+			<property name="ClientIpAddress" value="10.240.170.50" />
+			<property name="Lang" value="En" />
+			<property name="LocationId" value="1730" />
+			<property name="OperatorID" value="1010101010" />
+			<property name="ServiceID" value="5" />
+			<property name="SeviceProviderID" value="7000986278" />
+			<property name="CitizenInfoIpAddress" value="10.10.10.10.10" />
+
+			<property name ="ValidateTC_Url" value="http://icp-proxy.qiwa.info:32193/internal/tc/vallaborerintc"/>
+			<property name ="Action" value="urn:MOI.NIC.eServices-V1/IMOL_SERVICE/GetAlienVisitorInfo"/>
+			<property name ="NICURL" value="http://datapower.qiwa.info:9007/SamisWSProd/MOL/Service.svc"/>
+			<property name="SOAPAction" value="urn:MOI.NIC.eServices-V1/IMOL_SERVICE/GetCitizenInfo" />			
+		</group>
+		<group name="SchemaValidation">
+			<property name="ValidationEnabled" value="TRUE" />
+		</group>
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="0" />
+			<property name="maxRetryCount" value="0" />
+		</group>
+	</group>
+
+
+	<group name="SubmitTCReqByEmployer.HTTP_INT_SubmitTCReqByEmployer">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="ChannelId" value="ESB" />
+			<property name="CheckUserServiceId" value="18" />
+			<property name="One" value="1" />
+			<property name="Two" value="2" />		
+	
+			
+			<property name="CheckUserServiceCode" value="CUE00001" />
+			<property name="ValidateLaborerServiceCode" value="VLITC001" />
+
+			<property name="IdNumberNotFound" value="E0000217" />
+			<property name="MissingParam" value="E0001554" />
+			<property name="NoPrivilege" value="E0000497" />
+
+			<property name="NICFunctionalCode" value="7000" />
+			<property name="NICFaultErr" value="NIC99998" />
+			<property name="NICFunctionalErr" value="E0000374" />
+
+			<property name="ARErrDescPRT1" value=" عفوا، يمكنك اختيار هذا السبب كسبب لإنهاءالعقد فقط قبل" />
+			<property name="ARErrDescPRT2" value=" يوم من تاريخ انتهاء العقد." />
+
+			<property name="ENErrDescPRT1" value="Sorry , you can choose this reason to terminate the contract, only before " />
+			<property name="ENErrDescPRT2" value=" days from the contract expiry date." />
+
+			<property name="Fail" value="E1111111" />
+			<property name="TimeOutError" value="E9999998" />
+			<property name="NICNoDataFound" value="E0000503" />
+			<property name="EmployeeIsAlive" value="E0000851" />
+			<property name="ValidateError" value="E0000022" />
+			<property name="CtrtExpNullError" value="E0000569" />
+			<property name="EXPDateError" value="E0001551" />
+			<property name="RenewCtrtExpError" value="E0000568" />
+			<property name="ProbationError" value="E0000425" />
+			<property name="SPError" value="E0000450" />
+			<property name="AddReleaseDateError" value="E0001553" />
+			<property name="ChkUsrEligTimeOut" value="E0001418" />
+			<property name="ValLabTCTimeOut" value="E0000480" />
+			<property name="NoRightToTerminate" value="E0001268" />
+
+			<property name="AgencyId" value="7001415350" />
+			<property name="AgencyPasspword" value="12345678" />
+			<property name="ClientIpAddress" value="10.240.170.50" />
+			<property name="Lang" value="En" />
+			<property name="LocationId" value="1730" />
+			<property name="OperatorID" value="1010101010" />
+			<property name="ServiceID" value="5" />
+			<property name="SeviceProviderID" value="7000986278" />
+			<property name="CitizenInfoIpAddress" value="10.10.10.10.10" />
+
+			<property name ="ValidateTC_Url" value="http://icp-proxy.qiwa.info:32193/internal/tc/vallaborerintc"/>
+			<property name ="Action" value="urn:MOI.NIC.eServices-V1/IMOL_SERVICE/GetAlienVisitorInfo"/>
+			<property name ="NICURL" value="http://datapower.qiwa.info:9007/SamisWSProd/MOL/Service.svc"/>
+			<property name="SOAPAction" value="urn:MOI.NIC.eServices-V1/IMOL_SERVICE/GetCitizenInfo" />			
+		
+		</group>
+		<group name="SchemaValidation">
+			<property name="ValidationEnabled" value="TRUE" />
+		</group>
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="0" />
+			<property name="maxRetryCount" value="0" />
+		</group>
+	</group>
+</properties>	

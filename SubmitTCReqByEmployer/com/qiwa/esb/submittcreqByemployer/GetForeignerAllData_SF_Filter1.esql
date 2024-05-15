@@ -1,0 +1,13 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+path Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE GetForeignerAllData_SF_Filter1
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	
+	BEGIN
+	DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer.Variables;
+	SET Environment.Variables.MWResponse.status = loadedPropertiesRef.TimeOutError;
+	RETURN TRUE;
+	END; 
+END MODULE;
+ 

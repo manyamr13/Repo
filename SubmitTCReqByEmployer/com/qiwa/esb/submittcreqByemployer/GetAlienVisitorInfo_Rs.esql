@@ -1,0 +1,31 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE GetAlienVisitorInfo_Rs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--DECLARE InHeaderRef REFERENCE TO Root.XMLNSC.GetAlienVisitorInfoRs.Header;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer.Variables;
+		DECLARE serviceResponseMsg  REFERENCE TO Root.SOAP ; 
+		
+		IF NOT EXISTS (serviceResponseMsg.Body.*:GetAlienVisitorInfoResponse.*:GetAlienVisitorInfoResult[]) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.NICNoDataFound ;
+			RETURN FALSE;
+		END IF;
+		
+		DECLARE serviceResult REFERENCE TO serviceResponseMsg.Body.*:GetAlienVisitorInfoResponse.*:GetAlienVisitorInfoResult;		 
+		SET Environment.ConsumedServices.GetAlienVisitorInfoRes.StatusCode = serviceResult.*:StatusCode;
+		
+		IF CAST(Environment.ConsumedServices.GetAlienVisitorInfoRes.StatusCode AS INT) <> 1 THEN
+	 		-- If StatusCode <> 1 ‘Dead’ and TCReason = 14 then return error E0000851 and exit the flow
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.EmployeeIsAlive; 	--E0000851
+			RETURN FALSE;
+		ELSE
+			-- Proceed for SP Call Create_TerminateContractRequest
+			SET Environment.LogicVariable.CallSP = TRUE;
+	 		RETURN TRUE;
+	 	END IF;
+	
+	END;
+END MODULE;

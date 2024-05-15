@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<properties refresh-policy="automatic">
+
+
+	<group name="SubmitTCReqByLaborer.HTTP_SubmitTCReqByLaborer">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="ServiceCode" value="VLITC001" />
+			<property name="ChannelId" value="ESB" />
+			
+			<property name="ARErrDescPRT1" value=" عفوا، يمكنك اختيار هذا السبب كسبب لإنهاءالعقد فقط قبل" />
+			<property name="ARErrDescPRT2" value=" يوم من تاريخ انتهاء العقد." />
+			<property name="ENErrDescPRT1" value="Sorry , you can choose this reason to terminate the contract, only before " />
+			<property name="ENErrDescPRT2" value=" days from the contract expiry date." />
+
+			<property name="MissingIdNumber" value="E0000217" />
+			<property name="ProbationError" value="E0000425" />
+			<property name="RenewCtrtExpError" value="E0000568" />
+			<property name="CtrtExpNullError" value="E0000569" />
+			<property name="ValidateError" value="E0000022" />
+			<property name="EXPDateError" value="E0001551" />
+			<property name="SPError" value="E0000498" />
+			<property name="AddReleaseDateError" value="E0001553" />
+			<property name="ValLabTCError" value="E0000480" />
+			<property name="NoRightToTerminate" value="E0001268" />
+
+			<property name="HTTPurl" value="http://icp-proxy.qiwa.info:32193/internal/tc/vallaborerintc" />
+		</group>
+
+		<group name="SchemaValidation">
+			<property name="ValidationEnabled" value="TRUE" />
+		</group>
+
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="0" />
+			<property name="maxRetryCount" value="0" />
+		</group>
+	</group>
+
+	<group name="SubmitTCReqByLaborer.HTTP_INT_SubmitTCReqByLaborer">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="ServiceCode" value="VLITC001" />
+			<property name="ChannelId" value="ESB" />
+			
+			<property name="ARErrDescPRT1" value=" عفوا، يمكنك اختيار هذا السبب كسبب لإنهاءالعقد فقط قبل" />
+			<property name="ARErrDescPRT2" value=" يوم من تاريخ انتهاء العقد." />
+			<property name="ENErrDescPRT1" value="Sorry , you can choose this reason to terminate the contract, only before " />
+			<property name="ENErrDescPRT2" value=" days from the contract expiry date." />
+
+			<property name="MissingIdNumber" value="E0000217" />
+			<property name="ProbationError" value="E0000425" />
+			<property name="RenewCtrtExpError" value="E0000568" />
+			<property name="CtrtExpNullError" value="E0000569" />
+			<property name="ValidateError" value="E0000022" />
+			<property name="EXPDateError" value="E0001551" />
+			<property name="SPError" value="E0000498" />
+			<property name="AddReleaseDateError" value="E0001553" />
+			<property name="ValLabTCError" value="E0000480" />
+			<property name="NoRightToTerminate" value="E0001268" />
+
+			<property name="HTTPurl" value="http://icp-proxy.qiwa.info:32193/internal/tc/vallaborerintc" />
+		</group>
+
+		<group name="SchemaValidation">
+			<property name="ValidationEnabled" value="TRUE" />
+		</group>
+
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="0" />
+			<property name="maxRetryCount" value="0" />
+		</group>
+	</group>
+
+</properties>
+	

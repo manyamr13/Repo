@@ -1,0 +1,47 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE HTTP_SubmitTCReqByEmployer_ValidateIDNo
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		-- CALL CopyMessageHeaders();
+		IF EXISTS(Environment.Properties.SubmitTCReqByEmployer.INT_HTTP_SubmitTCReqByEmployer[]) THEN
+			SET Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer =
+			Environment.Properties.SubmitTCReqByEmployer.INT_HTTP_SubmitTCReqByEmployer;
+			DELETE FIELD Environment.Properties.SubmitTCReqByEmployer.INT_HTTP_SubmitTCReqByEmployer;
+		END IF;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer.Variables;
+		-- save the input message and headers
+		SET Environment.Variables.Properties = Root.Properties;
+		SET Environment.Variables.MQMD = Root.MQMD;
+		SET Environment.Variables.MQRFH2 = Root.MQRFH2;
+		SET Environment.Variables.XMLNSC = Root.XMLNSC;
+		SET Environment.Variables.Request = Root.XMLNSC.SubmitTCReqByEmployerRq;
+		
+		DECLARE TCFiles CHAR;
+	    
+		-- Header.UserInfo.IDNumber is null , return E0000059 ID number is not found
+		IF Root.XMLNSC.SubmitTCReqByEmployerRq.Header.UserInfo.IDNumber IS NULL THEN
+			--Send Error code to Set Headers
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.IdNumberNotFound;
+			RETURN FALSE;
+		ELSEIf STARTSWITH(Root.XMLNSC.SubmitTCReqByEmployerRq.Body.LaborerIdNo, '1') and Root.XMLNSC.SubmitTCReqByEmployerRq.Body.LaborerBirthDate is NULL  THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingParam;
+			RETURN FALSE;
+		ELSE
+			SET TCFiles = CAST(Root.XMLNSC.SubmitTCReqByEmployerRq.Body.TCFiles.TCFilesItem[1].TCFileId AS CHAR); 
+	        DECLARE rTCFiles REFERENCE TO  Root.XMLNSC.SubmitTCReqByEmployerRq.Body.TCFiles.TCFilesItem[2];                        
+	        WHILE LASTMOVE(rTCFiles) DO 
+	            SET TCFiles = TCFiles || ',' || CAST(rTCFiles.TCFileId AS CHAR); 
+	        MOVE rTCFiles NEXTSIBLING REPEAT NAME;
+	        END WHILE;
+			SET Environment.Variables.logicVariable.TCFiles = TCFiles;
+			RETURN TRUE;
+		END IF;
+
+	END;
+
+END MODULE;

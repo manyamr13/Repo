@@ -1,0 +1,20 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+path Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE MLSD_GetLaborerInformation_Success
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer.Variables;
+	   
+       IF Root.XMLNSC.GetLaborerInformationMLSDRs.Header.ResponseStatus.Code=GetESBSuccessCode()  THEN   
+            SET Environment.Variables.GetLaborerInformationMLSDResponse = Root.XMLNSC.GetLaborerInformationMLSDRs.Body; 	
+    		 RETURN TRUE;  
+		ELSE 
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetLaborerInformationMLSDRs.Header.ResponseStatus.Code;
+		 RETURN False; 
+       END IF;
+		
+		
+	END;
+
+END MODULE;

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:Qiwa_Framework_Lib_InternalServiceCaller.subflow="Qiwa/Framework/Lib/InternalServiceCaller.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/submittcreqByemployer/MLSD_GetLaborerInformation.subflow" nsPrefix="com_qiwa_esb_submittcreqByemployer_MLSD_GetLaborerInformation.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="MLSD_GetLaborerInformation" bundleName="com/qiwa/esb/submittcreqByemployer/MLSD_GetLaborerInformation" pluginId="SubmitTCReqByEmployer"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/SubmitTCReqByEmployer/icons/full/obj16/MLSD_GetLaborerInformation.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/SubmitTCReqByEmployer/icons/full/obj30/MLSD_GetLaborerInformation.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="149,246">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="com/qiwa/esb/submittcreqByemployer/MLSD_GetLaborerInformation" pluginId="SubmitTCReqByEmployer"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="839,169">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Output" bundleName="com/qiwa/esb/submittcreqByemployer/MLSD_GetLaborerInformation" pluginId="SubmitTCReqByEmployer"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="340,243" computeExpression="esql://routine/com.qiwa.esb.submittcreqByemployer#MLSD_GetLaborerInformation_MLSDprepareRq.Main">
+        <translation xmi:type="utility:ConstantString" string="MLSDprepareRq"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_InternalServiceCaller.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="473,185">
+        <translation xmi:type="utility:ConstantString" string="InternalServiceCaller"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="627,130" filterExpression="esql://routine/com.qiwa.esb.submittcreqByemployer#MLSD_GetLaborerInformation_Success.Main">
+        <translation xmi:type="utility:ConstantString" string="Success"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="620,305" filterExpression="esql://routine/com.qiwa.esb.submittcreqByemployer#MLSD_GetLaborerInformation_Timeout.Main">
+        <translation xmi:type="utility:ConstantString" string="Timeout"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output1" location="798,326">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.Error" bundleName="com/qiwa/esb/submittcreqByemployer/MLSD_GetLaborerInformation" pluginId="SubmitTCReqByEmployer"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="OutTerminal.Output1" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="OutTerminal.Output1" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_1" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

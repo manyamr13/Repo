@@ -1,0 +1,177 @@
+
+
+
+
+BROKER SCHEMA com.qiwa.esb.submittccancelationbyemployer
+PATH Qiwa.Framework.Lib;
+
+
+CREATE COMPUTE MODULE HTTP_INT_SubmitTCCancelationByEmployer_Preparing
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+
+		IF EXISTS(Environment.Properties.SubmitTCCancelationByEmployer.HTTP_INT_SubmitTCCancelationByEmployer[]) THEN
+			SET Environment.Properties.SubmitTCCancelationByEmployer.HTTP_SubmitTCCancelationByEmployer =
+			Environment.Properties.SubmitTCCancelationByEmployer.HTTP_INT_SubmitTCCancelationByEmployer;
+			DELETE FIELD Environment.Properties.SubmitTCCancelationByEmployer.HTTP_INT_SubmitTCCancelationByEmployer;
+		END IF;
+
+		SET Environment.Variables.Properties = InputRoot.Properties;
+		SET Environment.Variables.MQMD = InputRoot.MQMD;
+		SET Environment.Variables.MQRFH2 = InputRoot.MQRFH2;
+
+		DECLARE XMLVAR REFERENCE TO Environment.Properties.SubmitTCCancelationByEmployer.HTTP_SubmitTCCancelationByEmployer.Variables;
+		DECLARE StatusIds CHAR '1';
+
+
+
+		DECLARE rInputHeader REFERENCE TO InputRoot.XMLNSC.SubmitTCCancelationByEmployerRq.Header;
+		DECLARE rInputBody REFERENCE TO InputRoot.XMLNSC.SubmitTCCancelationByEmployerRq.Body;
+
+
+
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.SubmitTCCancelationByEmployerRs NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.SubmitTCCancelationByEmployerRs NAME 'Body';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.SubmitTCCancelationByEmployerRs.Header;
+		DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.SubmitTCCancelationByEmployerRs.Body;
+
+		SET rOutHeaderRef = rInputHeader;
+
+
+		SET Environment.Variables.Header = rInputHeader;
+		SET Environment.Variables.Body = rInputBody;
+
+
+		DECLARE RequesterIdNo CHAR rInputHeader.UserInfo.IDNumber;
+		--***************************************************************************************************************************
+		IF RequesterIdNo IS NULL THEN
+			CALL Create_esbXML_Response_Header( XMLVAR.IdNoMissing,rInputHeader, rOutHeaderRef);
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		END IF;		
+
+
+
+		DECLARE Search_Result INT;
+		DECLARE TotalRecordsCount INT;
+		DECLARE TCRequestId INT rInputBody.TCRequestId;
+		DECLARE Result INT;
+		-- SET TCRequestId = rInputBody.TCRequestId;
+		SET Environment.Variables.TCRequestId = TCRequestId;
+		--DECLARE RequesterIdNo INT rInputHeader.UserInfo.IDNumber;
+
+		
+		CALL Search_TerminateContractRequests  (NULL,
+												NULL,
+												TCRequestId,
+												RequesterIdNo,
+												NULL,
+												NULL,
+												NULL,
+												NULL,
+												NULL,
+												NULL,
+												NULL,
+												NULL,
+												NULL,
+												NULL,
+												1,
+												1,
+												TotalRecordsCount,
+												Environment.Variables.DB.result[])INTO Search_Result;
+
+		--SET Result = CARDINALITY(Environment.Variables.DB.result[]);
+
+		DECLARE LaborOfficeId INT;
+		DECLARE SequenceNumber INT;
+		DECLARE CancelationRequestStatusId INT;
+		DECLARE CancelationRequestStatus INT;
+		DECLARE LaborerIdNo INT;
+
+
+		SET LaborOfficeId = Environment.Variables.DB.result.LaborOfficeId;
+		SET SequenceNumber = Environment.Variables.DB.result.SequenceNumber;
+		SET CancelationRequestStatusId = Environment.Variables.DB.result.CancelationRequestStatusId;
+		SET LaborerIdNo = Environment.Variables.DB.result.LaborerIdNo;
+
+		SET Environment.Variables.LaborOfficeId = LaborOfficeId;
+		SET Environment.Variables.SequenceNumber = SequenceNumber;
+		SET Environment.Variables.CancelationRequestStatusId = CancelationRequestStatusId; --CancelationRequestStatus
+		SET Environment.Variables.LaborerIdNo = LaborerIdNo;
+
+
+
+
+		IF NOT EXISTS(Environment.Variables.DB.result[]) THEN -- Result = 0 // Search_Result IS NULL
+
+
+			CALL Create_esbXML_Response_Header( XMLVAR.invalidTCRequestId,rInputHeader, rOutHeaderRef);
+			-- SET rOutBodyRef.CancelationRequestStatusId =CancelationRequestStatusId;
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+
+			/* ELSEIF Environment.Variables.DB.result.LaborerIdNo = RequesterIdNo THEN
+			CALL Create_esbXML_Response_Header( XMLVAR.Privilege,rInputHeader, rOutHeaderRef);
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+			*/
+			
+		ELSEIF CAST(Environment.Variables.DB.RequesterTypeId AS INT)  <> 1 THEN
+			CALL Create_esbXML_Response_Header( XMLVAR.invalidRequester,rInputHeader, rOutHeaderRef);
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+
+		ELSEIF CancelationRequestStatusId = 5  THEN
+
+			CALL Create_esbXML_Response_Header( XMLVAR.AlreadyExist,rInputHeader, rOutHeaderRef);
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+			-- ELSE
+			-- PROPAGATE TO TERMINAL 'out';
+			-- RETURN TRUE;
+		END IF;
+
+		RETURN TRUE;
+
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	CREATE PROCEDURE Search_TerminateContractRequests (IN LaborOfficeId INT,
+	IN SequenceNumber INT,
+	IN TCRequestId INT,
+	IN RequesterIdNo CHAR,
+	IN LaborerIdNo CHAR,
+	IN LaborerName CHAR,
+	IN RequesterTypeId INT,
+	IN StatusIds CHAR,
+	IN RDUpdateRequestId CHAR,
+	IN CancelationRequestId INT,
+	IN TCReasonId INT,
+	IN CreationDate CHAR,
+	IN ReleaseDate CHAR,
+	IN RemainingDays INT,
+	IN PageSize INT,
+	IN PageIndex INT,
+	INOUT TotalRecordsCount INT
+	)
+	RETURNS INTEGER LANGUAGE DATABASE DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Search_TerminateContractRequests";
+
+END MODULE;

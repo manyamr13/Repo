@@ -1,0 +1,76 @@
+<properties refresh-policy="automatic">
+
+	<group name="SubmitTCCancelationByEmployer.HTTP_SubmitTCCancelationByEmployer">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables"> 			
+			<property name="ChannelId" value="ESB"/>
+			<property name="IdNoMissing" value="E0000217"/>
+			<property name="invalidTCRequestId" value="E0000409"/>
+			<property name="AlreadyExist" value="E0000410"/>
+			<property name="Privilege" value="E0000418"/>
+			<property name="CHECKService" value="CUE00001"/>
+			<prperty name="LabrorURL" value="http://localhost:7080/internal/tc/subtccanbylab"/><!--FOR CHECK USER -->
+			<property name="NOprev" value="E0000602"/>
+			<!-- 07-09-2023 new 2 error  -->
+			<property name="invalidRequester" value="E0001462"/>
+			<property name="HasCS" value="E0000570" />
+			
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE"/>
+        </group>
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="0" />
+			<property name="maxRetryCount" value="0" />
+		</group>	
+	</group>
+	
+	<group name="SubmitTCCancelationByEmployer.HTTP_INT_SubmitTCCancelationByEmployer">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables"> 			
+			<property name="ChannelId" value="ESB"/>
+			<property name="IdNoMissing" value="E0000217"/>
+			<property name="invalidTCRequestId" value="E0000409"/>
+			<property name="AlreadyExist" value="E0000410"/>
+			<property name="Privilege" value="E0000418"/>
+			<property name="CHECKService" value="CUE00001"/>
+			<prperty name="LabrorURL" value="http://localhost:7080/internal/tc/subtccanbylab"/><!--FOR CHECK USER -->
+			<property name="NOprev" value="E0000602"/>
+			<!-- 07-09-2023 new 2 error  -->
+			<property name="invalidRequester" value="E0001462"/>
+			<property name="HasCS" value="E0000570" />
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE"/>
+        </group>
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="0" />
+			<property name="maxRetryCount" value="0" />
+		</group>	
+	</group>
+	
+</properties>

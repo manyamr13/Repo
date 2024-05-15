@@ -1,0 +1,21 @@
+BROKER SCHEMA com.qiwa.esb.submittccancelationbyemployer
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE CheckUserEligibility_ServiceCaller_IsSuccessCall
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE INxml REFERENCE TO Environment.Properties.SubmitTCCancelationByEmployer.HTTP_SubmitTCCancelationByEmployer.Variables; 
+        
+      IF Root.XMLNSC.CheckUserEligibilityRs.Header.ResponseStatus.Code=GetESBSuccessCode() THEN
+--			SET Environment.Variables.Response = Root.XMLNSC.CheckUserEligibilityRs.Body;
+--			SET Environment.Variables.Response1 = Root.XMLNSC.CheckUserEligibilityRs.Header.ResponseStatus.Code;
+			RETURN TRUE;
+	  ELSE
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.CheckUserEligibilityRs.Header.ResponseStatus.Code;
+RETURN FALSE;
+	  END IF;       
+		
+	END;
+
+END MODULE;
