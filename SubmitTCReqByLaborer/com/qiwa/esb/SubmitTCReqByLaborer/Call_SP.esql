@@ -1,0 +1,263 @@
+BROKER SCHEMA com.qiwa.esb.SubmitTCReqByLaborer
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE Call_SP
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		IF InputRoot.XMLNSC.ValidateLaborerInTCRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			-- Success Received from ValidateLaborerInTC
+			-- DECLARE THE HEADER AND THE BODY OF THE MAIN REQUEST
+			DECLARE rInHeader REFERENCE TO Environment.Variables.Header;
+			DECLARE rInBody REFERENCE TO Environment.Variables.Body;
+			-- DECLEARING REFRENCE TO THE Properties file of SubmitTCReqByLaborerFlow Service
+			DECLARE propertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByLaborer.HTTP_SubmitTCReqByLaborer.Variables;
+			
+			-- DECLARING Reference FROM ValidateLaborerInTC
+			DECLARE ValidateResponse REFERENCE TO InputRoot.XMLNSC.ValidateLaborerInTCRs;
+			DECLARE NoticePeriod INT ValidateResponse.Body.NoticePeriod;
+			DECLARE ProbationPeriod INT ValidateResponse.Body.ProbationPeriod;			
+			
+			-- DECLARE the Variables
+			DECLARE HasContractOnSystem, DirectTerminationReasonId, C_TCR_Result, A_RD_Result INT;
+			-- DECLARE PARAMETER TO STORE THE SUMMATION OF ContractStartDate AND ProbationPeriod
+			DECLARE SUMDATES, SUMDATES2, SUMDATES3, ContractExpiryDate, ContractStartDate DATE ;
+			DECLARE TCReason INT rInBody.TCReason;
+			DECLARE RequesterTypeId INT 2;
+			DECLARE MWTransactionId CHAR CAST(rInHeader.TransactionId AS CHAR);
+			
+			-- Setting value for HasContractOnSystem
+			IF FIELDVALUE(ValidateResponse.Body.HasQiwaActiveContract) = 'True' THEN
+				SET HasContractOnSystem = 1;
+			ELSE
+				SET HasContractOnSystem = 0;
+			END IF;
+									
+			-- Checking and Saving value for ContractStartDate
+			IF EXISTS(ValidateResponse.Body.ContractStartDate[]) AND ((ValidateResponse.Body.ContractStartDate IS NOT NULL) AND (ValidateResponse.Body.ContractStartDate <> '')) THEN
+				IF CONTAINS(ValidateResponse.Body.ContractStartDate,'T') THEN
+					SET ContractStartDate = CAST(CAST(REPLACE(ValidateResponse.Body.ContractStartDate,'T',' ') as TIMESTAMP) AS DATE);
+				ELSE
+					SET ContractStartDate = CAST(ValidateResponse.Body.ContractStartDate AS DATE);
+				END IF;		
+			END IF;	
+			
+			-- Checking and Saving value for ContractExpiryDate
+			IF EXISTS(ValidateResponse.Body.ContractExpiryDate[]) AND ((ValidateResponse.Body.ContractExpiryDate IS NOT NULL) AND (ValidateResponse.Body.ContractExpiryDate <> '')) THEN
+				IF CONTAINS(ValidateResponse.Body.ContractExpiryDate,'T') THEN
+					SET ContractExpiryDate = CAST(CAST(REPLACE(ValidateResponse.Body.ContractExpiryDate,'T',' ') as TIMESTAMP) AS DATE);
+				ELSE
+					SET ContractExpiryDate = CAST(ValidateResponse.Body.ContractExpiryDate AS DATE);
+				END IF;
+			END IF;	
+			
+			-- In case NoticePeriod or ProbationPeriod data is not present
+			IF NoticePeriod IS NULL THEN
+				SET NoticePeriod = 0;
+			END IF;	
+			
+			IF ProbationPeriod IS NULL THEN
+				SET ProbationPeriod = 0 ;
+			END IF;	
+			
+			-- Checking conditions for TCReason = 2
+			IF TCReason = 2 THEN
+				IF EXISTS(ValidateResponse.Body.ContractExpiryDate[]) AND ((ValidateResponse.Body.ContractExpiryDate IS NOT NULL) AND (ValidateResponse.Body.ContractExpiryDate <> '')) THEN
+					-- If the CurrentDate is less than (before) (ContractExpiryDate - (NoticePeriod +30)) then return error E0001551 and exit the flow
+					SET SUMDATES3 = ContractExpiryDate - CAST((CAST(NoticePeriod as INT) + 30) AS INTERVAL DAY);
+					IF (CURRENT_DATE < SUMDATES3) THEN 
+						SET Environment.Variables.MWResponse.status = propertiesRef.EXPDateError; -- E0001551
+						SET Environment.Variables.dynamicErrValue = CAST(NoticePeriod as INT) + 30;  
+						PROPAGATE TO LABEL 'LabelError'; 
+						RETURN FALSE;
+					END IF;
+					-- If CurrentDate is greater than (after) (ContractExpiryDate - NoticePeriod) then return error E0000568 and exit the flow
+					SET SUMDATES2 = ContractExpiryDate - CAST(CAST(NoticePeriod as INT) AS INTERVAL DAY);
+					IF CURRENT_DATE > SUMDATES2 THEN
+						SET Environment.Variables.MWResponse.status = propertiesRef.RenewCtrtExpError; -- E0000568
+						PROPAGATE TO LABEL 'LabelError';
+						RETURN FALSE;
+					END IF;
+					-- If CurrentDate is equal to or after the (ContractExpiryDate - (NoticePeriod +30)) AND
+					-- CurrentDate is equal to or before (ContractExpiryDate - NoticePeriod)
+					IF ((CURRENT_DATE >= SUMDATES3) AND (CURRENT_DATE <= SUMDATES2)) THEN
+						SET Environment.LogicVariable.CallSP = TRUE;
+					ELSE
+						SET Environment.LogicVariable.CallSP = FALSE;
+					END IF;
+				ELSE
+					SET Environment.Variables.MWResponse.status = propertiesRef.CtrtExpNullError; -- E0000569
+					PROPAGATE TO LABEL 'LabelError';
+					RETURN FALSE;
+				END IF;
+				
+				
+			-- Checking conditions for TCReason = 3
+			ELSEIF TCReason = 3 THEN
+				-- If ProbationTerminationRight value <> (1,3) then return error E0001268 and exit the flow
+				IF (CAST(ValidateResponse.Body.ProbationTerminationRight AS INT) NOT IN (1,3)) THEN
+					SET Environment.Variables.MWResponse.status = propertiesRef.NoRightToTerminate; -- E0001268
+					PROPAGATE TO LABEL 'LabelError';
+					RETURN FALSE;
+				END IF;	
+				-- If (ContractStartDate + ProbationPeriod) is less than (before) the CurrentDate) then return error E0000425 and exit the flow
+				SET SUMDATES = ContractStartDate + CAST(CAST(ProbationPeriod as INT) AS INTERVAL DAY);
+				IF SUMDATES < CURRENT_DATE THEN
+					SET Environment.Variables.MWResponse.status = propertiesRef.ProbationError; -- E0000425
+					PROPAGATE TO LABEL 'LabelError';
+					RETURN FALSE;
+				ELSE
+					--SET value for DirectTerminationReasonId
+					SET DirectTerminationReasonId = 1;
+					SET Environment.LogicVariable.CallSP = TRUE;
+				END IF;
+			ELSE
+				SET Environment.LogicVariable.CallSP = TRUE;
+			END IF;
+			
+			
+			
+			-- CALL Create_TerminateContractRequest SP
+			IF (Environment.LogicVariable.CallSP) THEN
+				CALL Create_TerminateContractRequest (
+										CAST(rInBody.LaborOfficeId AS INT),
+										CAST(rInBody.SequenceNumber AS INT),
+										CAST(rInBody.TCReason AS INT) ,
+										COALESCE(DirectTerminationReasonId, NULL),
+										COALESCE(CAST(Environment.Variables.LaborerTypeId AS INT), NULL),
+										COALESCE(CAST(ValidateResponse.Body.EstablishmentName AS CHAR), NULL),
+										COALESCE(CAST(ValidateResponse.Body.JobCode AS INT), NULL),
+										COALESCE(CAST(ValidateResponse.Body.ContractId AS INT), NULL) ,
+										CAST(ContractExpiryDate AS TIMESTAMP),
+										CAST(ContractStartDate AS TIMESTAMP),
+										COALESCE(ProbationPeriod , NULL),
+										COALESCE(NoticePeriod , NULL),
+										COALESCE(HasContractOnSystem, NULL),
+										CAST(rInHeader.UserInfo.IDNumber AS CHAR),
+										COALESCE(CAST(ValidateResponse.Body.LaborerName AS CHAR), NULL),
+										CAST(rInHeader.UserInfo.IDNumber AS CHAR),
+										RequesterTypeId,
+										NULL,
+										MWTransactionId,
+										Environment.Variables.DB.C_TCR_ResultSet[])INTO C_TCR_Result ;
+				
+				-- Failure received from SP
+				IF C_TCR_Result <> 0 THEN
+					SET Environment.Variables.MWResponse.status = propertiesRef.SPError; -- E0000498
+					PROPAGATE TO LABEL 'LabelError';
+					RETURN FALSE;
+	
+				ELSE
+					-- Success received from SP Call
+					-- Only if TCReason = 1 or 2 then: Call Add_ReleaseDate SP
+					IF (TCReason IN (1,2)) THEN
+						DECLARE RequestTypeId INT 1;
+						DECLARE ReleaseDateTypeId INT;
+						DECLARE ReleaseDate TIMESTAMP;
+						DECLARE RequestId CHAR Environment.Variables.DB.C_TCR_ResultSet.TCRequestId;
+						
+						--SETTING THE REALSE DATE
+						IF TCReason = 1 THEN
+							SET ReleaseDate = CURRENT_TIMESTAMP + CAST(NoticePeriod AS INTERVAL DAY);
+							SET ReleaseDateTypeId =4;
+						ELSEIF TCReason = 2 THEN
+							SET ReleaseDate = ContractExpiryDate;
+							SET ReleaseDateTypeId =2;
+						END IF;
+						
+						--CALL Add_ReleaseDate SP
+						CALL Add_ReleaseDate (
+												RequestId,
+												RequestTypeId,
+												ReleaseDate,
+												ReleaseDateTypeId,
+												MWTransactionId)INTO A_RD_Result ;
+					ELSEIF (TCReason = 3) THEN
+						SET Environment.LogicVariable.SkipAddRDSP = TRUE;
+					END IF;	
+					
+					-- Success received from Add_ReleaseDate SP or TCReason = 3
+					IF (A_RD_Result = 0) OR (Environment.LogicVariable.SkipAddRDSP = TRUE) THEN
+						
+						COMMIT;
+						-- Prepare Final Success Response
+						-- Set Output Properties
+						SET OutputRoot.Properties = Environment.Variables.Properties;
+						SET OutputRoot.MQMD = Environment.Variables.MQMD;
+						SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+						--CREATE THE HEADER AND BODY
+						CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+						CREATE FIRSTCHILD OF OutputRoot.XMLNSC.SubmitTCReqByLaborerRs NAME 'Header';
+						CREATE LASTCHILD OF OutputRoot.XMLNSC.SubmitTCReqByLaborerRs NAME 'Body';
+						DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.SubmitTCReqByLaborerRs.Header;
+						DECLARE OutBodyRef REFERENCE TO OutputRoot.XMLNSC.SubmitTCReqByLaborerRs.Body;
+						--SET rOutHeaderRef =rInHeader;
+
+						CALL Create_esbXML_Response_Header (GetESBSuccessCode(),rInHeader,rOutHeaderRef);
+						SET OutBodyRef.TCRequestId = Environment.Variables.DB.C_TCR_ResultSet.TCRequestId;
+						
+						RETURN TRUE;
+					ELSE
+						-- rollback the transaction for Create_TerminateContractRequest return error E0001553 and exit the flow						
+						ROLLBACK;
+						SET Environment.Variables.MWResponse.status = propertiesRef.AddReleaseDateError; -- E0001553
+						PROPAGATE TO LABEL 'LabelError';
+						RETURN FALSE;
+						
+					END IF;
+									
+				END IF;
+			END IF;			
+		
+		ELSEIF EXISTS (InputRoot.XMLNSC.ValidateLaborerInTCRs.Body.ErrorsList[]) THEN
+			-- ErrorsList Received from ValidateLaborerInTC	
+			SET Environment.Variables.MWResponse.status = InputRoot.XMLNSC.ValidateLaborerInTCRs.Header.ResponseStatus.Code;
+			SET Environment.ValidationError.ErrorsList = InputRoot.XMLNSC.ValidateLaborerInTCRs.Body.ErrorsList;
+			PROPAGATE TO LABEL 'LabelError';
+			RETURN FALSE;
+		ELSE
+			-- Error Received from ValidateLaborerInTC	
+			SET Environment.Variables.MWResponse.status = InputRoot.XMLNSC.ValidateLaborerInTCRs.Header.ResponseStatus.Code;
+			PROPAGATE TO LABEL 'LabelError';
+			RETURN FALSE;
+		END IF;	
+	END;
+
+
+	-- Create_TerminateContractRequest PROCEDURE
+	CREATE PROCEDURE Create_TerminateContractRequest (
+	IN LaborOfficeId INT,
+	IN SequenceNumber INT,
+	IN TCReasonId INT,
+	IN DirectTerminationReasonId INT,
+	IN LaborerTypeId INT,
+	IN EstablishmentName CHAR,
+	IN JobCode INT,
+	IN ContractId INT,
+	IN ContractExpiryDate TIMESTAMP,
+	IN ContractStartDate TIMESTAMP,
+	IN ProbationPeriod INT,
+	IN NoticePeriod INT,
+	IN HasContractOnSystem INT ,
+	IN LaborerIdNo CHAR,
+	IN LaborerName CHAR,
+	IN RequesterIdNo CHAR,
+	IN RequesterTypeId INT,
+	IN TerminateContractFiles CHARACTER,
+	IN MWTransactionId CHAR)
+	RETURNS INTEGER
+
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Create_TerminateContractRequest";
+	
+	-- Create_TerminateContractRequest PROCEDURE
+	CREATE PROCEDURE Add_ReleaseDate (
+	IN RequestId CHAR,
+	IN RequestTypeId INT,
+	IN ReleaseDate TIMESTAMP,
+	IN ReleaseDateTypeId INT,
+	IN MWTransactionId CHAR)
+	RETURNS INTEGER LANGUAGE DATABASE EXTERNAL NAME "dbo.Add_ReleaseDate";
+
+
+END MODULE;
