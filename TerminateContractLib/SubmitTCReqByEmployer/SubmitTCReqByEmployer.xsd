@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://Qiwa/TerminateContract/SubmitTCReqByEmployer/v1.0"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" 
+ xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:Q1="http://Qiwa/Common/Types" 
+ xmlns:bons0="http://Qiwa/TerminateContract/SubmitTCReqByEmployer/v1.0">
+
+	<import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<element name="SubmitTCReqByEmployerRq" type="bons0:SubmitTCReqByEmployerRq_Type"/>
+	<element name="SubmitTCReqByEmployerRs" type="bons0:SubmitTCReqByEmployerRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="SubmitTCReqByEmployerRq_Type">
+			<sequence>
+				<element name="Header" type="Q1:ESBXMLRequestHeader_Type"/>
+				<element name="Body" type="bons0:SubmitTCReqByEmployerRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="SubmitTCReqByEmployerRs_Type">
+			<sequence>
+				<element name="Header" type="Q1:ESBXMLResponseHeader_Type"/>
+				<element minOccurs="1" name="Body" type="bons0:SubmitTCReqByEmployerRs_BodyType"/> 
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="SubmitTCReqByEmployerRq_BodyType">
+		<all>
+			<element name="LaborOfficeId"        type="integer" minOccurs="1"></element>
+			<element name="SequenceNumber"       type="integer" minOccurs="1"></element>
+			<element name="LaborerIdNo"          type="integer" minOccurs="1"></element>
+			<element name="LaborerBirthDate"     type="integer" minOccurs="0"></element>
+			<element name="TCReason"             type="bons0:TCReason_Type" minOccurs="1"></element>
+			<element name="TCFiles"             type="bons0:TCFiles_Type" minOccurs="0"></element>
+		</all>
+	</complexType>
+	<simpleType name="TCReason_Type">
+        <restriction base="integer">
+            <enumeration value="2"/>
+            <enumeration value="3"/>
+			<enumeration value="4"/>
+            <enumeration value="5"/>
+			<enumeration value="6"/>
+            <enumeration value="7"/>
+			<enumeration value="8"/>
+            <enumeration value="9"/>
+			<enumeration value="10"/>
+            <enumeration value="11"/>
+            <enumeration value="12"/>
+            <enumeration value="13"/>
+            <enumeration value="14"/>
+            <enumeration value="15"/>
+            <enumeration value="16"/>
+        </restriction>
+    </simpleType>
+    
+    <complexType name="TCFiles_Type">
+		<sequence>
+			<element minOccurs="1" maxOccurs="unbounded" name="TCFilesItem" type="bons0:TCFilesItem_Type"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="TCFilesItem_Type">
+		<sequence>
+			<element minOccurs="1" name="TCFileId" type="string" />
+	</sequence>
+	</complexType>
+    
+	
+	<complexType name="SubmitTCReqByEmployerRs_BodyType">
+        <sequence>
+        <element name="TCRequestId" type="integer" minOccurs="1"></element>
+		<element name="ErrorsList" type="bons0:ErrorsList_Type" minOccurs="0"></element>
+		</sequence>
+	</complexType>
+	
+	
+	<complexType name="ErrorsList_Type">
+        <sequence>
+		<element name="Error" type="bons0:Error_Type" minOccurs="1" maxOccurs="unbounded"></element>
+		</sequence>
+	</complexType>
+	
+	<complexType name="Error_Type">
+        <all>
+		<element name="ErrorCode" type="integer" minOccurs="1"></element>
+		<element name="DescriptionAr" type="string"  minOccurs="1"></element>
+		<element name="DescriptionEn" type="string"  minOccurs="1"></element>
+		</all>
+	</complexType>
+	
+</schema>

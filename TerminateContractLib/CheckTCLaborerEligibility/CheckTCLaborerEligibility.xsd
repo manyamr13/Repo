@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+targetNamespace="http://Qiwa/TerminateContract/CheckTCLaborerEligibility/v1.0" 
+xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/TerminateContract/CheckTCLaborerEligibility/v1.0" 
+xmlns:bons1="http://Qiwa/Common/Types" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+
+<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+<xsd:element name="CheckTCLaborerEligibilityRq" type="bons0:CheckTCLaborerEligibilityRq_Type"/>
+<xsd:element name="CheckTCLaborerEligibilityRs" type="bons0:CheckTCLaborerEligibilityRs_Type"/>
+
+<complexType name="CheckTCLaborerEligibilityRq_Type">
+		<sequence>
+				<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons0:CheckTCLaborerEligibilityRq_BodyType"/>
+		</sequence>
+</complexType>
+
+	<complexType name="CheckTCLaborerEligibilityRs_Type">
+		<sequence>
+				<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="0" name="Body" type="bons0:CheckTCLaborerEligibilityRs_BodyType"/>
+			</sequence>
+		</complexType>
+	
+
+
+	<complexType name="CheckTCLaborerEligibilityRq_BodyType">
+		<all>
+			<element minOccurs="1" name="RequesterTypeId">
+			<simpleType >
+			 		<restriction base="integer">
+			 			<enumeration value="1"/>
+			 			<enumeration value="2"/>
+			  		</restriction>
+				</simpleType>
+			 </element>
+			
+			<element minOccurs="1" name="LaborerTypeId" >
+			<simpleType >
+			 		<restriction base="integer">
+			 			<enumeration value="1"/>
+			 			<enumeration value="2"/>
+			  		</restriction>
+				</simpleType>
+			 </element>
+			
+			<element minOccurs="1" name="HasPendingTCRequest">
+				<simpleType >
+			 		<restriction base="string">
+			 			<enumeration value="True"/>
+			 			<enumeration value="False"/>
+			  		</restriction>
+				</simpleType>
+			 </element>
+			<element minOccurs="1" name="HasActiveContract">
+				<simpleType >
+			 		<restriction base="string">
+			 			<enumeration value="True"/>
+			 			<enumeration value="False"/>
+			  		</restriction>
+				</simpleType>
+			 </element>
+			
+			<element minOccurs="0" name="HasContractOnSystem">
+				<simpleType >
+			 		<restriction base="string">
+			 			<enumeration value="True"/>
+			 			<enumeration value="False"/>
+			  		</restriction>
+				</simpleType>
+			 </element>
+			 
+		
+			<element minOccurs="0" name="LaborerStatusCode" type="integer"/>
+			<element minOccurs="0" name="EntryDate" type="bons1:Dt_Type"/>
+			 <element minOccurs="0" name="HasPendingCSRequest">
+				<simpleType >
+			 		<restriction base="string">
+			 			<enumeration value="True"/>
+			 			<enumeration value="False"/>
+			  		</restriction>
+				</simpleType>
+			 </element>
+		</all>
+	</complexType>
+	
+	
+	<complexType name="CheckTCLaborerEligibilityRs_BodyType">
+		<sequence>
+			<element minOccurs="0" name="ErrorsList" type="bons0:ErrorList_Type"/>
+		</sequence> 
+	</complexType>
+	
+	<complexType name="ErrorList_Type">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="1" name="Error" type="bons0:Error_Type"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="Error_Type">
+		<sequence>
+			<element minOccurs="1" name="ErrorCode" type="integer"/>
+			<element minOccurs="1" name="ArDescription" type="string"/>
+			<element minOccurs="1" name="EngDescription" type="string"/>
+		</sequence>
+	</complexType>
+</xsd:schema>
