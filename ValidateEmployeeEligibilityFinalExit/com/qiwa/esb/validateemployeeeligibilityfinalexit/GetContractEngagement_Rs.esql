@@ -1,0 +1,66 @@
+BROKER SCHEMA com.qiwa.esb.validateemployeeeligibilityfinalexit
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE GetContractEngagement_Rs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE EV REFERENCE TO Environment.Variables;
+		SET OutputRoot.Properties = EV.Properties;
+		SET OutputRoot.MQMD = EV.MQMD;
+		SET OutputRoot.MQRFH2 = EV.MQRFH2;
+		
+		DECLARE InHeaderRef REFERENCE TO EV.XMLNSC.ValidateEmployeeEligibilityFinalExitRq.Header; 
+		DECLARE InbodyRef REFERENCE TO EV.XMLNSC.ValidateEmployeeEligibilityFinalExitRq.Body; 
+		DECLARE loadproperties REFERENCE TO Environment.Properties.ValidateEmployeeEligibilityFinalExit.ValidateEmployeeEligibilityFinalExitFlow.Variables;
+
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityFinalExitRs NAME 'Header';
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityFinalExitRs.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityFinalExitRs NAME 'Body'; 
+		DECLARE outBodyRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityFinalExitRs.Body; 
+	
+		DECLARE ContractEngagement REFERENCE TO InputRoot.XMLNSC.GetContractAndEngagementDetailsRs;
+		IF ContractEngagement.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			IF CAST(ContractEngagement.Body.ContractDetails.ContractStatus as INTEGER) = CAST( loadproperties.C1002 as INTEGER) OR
+				CAST(ContractEngagement.Body.ContractDetails.ContractStatus as INTEGER) = CAST(loadproperties.C1003 as INTEGER) THEN
+				CALL Create_esbXML_Response_Header(loadproperties.NOActiveContractError,InHeaderRef,OutHeaderRef);
+
+				DECLARE MMonth CHARACTER SUBSTRING(InputRoot.XMLNSC.GetContractAndEngagementDetailsRs.Body.ContractDetails.ContractEndDate before '-');
+				DECLARE DayYears CHARACTER SUBSTRING(InputRoot.XMLNSC.GetContractAndEngagementDetailsRs.Body.ContractDetails.ContractEndDate After '-');
+				DECLARE DDay CHARACTER SUBSTRING(DayYears BEFORE '-');
+				DECLARE YYear CHARACTER SUBSTRING(DayYears AFTER '-');
+				DECLARE DateToconvert CHARACTER DDay || '-' || MMonth || '-' || YYear;
+				DECLARE formateP CHARACTER 'yyyy-MM-dd';
+				DECLARE query CHARACTER 'select FORMAT(cast(''' || DateToconvert || '''as date), ''' || formateP ||''')';
+				DECLARE DS CHARACTER 'MWQIWA_DS';
+				SET Environment.Val.date = PASSTHRU(query TO Database.{DS} ) ;
+				SET outBodyRef.ContractExpiryDate = Environment.Val.date.Column0;
+			ELSE
+				CALL Create_esbXML_Response_Header(loadproperties.ActiveContractError,InHeaderRef,OutHeaderRef);
+				DECLARE x INTEGER 1;
+				DECLARE listCount INTEGER CARDINALITY(Environment.Variables.DB.ResultSet1[]);
+				WHILE x <= listCount DO
+					SET outBodyRef.ContractExpiryDate = Environment.Variables.DB.ResultSet1[x].ExpiryDate;
+					SET x = x + 1;
+				END WHILE;
+			END IF;
+			
+			
+		ELSEIF ContractEngagement.Header.ResponseStatus.Code = loadproperties.NoContract OR 
+			ContractEngagement.Header.ResponseStatus.Code = loadproperties.NotActive OR
+			ContractEngagement.Header.ResponseStatus.Code = loadproperties.NoAbsherAccount OR
+			ContractEngagement.Header.ResponseStatus.Code = loadproperties.InvalidIqama THEN
+			CALL Create_esbXML_Response_Header(loadproperties.ActiveContractError,InHeaderRef,OutHeaderRef);
+			DECLARE x INTEGER 1;
+			DECLARE listCount INTEGER CARDINALITY(Environment.Variables.DB.ResultSet1[]);
+			WHILE x <= listCount DO
+				SET outBodyRef.ContractExpiryDate = Environment.Variables.DB.ResultSet1[x].ExpiryDate;
+				SET x = x + 1;
+			END WHILE;
+		ELSE
+			CALL Create_esbXML_Response_Header(loadproperties.CommError,InHeaderRef,OutHeaderRef);
+		END IF; 
+		RETURN TRUE;
+	END;
+
+	
+END MODULE;

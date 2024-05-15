@@ -1,0 +1,59 @@
+
+
+BROKER SCHEMA com.qiwa.esb.ValidateEmployeeEligibilityReentry
+Path Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE ValidateEmployeeEligibilityReentryFlow_Check_ActiveContract
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+		DECLARE rInBodyRef REFERENCE TO Environment.Variables.Request.Body;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ValidateEmployeeEligibilityReentry.ValidateEmployeeEligibilityReentryFlow.Variables;
+
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs NAME 'Header';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs.Header;
+
+		CALL Check_ActiveContract(rInBodyRef.IDNumber,
+		Environment.Variables.DB.ResultSet[]);
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs NAME 'Body';
+		DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs.Body;
+		SET rOutBodyRef.ContractExpiryDate = Environment.Variables.DB.ResultSet[1].ExpiryDate;
+		IF Environment.Variables.DB.ResultSet[1].HasActiveContracts = 1 THEN
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.EligibleLaborerCode, rInHeaderRef, rOutHeaderRef);
+			SET rOutHeaderRef.ResponseStatus.ArabicMsg = loadedPropertiesRef.EligibleLaborerARDesc;
+			SET rOutHeaderRef.ResponseStatus.EnglishMsg = loadedPropertiesRef.EligibleLaborerENDesc;
+			RETURN TRUE;
+		ELSEIF Environment.Variables.DB.ResultSet[1].HasActiveContracts = 0 THEN
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.InvalidContractCode, rInHeaderRef, rOutHeaderRef);
+			SET rOutHeaderRef.ResponseStatus.ArabicMsg = loadedPropertiesRef.InvalidContractARDesc;
+			SET rOutHeaderRef.ResponseStatus.EnglishMsg = loadedPropertiesRef.InvalidContractENDesc;
+			RETURN TRUE;
+		ELSE
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.TechnicalError, rInHeaderRef, rOutHeaderRef);
+			RETURN TRUE;
+		END IF;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+	CREATE PROCEDURE Check_ActiveContract(IN LaborerIdNumber CHARACTER)
+	LANGUAGE DATABASE
+	DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Check_ActiveContract";
+END MODULE;

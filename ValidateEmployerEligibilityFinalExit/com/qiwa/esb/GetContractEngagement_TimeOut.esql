@@ -1,0 +1,11 @@
+BROKER SCHEMA com.qiwa.esb
+
+
+CREATE FILTER MODULE GetContractEngagement_TimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ValidateEmployerEligibilityFinalExit.ValidateEmployerEligibilityFinalExitFlow.Variables; 
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.TechnicalError;
+	END;
+
+END MODULE;

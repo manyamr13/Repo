@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<properties refresh-policy="automatic">
+
+		<group name="ValidateEmployeeEligibilityReentry.ValidateEmployeeEligibilityReentryFlow"> 
+				<group name="Logging">
+					<property name="LogEnabled" value="TRUE" />
+					<property name="AuditEnabled" value="FALSE" />
+					<property name="key1" value="" />
+					<property name="value1" value="" />
+					<property name="key2" value="" />
+					<property name="value2" value="" />
+					<property name="key3" value="" />
+					<property name="value3" value="" />
+					<property name="key4" value="" />
+					<property name="value4" value="" />
+				</group>
+				<group name="Variables">
+					<property name="CheckLabAndUniNumServiceCode" value="CLAUN001" />
+					<property name="ChannelID" value="ESB" />
+					<property name="TimeOutError" value="E9999998" />
+					<property name="EligibleLaborerCode" value="1001"/>
+					<property name="EligibleLaborerARDesc" value="يمكن للموظف اصدار تأشيرة خروج وعودة"/>
+					<property name="EligibleLaborerENDesc" value="The employee can issue an exit reentry visa"/>
+					<property name="InvalidContractCode" value="1002"/>
+					<property name="InvalidContractARDesc" value="لا يمكن للموظف اصدار تأشيرة خروج وعودة"/>
+					<property name="InvalidContractENDesc" value="The employee cannot issue an exit reentry visa"/>
+					<property name="TechnicalError" value="9999"/>
+					<property name="ContractEngagementSC" value="GCED0001" />
+					<property name="NoContract" value="GOSI0002" />
+					<property name="NotActive" value="GOSI0004" />
+					<property name="NoAbsherAccount" value="GOSI0005" />
+					<property name="InvalidIqama" value="GOSI0003" />
+					<property name="C1002" value="1002"/>
+					<property name="C1003" value="1003"/>	
+										<property name="C1004" value="1004"/>	
+					
+					<property name="CheckLabUnifiedNoURL" value="http://datapower.qiwa.info:7086/CheckLaborerAndUnifiedNumber"/>
+								</group>
+				<group name="SchemaValidation">
+					<property name="ValidationEnabled" value="TRUE" />
+				</group>
+				<group name="Retry">
+						<property name="RetryEnabled" value="FALSE" />
+					<property name="minWaitDurationSec" value="60" />
+					<property name="maxRetryCount" value="5" />
+				</group>
+		</group>
+
+</properties>

@@ -1,0 +1,49 @@
+BROKER SCHEMA com.qiwa.esb.validateemployeeeligibilityfinalexit
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE CheckLaborerAndUnifiedNumber_Success
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ValidateEmployeeEligibilityFinalExit.ValidateEmployeeEligibilityFinalExitFlow;
+		
+		DECLARE InHeaderRef REFERENCE TO Environment.Variables.Request.Header; 
+		DECLARE InbodyRef REFERENCE TO Environment.Variables.Request.Body; 
+
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityFinalExitRs NAME 'Header';
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityFinalExitRs.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityFinalExitRs NAME 'Body'; 
+		DECLARE outBodyRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityFinalExitRs.Body; 
+		
+		DECLARE result CHARACTER COALESCE(InputRoot.XMLNSC.sql.(XMLNSC.Attribute)result,'');
+		IF result = 'success' THEN
+			SET Environment.Variables.LaborOfficeId = InputRoot.XMLNSC.sql.row[1].column[3].value;
+			SET Environment.Variables.SequenceNumber = InputRoot.XMLNSC.sql.row[1].column[4].value;
+			IF (InputRoot.XMLNSC.sql.row[1].column[1].value = 0 AND InputRoot.XMLNSC.sql.row[1].column[2].value = 0) OR
+				(InputRoot.XMLNSC.sql.row[1].column[1].value = 0 AND InputRoot.XMLNSC.sql.row[1].column[2].value = 1) THEN 
+             	CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.LaborerExistError,InHeaderRef,OutHeaderRef);
+             	SET outBodyRef.ContractExpiryDate VALUE = NULL;
+				propagate to terminal 'out1' delete none;
+				RETURN FALSE;
+			ELSEIF (InputRoot.XMLNSC.sql.row[1].column[1].value = 1 AND InputRoot.XMLNSC.sql.row[1].column[2].value = 0) THEN
+            	CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.UnifiedNumberError,InHeaderRef,OutHeaderRef);
+             	SET outBodyRef.ContractExpiryDate VALUE = NULL;
+				propagate to terminal 'out1' delete none;
+				RETURN FALSE;
+			END IF; 
+			RETURN TRUE;	
+		ELSE 
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.CommError,InHeaderRef,OutHeaderRef);
+			propagate to terminal 'out1' delete none;
+			RETURN FALSE;
+		END IF;			
+			
+		
+		
+	END;
+
+	
+END MODULE;

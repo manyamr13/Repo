@@ -1,0 +1,27 @@
+BROKER SCHEMA com.qiwa.esb
+
+
+CREATE COMPUTE MODULE GetContractEngagement_Rq
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE EV REFERENCE TO Environment.Variables;
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		
+		DECLARE InHeaderRef REFERENCE TO EV.XMLNSC.ValidateEmployerEligibilityFinalExitRq.Header; 
+		DECLARE InBodyRef REFERENCE TO EV.XMLNSC.ValidateEmployerEligibilityFinalExitRq.Body; 
+		DECLARE loadproperties REFERENCE TO Environment.Properties.ValidateEmployerEligibilityFinalExit.ValidateEmployerEligibilityFinalExitFlow.Variables;
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		SET OutputRoot.XMLNSC.GetContractAndEngagementDetailsRq.Header = InHeaderRef;   
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetContractAndEngagementDetailsRq.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetContractAndEngagementDetailsRq NAME 'Body';  
+		DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.GetContractAndEngagementDetailsRq.Body;      
+		SET rOutHeaderRef.ServiceCode = loadproperties.ContractEngagementSC;
+		SET rOutHeaderRef.ChannelId = loadproperties.ChannelID;
+		SET rOutBodyRef.IdOrBorderNo VALUE = InBodyRef.IdNumber;
+		RETURN TRUE;
+	END;
+
+END MODULE;

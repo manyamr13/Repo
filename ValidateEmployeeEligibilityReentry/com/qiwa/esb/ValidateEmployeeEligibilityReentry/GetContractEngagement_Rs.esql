@@ -1,0 +1,73 @@
+BROKER SCHEMA com.qiwa.esb.ValidateEmployeeEligibilityReentry
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE GetContractEngagement_Rs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		
+		DECLARE InHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+		DECLARE InBodyRef REFERENCE TO Environment.Variables.Request.Body;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ValidateEmployeeEligibilityReentry.ValidateEmployeeEligibilityReentryFlow.Variables;
+		
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs NAME 'Header';
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs.Header;
+		
+		DECLARE ContractEngagement REFERENCE TO InputRoot.XMLNSC.GetContractAndEngagementDetailsRs;
+		IF ContractEngagement.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs NAME 'Body';
+			DECLARE outBodyRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs.Body;
+			
+			IF CAST(ContractEngagement.Body.ContractDetails.ContractStatus as INTEGER) = CAST( loadedPropertiesRef.C1002 as INTEGER) OR
+				CAST(ContractEngagement.Body.ContractDetails.ContractStatus as INTEGER) = CAST(loadedPropertiesRef.C1003 as INTEGER) THEN
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.EligibleLaborerCode,InHeaderRef,OutHeaderRef);
+				SET OutHeaderRef.ResponseStatus.ArabicMsg = loadedPropertiesRef.EligibleLaborerARDesc;
+				SET OutHeaderRef.ResponseStatus.EnglishMsg = loadedPropertiesRef.EligibleLaborerENDesc;
+				--InputRoot.XMLNSC.GetContractAndEngagementDetailsRs.Body.ContractDetails.ContractEndDate
+				DECLARE MMonth CHARACTER SUBSTRING(InputRoot.XMLNSC.GetContractAndEngagementDetailsRs.Body.ContractDetails.ContractEndDate before '-');
+				DECLARE DayYears CHARACTER SUBSTRING(InputRoot.XMLNSC.GetContractAndEngagementDetailsRs.Body.ContractDetails.ContractEndDate After '-');
+				DECLARE DDay CHARACTER SUBSTRING(DayYears BEFORE '-');
+				DECLARE YYear CHARACTER SUBSTRING(DayYears AFTER '-');
+				DECLARE DateToconvert CHARACTER DDay || '-' || MMonth || '-' || YYear;
+				DECLARE formateP CHARACTER 'yyyy-MM-dd';
+				DECLARE query CHARACTER 'select FORMAT(cast(''' || DateToconvert || '''as date), ''' || formateP ||''')';
+				DECLARE DS CHARACTER 'MWQIWA_DS';
+				SET Environment.Val.date = PASSTHRU(query TO Database.{DS} ) ;
+				SET outBodyRef.ContractExpiryDate = Environment.Val.date.Column0;
+			ELSE
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.InvalidContractCode,InHeaderRef,OutHeaderRef);
+				SET OutHeaderRef.ResponseStatus.ArabicMsg = loadedPropertiesRef.InvalidContractARDesc;
+				SET OutHeaderRef.ResponseStatus.EnglishMsg = loadedPropertiesRef.InvalidContractENDesc;
+				DECLARE x INTEGER 1;
+				DECLARE listCount INTEGER CARDINALITY(Environment.Variables.DB.ResultSet[]);
+				WHILE x <= listCount DO
+					SET outBodyRef.ContractExpiryDate = Environment.Variables.DB.ResultSet[x].ExpiryDate;
+					SET x = x + 1;
+				END WHILE;
+			END IF;
+			
+		ELSEIF ContractEngagement.Header.ResponseStatus.Code = loadedPropertiesRef.NoContract OR 
+			ContractEngagement.Header.ResponseStatus.Code = loadedPropertiesRef.NotActive OR
+			ContractEngagement.Header.ResponseStatus.Code = loadedPropertiesRef.NoAbsherAccount OR
+			ContractEngagement.Header.ResponseStatus.Code = loadedPropertiesRef.InvalidIqama THEN
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.InvalidContractCode,InHeaderRef,OutHeaderRef);
+			SET OutHeaderRef.ResponseStatus.ArabicMsg = loadedPropertiesRef.InvalidContractARDesc;
+			SET OutHeaderRef.ResponseStatus.EnglishMsg = loadedPropertiesRef.InvalidContractENDesc;
+			CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs NAME 'Body';
+			DECLARE outBodyRef REFERENCE TO OutputRoot.XMLNSC.ValidateEmployeeEligibilityReentryRs.Body;
+			DECLARE x INTEGER 1;
+			DECLARE listCount INTEGER CARDINALITY(Environment.Variables.DB.ResultSet[]);
+			WHILE x <= listCount DO
+				SET outBodyRef.ContractExpiryDate = Environment.Variables.DB.ResultSet[x].ExpiryDate;
+				SET x = x + 1;
+			END WHILE;
+		ELSE
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.TechnicalError,InHeaderRef,OutHeaderRef);
+		END IF; 
+		RETURN TRUE;
+	END;
+
+	
+END MODULE;
