@@ -19,7 +19,7 @@
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
 		</group>
-		<property name="HTTPurl" value="http://qiwadp.ace.svc.cluster.local:7089/GetEstablishmentEmployees"/>
+		<property name="HTTPurl" value="http://datapower.qiwa.info:7089/GetEstablishmentEmployees"/>
 	</group>
 	<group name="SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer">
 		<group name="Logging">
@@ -74,9 +74,9 @@
 			<property name="ServiceID" value="5"/>
 			<property name="SeviceProviderID" value="7000986278"/>
 			<property name="CitizenInfoIpAddress" value="10.10.10.10.10"/>
-			<property name="ValidateTC_Url" value="http://tc-tcvalidates-is.ace.svc.cluster.local:7800/internal/tc/vallaborerintc"/>
+			<property name="ValidateTC_Url" value="http://icp-proxy.qiwa.sa:31246/internal/tc/vallaborerintc"/>
 			<property name="Action" value="urn:MOI.NIC.eServices-V1/IMOL_SERVICE/GetAlienVisitorInfo"/>
-			<property name="NICURL" value="http://qiwadp.ace.svc.cluster.local:9007/SamisWSProd/MOL/Service.svc"/>
+			<property name="NICURL" value="http://datapower.qiwa.info:9007/SamisWSProd/MOL/Service.svc"/>
 			<property name="SOAPAction" value="urn:MOI.NIC.eServices-V1/IMOL_SERVICE/GetCitizenInfo"/>
 		</group>
 		<group name="SchemaValidation">
@@ -141,9 +141,9 @@
 			<property name="ServiceID" value="5"/>
 			<property name="SeviceProviderID" value="7000986278"/>
 			<property name="CitizenInfoIpAddress" value="10.10.10.10.10"/>
-			<property name="ValidateTC_Url" value="http://tc-tcvalidates-is.ace.svc.cluster.local:7800/internal/tc/vallaborerintc"/>
+			<property name="ValidateTC_Url" value="http://icp-proxy.qiwa.sa:31246/internal/tc/vallaborerintc"/>
 			<property name="Action" value="urn:MOI.NIC.eServices-V1/IMOL_SERVICE/GetAlienVisitorInfo"/>
-			<property name="NICURL" value="http://qiwadp.ace.svc.cluster.local:9007/SamisWSProd/MOL/Service.svc"/>
+			<property name="NICURL" value="http://datapower.qiwa.info:9007/SamisWSProd/MOL/Service.svc"/>
 			<property name="SOAPAction" value="urn:MOI.NIC.eServices-V1/IMOL_SERVICE/GetCitizenInfo"/>
 		</group>
 		<group name="SchemaValidation">
@@ -169,7 +169,7 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="DBURL" value="http://qiwadp.ace.svc.cluster.local:7089/CheckLaborerAndUnifiedNumber"/>
+			<property name="DBURL" value="http://datapower.qiwa.info:7089/CheckLaborerAndUnifiedNumber"/>
 			<property name="NoLabInfo" value="1003"/>
 			<property name="UnifiedNoNotFound" value="1004"/>
 			<property name="TechnicalError" value="9999"/>
@@ -216,7 +216,7 @@
 			<property name="InvalidIqama" value="GOSI0003"/>
 			<property name="C1002" value="1002"/>
 			<property name="C1003" value="1003"/>
-			<property name="CheckLabUnifiedNoURL" value="http://qiwadp.ace.svc.cluster.local:7089/CheckLaborerAndUnifiedNumber"/>
+			<property name="CheckLabUnifiedNoURL" value="http://datapower.qiwa.info:7089/CheckLaborerAndUnifiedNumber"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -259,7 +259,7 @@
 			<property name="C1002" value="1002"/>
 			<property name="C1003" value="1003"/>
 			<property name="C1004" value="1004"/>
-			<property name="CheckLabUnifiedNoURL" value="http://qiwadp.ace.svc.cluster.local:7089/CheckLaborerAndUnifiedNumber"/>
+			<property name="CheckLabUnifiedNoURL" value="http://datapower.qiwa.info:7089/CheckLaborerAndUnifiedNumber"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -302,7 +302,7 @@
 			<property name="C1002" value="1002"/>
 			<property name="C1003" value="1003"/>
 			<property name="C1004" value="1004"/>
-			<property name="CheckLabUnifiedNoURL" value="http://qiwadp.ace.svc.cluster.local:7089/CheckLaborerAndUnifiedNumber"/>
+			<property name="CheckLabUnifiedNoURL" value="http://datapower.qiwa.info:7089/CheckLaborerAndUnifiedNumber"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -575,7 +575,7 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="ODMURL" value="http://external-odm-service.odm.svc.cluster.local/odm/DecisionService/ws/TermContLabEligRequest_DC/TermContLabEligRequest/v75"/>
+			<property name="ODMURL" value="https://dbamc-odm-odm-decisionserverruntime.odm.svc:9443/DecisionService/ws/TermContLabEligRequest_DC/TermContLabEligRequest/v75"/>
 			<property name="replyToQueueName" value="ESB.CHECKTCLABELIG.ODMRS"/>
 			<property name="ErrorCode" value="E0000004"/>
 			<property name="ValidationError" value="E0000022"/>
@@ -603,7 +603,7 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="ODMURL" value="http://external-odm-service.odm.svc.cluster.local/odm/DecisionService/ws/TermContLabEligRequest_DC/TermContLabEligRequest/v75"/>
+			<property name="ODMURL" value="https://dbamc-odm-odm-decisionserverruntime.odm.svc:9443/DecisionService/ws/TermContLabEligRequest_DC/TermContLabEligRequest/v75"/>
 			<property name="replyToQueueName" value="ESB.CHECKTCLABELIG.ODMRS"/>
 			<property name="ErrorCode" value="E0000004"/>
 			<property name="ValidationError" value="E0000022"/>
@@ -698,8 +698,8 @@
 			<property name="invalidTCRequestId" value="E0000409"/>
 			<property name="AlreadyExist" value="E0000410"/>
 			<property name="Privilege" value="E0000418"/>
-			<property name="CHECKService" value="CUE00001"/> 
-			<prperty name="LabrorURL" value="http://tc-tcsubmits-is.ace.svc.cluster.local:7800/internal/tc/subtccanbylab"/>
+			<property name="CHECKService" value="CUE00001"/>
+			<prperty name="LabrorURL" value="http://icp-proxy.qiwa.sa:30363/internal/tc/subtccanbylab"/>
 			<property name="NOprev" value="E0000602"/>
 			<property name="invalidRequester" value="E0001462"/>
 			<property name="HasCS" value="E0000570"/>
@@ -733,7 +733,7 @@
 			<property name="AlreadyExist" value="E0000410"/>
 			<property name="Privilege" value="E0000418"/>
 			<property name="CHECKService" value="CUE00001"/>
-			<prperty name="LabrorURL" value="http://tc-tcsubmits-is.ace.svc.cluster.local:7800/internal/tc/subtccanbylab"/>
+			<prperty name="LabrorURL" value="http://icp-proxy.qiwa.sa:30363/internal/tc/subtccanbylab"/>
 			<property name="NOprev" value="E0000602"/>
 			<property name="invalidRequester" value="E0001462"/>
 			<property name="HasCS" value="E0000570"/>
@@ -821,12 +821,14 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="ServiceCode" value="VLITC001" />
-			<property name="ChannelId" value="ESB" />			
+				<property name="ServiceCode" value="VLITC001" />
+			<property name="ChannelId" value="ESB" />
+			
 			<property name="ARErrDescPRT1" value=" عفوا، يمكنك اختيار هذا السبب كسبب لإنهاءالعقد فقط قبل" />
 			<property name="ARErrDescPRT2" value=" يوم من تاريخ انتهاء العقد." />
 			<property name="ENErrDescPRT1" value="Sorry , you can choose this reason to terminate the contract, only before " />
 			<property name="ENErrDescPRT2" value=" days from the contract expiry date." />
+
 			<property name="MissingIdNumber" value="E0000217" />
 			<property name="ProbationError" value="E0000425" />
 			<property name="RenewCtrtExpError" value="E0000568" />
@@ -837,7 +839,9 @@
 			<property name="AddReleaseDateError" value="E0001553" />
 			<property name="ValLabTCError" value="E0000480" />
 			<property name="NoRightToTerminate" value="E0001268" />
-			<property name="HTTPurl" value="http://tc-tcvalidates-is.ace.svc.cluster.local:7800/internal/tc/vallaborerintc" />			
+
+			<property name="HTTPurl" value="http://icp-proxy.qiwa.sa:31246/internal/tc/vallaborerintc" />
+			
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -869,6 +873,7 @@
 			<property name="ARErrDescPRT2" value=" يوم من تاريخ انتهاء العقد." />
 			<property name="ENErrDescPRT1" value="Sorry , you can choose this reason to terminate the contract, only before " />
 			<property name="ENErrDescPRT2" value=" days from the contract expiry date." />
+
 			<property name="MissingIdNumber" value="E0000217" />
 			<property name="ProbationError" value="E0000425" />
 			<property name="RenewCtrtExpError" value="E0000568" />
@@ -879,7 +884,8 @@
 			<property name="AddReleaseDateError" value="E0001553" />
 			<property name="ValLabTCError" value="E0000480" />
 			<property name="NoRightToTerminate" value="E0001268" />
-			<property name="HTTPurl" value="http://tc-tcvalidates-is.ace.svc.cluster.local:7800/internal/tc/vallaborerintc" />
+
+			<property name="HTTPurl" value="http://icp-proxy.qiwa.sa:31246/internal/tc/vallaborerintc" />
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -966,9 +972,9 @@
 		<group name="Variables">
 			<property name="statuses" value="4,7,13"/>
 			<property name="InvalidData" value="E0001496"/>
-			<property name="DPURL" value="http://qiwadp.ace.svc.cluster.local:7089/GetSaudiNonSaudiLaborerInfo"/>
+			<property name="DPURL" value="http://datapower.qiwa.info:7089/GetSaudiNonSaudiLaborerInfo"/>
 			<property name="NoLabInfo" value="E0001466"/>
-			<property name="ODMURL" value="http://external-odm-service.odm.svc.cluster.local/odm/DecisionService/ws/TermContLabEligRequest_DC/TermContLabEligRequest/v75"/>
+			<property name="ODMURL" value="https://dbamc-odm-odm-decisionserverruntime.odm.svc:9443/DecisionService/ws/TermContLabEligRequest_DC/TermContLabEligRequest/v75"/>
 			<property name="ValidationError" value="E0000022"/>
 			<property name="TechError" value="E0001493"/>
 			<property name="LabTypeIdOne" value="1"/>
@@ -1004,7 +1010,7 @@
 		</group>
 		<group name="Variables">
 			<property name="ChannelId" value="ESB"/>
-			<property name="ODM_URL" value="http://tc-tcutility-is.ace.svc.cluster.local:7800/internal/internal/tc/checktclabelig"/>
+			<property name="ODM_URL" value="http://icp-proxy.qiwa.sa:31246/internal/tc/checktclabelig"/>
 			<property name="statuses" value="4,7,13"/>
 			<property name="ODM" value="CTCLE001"/>
 			<property name="GetLabInfoCode" value="MGLI0001"/>
@@ -1029,7 +1035,7 @@
 			<property name="NoDataError" value="E0000024"/>
 			<property name="TimeOutError" value="E9999998"/>
 			<property name="LaborerStatusList" value="1,3,4,6"/>
-			<property name="GetEstEmpsUrl" value="http://qiwadp.ace.svc.cluster.local:7089/GetEstablishmentEmployees"/>
+			<property name="GetEstEmpsUrl" value="http://datapower.qiwa.info:7089/GetEstablishmentEmployees"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -1045,7 +1051,7 @@
 			<property name="NoDataError" value="E0000024"/>
 			<property name="TimeOutError" value="E9999998"/>
 			<property name="LaborerStatusList" value="1,3,4,6"/>
-			<property name="GetEstEmpsUrl" value="http://qiwadp.ace.svc.cluster.local:7089/GetEstablishmentEmployees"/>
+			<property name="GetEstEmpsUrl" value="http://datapower.qiwa.info:7089/GetEstablishmentEmployees"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
