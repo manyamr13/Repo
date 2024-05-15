@@ -1,7 +1,7 @@
 BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
 
 
-CREATE FILTER MODULE GetAlienVisitorInfo_Timeout
+CREATE FILTER MODULE Timeout
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		

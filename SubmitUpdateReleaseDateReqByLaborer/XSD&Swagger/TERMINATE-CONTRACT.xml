@@ -1,0 +1,64 @@
+<properties refresh-policy="automatic">
+
+	<group name="SubmitUpdateReleaseDateReqByLaborer.HTTP_SubmitUpdateReleaseDateReqByLaborer">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables"> 			
+			<property name="ChannelId" value="ESB"/>
+			<property name="IdNoMissing" value="E0000217"/>
+			<property name="invalidTCRequestId" value="E0000409"/>
+			<property name="AlreadyExist" value="E0000410"/>
+			<property name="Lessthan" value="E0000419"/>
+			<property name="RDERROR" value="E0000426"/>
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE"/>
+        </group>
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="0" />
+			<property name="maxRetryCount" value="0" />
+		</group>	
+	</group>
+	
+	<group name="SubmitUpdateReleaseDateReqByLaborer.HTTP_INT_SubmitUpdateReleaseDateReqByLaborer">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables"> 			
+			<property name="ChannelId" value="ESB"/>
+			<property name="IdNoMissing" value="E0000217"/>
+			<property name="invalidTCRequestId" value="E0000409"/>
+			<property name="AlreadyExist" value="E0000410"/>
+			<property name="Lessthan" value="E0000419"/>
+			<property name="RDERROR" value="E0000426"/>
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE"/>
+        </group>
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="0" />
+			<property name="maxRetryCount" value="0" />
+		</group>	
+	</group>
+</properties>

@@ -1,12 +1,11 @@
 BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
 
 
-CREATE FILTER MODULE GetAlienVisitorInfo_Fail
+CREATE FILTER MODULE ValLabTCTimeout
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
-		
 		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer;
-		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.Fail; --'E1111111';
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.ValLabTCTimeOut; --'E0000480';
 		
 		RETURN TRUE;
 	END;

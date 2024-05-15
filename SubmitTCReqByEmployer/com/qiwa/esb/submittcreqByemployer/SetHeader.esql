@@ -1,0 +1,35 @@
+BROKER SCHEMA com.qiwa.esb.submittcreqByemployer
+PATH Qiwa.Framework.Lib;
+ 
+CREATE COMPUTE MODULE SetHeader
+	CREATE FUNCTION Main() RETURNS BOOLEAN			
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByEmployer.HTTP_SubmitTCReqByEmployer.Variables;
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+		DECLARE rInBodyRef REFERENCE TO Environment.Variables.Request.Body;
+			
+		SET OutputRoot.Properties	= Environment.Variables.Properties;
+		SET OutputRoot.MQMD	= Environment.Variables.MQMD ;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2 ;
+		
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.SubmitTCReqByEmployerRs  NAME 'Header'; 
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.SubmitTCReqByEmployerRs.Header; 
+		
+		IF EXISTS(Environment.ValidationError.ErrorsList[]) THEN
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.ValidateError,rInHeaderRef,rOutHeaderRef);
+			CREATE LASTCHILD OF OutputRoot.XMLNSC.SubmitTCReqByEmployerRs  NAME 'Body'; 
+			DECLARE OutBodyRef REFERENCE TO OutputRoot.XMLNSC.SubmitTCReqByEmployerRs.Body;
+			SET OutBodyRef.ErrorsList = Environment.ValidationError.ErrorsList; 
+		ELSE 
+			CALL Create_esbXML_Response_Header(Environment.Variables.MWResponse.status,rInHeaderRef,rOutHeaderRef);
+			-- DYNAMIC ADJUSTING OF ERROR 'E0001551''s EN & AR descriptions with the numeric value of (NoticePeriod +30) 
+			IF CAST(Environment.Variables.MWResponse.status AS CHAR) = CAST(loadedPropertiesRef.EXPDateError AS CHAR) THEN   
+			   SET rOutHeaderRef.ResponseStatus.ArabicMsg  = CAST(loadedPropertiesRef.ARErrDescPRT1 AS CHAR) || CAST(Environment.Variables.dynamicErrValue AS CHAR) || CAST(loadedPropertiesRef.ARErrDescPRT2 AS CHAR);
+			   SET rOutHeaderRef.ResponseStatus.EnglishMsg = CAST(loadedPropertiesRef.ENErrDescPRT1 AS CHAR) || CAST(Environment.Variables.dynamicErrValue AS CHAR) || CAST(loadedPropertiesRef.ENErrDescPRT2 AS CHAR);
+			END IF;  
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+

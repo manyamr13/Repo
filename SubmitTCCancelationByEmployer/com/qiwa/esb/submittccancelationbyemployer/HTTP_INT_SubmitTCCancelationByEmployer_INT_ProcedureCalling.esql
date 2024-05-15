@@ -1,0 +1,90 @@
+
+
+BROKER SCHEMA com.qiwa.esb.submittccancelationbyemployer
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE HTTP_INT_SubmitTCCancelationByEmployer_INT_ProcedureCalling
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		--***************************
+
+		DECLARE XMLVAR REFERENCE TO Environment.Properties.SubmitTCCancelationByEmployer.HTTP_SubmitTCCancelationByEmployer.Variables;
+
+		DECLARE rInputHeader REFERENCE TO Environment.Variables.Header;
+		DECLARE rInputBody REFERENCE TO Environment.Variables.Body;
+
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.SubmitTCCancelationByEmployerRs NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.SubmitTCCancelationByEmployerRs NAME 'Body';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.SubmitTCCancelationByEmployerRs.Header;
+		DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.SubmitTCCancelationByEmployerRs.Body;
+
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+
+		SET rOutHeaderRef = rInputHeader;				
+
+
+		DECLARE LaborOfficeId INT;
+		DECLARE SequenceNumber INT;
+		DECLARE LaborerIdNo CHAR;
+		DECLARE Check_Result INT;
+		DECLARE Create_Result INT;
+		DECLARE TCRequestId INT;
+		DECLARE Result INT;
+
+		SET LaborOfficeId = Environment.Variables.LaborOfficeId;
+		SET SequenceNumber = Environment.Variables.SequenceNumber;
+		SET LaborerIdNo = Environment.Variables.LaborerIdNo;
+		SET TCRequestId =Environment.Variables.TCRequestId;		
+		
+
+
+		CALL Check_PendingChangeSponsorRequests (LaborerIdNo,
+												'2,3,7',
+												Environment.Variables.DB.result[]) INTO Check_Result;
+		-- SET Result = CARDINALITY(Environment.Variables.DB.result[]);
+
+		DECLARE HasPendingCSRequest INT Environment.Variables.DB.result.HasPendingCSRequest;
+		IF HasPendingCSRequest = 1 THEN
+			CALL Create_esbXML_Response_Header( XMLVAR.HasCS,rInputHeader, rOutHeaderRef);
+		ELSE
+			CALL Create_TCCancelationRequest(TCRequestId,
+											NULL,
+											Environment.Variables.DB.result[]) INTO Create_Result;
+
+			SET rOutBodyRef.CancelationRequestId = Environment.Variables.DB.result.CancelationRequestId;
+			CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInputHeader, rOutHeaderRef);
+		END IF;
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	CREATE PROCEDURE Check_PendingChangeSponsorRequests (IN LaborerIdNumber CHAR,
+	IN ListOfStatuses CHAR
+	)
+	RETURNS INTEGER LANGUAGE DATABASE DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Check_PendingChangeSponsorRequests";
+
+	CREATE PROCEDURE Create_TCCancelationRequest (IN RequestId INT,
+	IN MWTransationId INT
+	)
+	RETURNS INTEGER LANGUAGE DATABASE DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Create_TCCancelationRequest";
+END MODULE;
