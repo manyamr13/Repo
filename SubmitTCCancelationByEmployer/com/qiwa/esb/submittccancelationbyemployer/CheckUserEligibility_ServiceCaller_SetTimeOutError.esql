@@ -1,0 +1,11 @@
+BROKER SCHEMA com.qiwa.esb.submittccancelationbyemployer
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE CheckUserEligibility_ServiceCaller_SetTimeOutError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.MWResponse.status = 'E9999998';
+		RETURN TRUE;
+	END;
+
+END MODULE;

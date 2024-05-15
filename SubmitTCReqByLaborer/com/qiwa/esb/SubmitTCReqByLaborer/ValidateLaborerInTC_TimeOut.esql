@@ -1,0 +1,14 @@
+BROKER SCHEMA com.qiwa.esb.SubmitTCReqByLaborer
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE ValidateLaborerInTC_TimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--DECLEARING REFRENCE TO THE SubmitTCReqByLaborerFlow XML FLOW
+		DECLARE propertiesRef REFERENCE TO Environment.Properties.SubmitTCReqByLaborer.HTTP_SubmitTCReqByLaborer;
+
+		SET Environment.Variables.MWResponse.status = propertiesRef.Variables.ValLabTCError; --'E0000480';
+		RETURN TRUE;
+	END;
+
+END MODULE;
