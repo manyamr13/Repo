@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://Qiwa/TerminateContract/GetTermContCounts/v1.0" 
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" 
+xmlns:bons0="http://Qiwa/TerminateContract/GetTermContCounts/v1.0" 
+xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" 
+xmlns:Q1="http://Qiwa/Common/Types">
+
+
+    <xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<xsd:element name="GetTerminateContractCountsRq" type="bons0:GetTerminateContractCountsRq_Type"/>
+	<xsd:element name="GetTerminateContractCountsRs" type="bons0:GetTerminateContractCountsRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="GetTerminateContractCountsRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="Q1:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons0:GetTerminateContractCountsRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="GetTerminateContractCountsRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="Q1:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="1" name="Body" type="bons0:GetTerminateContractCountsRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="GetTerminateContractCountsRq_BodyType">
+		<all> 
+			<element minOccurs="1" name="LaborOfficeId" type="integer"/>
+			<element minOccurs="1" name="SequenceNumber" type="integer"/> 
+		
+		</all>
+	</complexType>
+	
+	<complexType name="GetTerminateContractCountsRs_BodyType">
+		<sequence> 
+			<element minOccurs="1" name="RequestsCountList" type="bons0:RequestsCountList_Type"/> 
+		</sequence>
+	</complexType>
+	 
+	<complexType name="RequestsCountList_Type">
+		<all> 
+			<element minOccurs="1" name="RequestsCountItem" type="bons0:RequestsCountItem_Type"/> 
+		</all>
+	</complexType> 
+	
+	<complexType name="RequestsCountItem_Type">
+		<all>
+			<element minOccurs="1" name="StatusId" type="integer"/>
+			<element minOccurs="1" name="StatusEn" type="string"/>
+			<element minOccurs="1" name="StatusAr" type="string"/>
+			<element minOccurs="1" name="RequestsCount" type="integer"/>
+		</all>
+	</complexType>
+	 
+
+</xsd:schema>

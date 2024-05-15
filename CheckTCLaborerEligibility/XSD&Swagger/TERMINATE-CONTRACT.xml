@@ -1,0 +1,69 @@
+	<group name="CheckTCLaborerEligibility.HTTP_CheckTCLaborerEligibility"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" /> 
+		</group>
+		<group name="Variables">		
+			<property name="ODMURL" value="https://icp-proxy.qiwa.info:30509/DecisionService/ws/TermContLabEligRequest_DC/TermContLabEligRequest/v75" />
+			<property name="replyToQueueName" value="ESB.CHECKTCLABELIG.ODMRS" />
+			<property name="ErrorCode" value="E0000004" />
+			<property name="ValidationError" value="E0000022" />
+			
+		</group>  
+		
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+        
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	
+	
+	
+	
+	<group name="CheckTCLaborerEligibility.HTTP_INT_CheckTCLaborerEligibility"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" /> 
+		</group>
+		<group name="Variables">		
+			<property name="ODMURL" value="https://icp-proxy.qiwa.info:30509/DecisionService/ws/TermContLabEligRequest_DC/TermContLabEligRequest/v75" />
+			<property name="replyToQueueName" value="ESB.CHECKTCLABELIG.ODMRS" />
+			<property name="ErrorCode" value="E0000004" />
+			<property name="ValidationError" value="E0000022" />
+			
+			
+			 
+		</group>
+		
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+        
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	

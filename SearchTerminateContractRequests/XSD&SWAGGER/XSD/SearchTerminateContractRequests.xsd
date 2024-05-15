@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://Qiwa/TerminateContract/SearchTerminateContractRequests/v1.0"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" 
+ xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:Q1="http://Qiwa/Common/Types" 
+ xmlns:bons0="http://Qiwa/TerminateContract/SearchTerminateContractRequests/v1.0">
+
+	<import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<element name="SearchTerminateContractRequestsRq" type="bons0:SearchTerminateContractRequestsRq_Type"/>
+	<element name="SearchTerminateContractRequestsRs" type="bons0:SearchTerminateContractRequestsRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="SearchTerminateContractRequestsRq_Type">
+			<sequence>
+				<element name="Header" type="Q1:ESBXMLRequestHeader_Type"/>
+				<element name="Body" type="bons0:SearchTerminateContractRequestsRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="SearchTerminateContractRequestsRs_Type">
+			<sequence>
+				<element name="Header" type="Q1:ESBXMLResponseHeader_Type"/>
+				<element minOccurs="1" name="Body" type="bons0:SearchTerminateContractRequestsRs_BodyType"/> 
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="SearchTerminateContractRequestsRq_BodyType">
+		<all>
+			<element name="LaborOfficeId"        type="integer" minOccurs="0"></element>
+			<element name="SequenceNumber"       type="integer" minOccurs="0"></element>
+			<element name="TCRequestId"          type="integer" minOccurs="0"></element>
+			<element name="RequesterIdNo"        type="integer" minOccurs="0"></element>
+			<element name="OperatorIdNo"         type="integer" minOccurs="0"></element>
+			<element name="LaborerDetails"       type="bons0:LaborerDetails_Type" minOccurs="0"></element>
+			<element name="RequesterTypeId"      type="bons0:RequesterTypeId_Type" minOccurs="0"></element>
+			<element name="StatusIds"            type="string" minOccurs="0"></element>
+			<element name="RDUpdateRequestId"    type="integer" minOccurs="0"></element>
+			<element name="CancelationRequestId" type="integer" minOccurs="0" ></element>
+			<element name="TCReasonId"           type="integer"     minOccurs="0" ></element>
+			<element name="CreationDate"         type="Q1:Tmstmp_Type" minOccurs="0" ></element>
+			<element name="ReleaseDate"          type="Q1:Tmstmp_Type" minOccurs="0" ></element>
+			<element name="RemainingDays"        type="integer"     minOccurs="0" ></element>
+			<element name="PageSize"             type="integer"  minOccurs="1"    ></element>
+			<element name="PageIndex"            type="integer"  minOccurs="1"    ></element>
+		</all>
+	</complexType>
+	
+	
+	<complexType name="LaborerDetails_Type">
+        <all>
+        	<element name="LaborerIdNo" minOccurs="0" type="integer"  />
+			<element name="LaborerName" minOccurs="0" type="string"  />
+			
+		</all>
+	</complexType>
+	
+	
+	<simpleType name="RequesterTypeId_Type">
+        <restriction base="integer">
+            <enumeration value="1"/>
+            <enumeration value="2"/>
+        </restriction>
+        </simpleType>
+		
+	<complexType name="SearchTerminateContractRequestsRs_BodyType">
+        <sequence>
+        	<element name="TotalRecordsCount" minOccurs="1" type="integer"  />
+			<element name="TCRequests"        minOccurs="1" type="bons0:TCRequests_Type"  />
+
+		</sequence>
+	</complexType>
+
+<complexType name="TCRequests_Type">
+        <sequence>
+        	<element name="EstablishmentDetails" minOccurs="1"     type="bons0:EstablishmentDetails_Type"  />
+			<element name="RequesterDetails"     minOccurs="1"     type="bons0:RequesterDetails_Type"  />
+			<element name="LaborerDetails"       minOccurs="1"     type="bons0:LaborerDetails_Type"  />
+        	<element name="TCRequestId"          minOccurs="1"     type="integer"  />
+        	<element name="TCRequestStatus"      minOccurs="1"     type="bons0:Status_Type"  />
+        	<element name="CancelationRequestId" minOccurs="0"     type="integer"  />
+        	<element name="CancelationRequestStatus" minOccurs="0" type="bons0:Status_Type"  />
+        	<element name="RDUpdateRequestId" minOccurs="0"        type="integer"  />
+        	<element name="UpdateRDRequestStatus" minOccurs="0"    type="bons0:Status_Type"  />
+        	<element name="RemainingDays"   minOccurs="1"          type="integer"  />
+        	<element name="TCReason"        minOccurs="1"          type="bons0:CodeName_Type"  />
+        	<element name="ReleaseDate"     minOccurs="1"          type="Q1:Tmstmp_Type"  />
+        	<element name="ReleaseDateType" minOccurs="1"          type="bons0:CodeName_Type"  />
+        	<element name="ReleaseDateReqByLaborer" minOccurs="0"  type="Q1:Tmstmp_Type"  />
+        	<element name="RDRequestTypeId" minOccurs="0"          type="bons0:CodeName_Type"  />
+        	<element name="RDUpdateDate"    minOccurs="0"          type="date"  />
+        	<element name="RDCurrentEmployerIdNo" minOccurs="0"    type="integer"/>
+        	<element name="ContractDetails" minOccurs="1"          type="bons0:ContractDetails_Type"  />
+        	<element name="CreationDate"    minOccurs="1"          type="Q1:Tmstmp_Type"  />
+		</sequence>
+	</complexType>
+	
+	
+	<complexType name="EstablishmentDetails_Type">
+        <sequence>
+        	<element name="LaborOfficeId" minOccurs="1" type="integer"  />
+			<element name="SequenceNumber" minOccurs="1" type="integer"  />
+			<element name="EstablishmentName" minOccurs="1" type="string"  />
+		</sequence>
+	</complexType>
+
+	<complexType name="RequesterDetails_Type">
+        <sequence>
+        	<element name="RequesterIdNo" minOccurs="1" type="integer"  />
+			<element name="RequesterType" minOccurs="1" type="bons0:CodeName_Type"  />
+		</sequence>
+	</complexType>
+	
+	<complexType name="LaborerDetails_Type2">
+        <sequence>
+        	<element name="LaborerIdNo" minOccurs="1" type="integer"  />
+			<element name="LaborerName" minOccurs="1" type="string"  />
+			<element name="LaborerJob"  minOccurs="1" type="bons0:CodeName_Type"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="CodeName_Type">
+        <sequence>
+        	<element name="Code"   minOccurs="1" type="integer"  />
+			<element name="NameAr" minOccurs="1" type="string"  />
+			<element name="NameEn" minOccurs="1" type="string"  />
+		</sequence>
+	</complexType>
+	
+	
+	<complexType name="Status_Type">
+        <sequence>
+        	<element name="StatusId"   minOccurs="1" type="integer"  />
+			<element name="StatusEn"   minOccurs="1" type="string"  />
+			<element name="StatusAr"   minOccurs="1" type="string"  />
+		</sequence>
+	</complexType>
+
+	<complexType name="ContractDetails_Type">
+        <sequence>
+        	<element name="ContractId"        minOccurs="1" type="integer"/>
+			<element name="ContractStartDate" minOccurs="1" type="Q1:Tmstmp_Type"/>
+			<element name="ContractExpiryDate" minOccurs="1" type="Q1:Tmstmp_Type"/>
+			<element name="GOSITerminated" minOccurs="1" type="integer"/>
+			
+		</sequence>
+	</complexType>
+
+	
+</schema>

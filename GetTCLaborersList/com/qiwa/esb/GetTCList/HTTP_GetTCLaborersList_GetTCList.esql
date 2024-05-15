@@ -1,0 +1,104 @@
+
+
+
+
+
+
+
+
+
+
+BROKER SCHEMA com.qiwa.esb.GetTCList
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE HTTP_GetTCLaborersList_GetTCList
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--COPYING msg headers
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD =InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+	
+		--Input refrences
+		DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.GetTCLaborersListRq.Header;
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.GetTCLaborersListRq.Body;
+	
+		--Proprities check
+		IF EXISTS(Environment.Properties.GetTCLaborersList.HTTP_INT_GetTCLaborersList[]) THEN
+			SET Environment.Properties.GetTCLaborersList.HTTP_GetTCLaborersList=
+			Environment.Properties.GetTCLaborersList.HTTP_INT_GetTCLaborersList;
+			DELETE FIELD Environment.Properties.GetTCLaborersList.HTTP_INT_GetTCLaborersList;
+		END IF;
+	
+		-- refrence top propreties
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetTCLaborersList.HTTP_GetTCLaborersList;
+		-- Creatte OutputHeader
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetTCLaborersListRs NAME 'Header';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetTCLaborersListRs.Header;
+	
+		--call DB TeminateContracts_Get_TCLaborersList SP
+		CALL TeminateContracts_Get_TCLaborersList (CAST(rInBodyRef.LaborOfficeId AS INTEGER),
+													CAST(rInBodyRef.SequenceNumber AS INT ),
+													CAST (rInBodyRef.OriginalStartDate AS DATE ),
+													CAST( rInBodyRef.LaborerIdNo AS CHARACTER),
+												
+													CAST(rInBodyRef.LaborerName AS CHARACTER),
+													CAST(rInBodyRef.PageSize AS INT),
+													CAST(rInBodyRef.PageIndex AS INT ) ,
+													Environment.Variables.DB.Result[]
+													) ;
+		-- check DB RESULT
+		IF EXISTS( Environment.Variables.DB.Result[] )THEN
+			-- Create output body
+			CREATE LASTCHILD OF OutputRoot.XMLNSC.GetTCLaborersListRs NAME 'Body';
+			DECLARE rOutBody REFERENCE TO OutputRoot.XMLNSC.GetTCLaborersListRs.Body;
+			DECLARE x INT 1;
+			-- refrence to DB List
+			DECLARE rList REFERENCE TO Environment.Variables.DB.Result[1];
+			--looping -- mapping DB To OutBody
+			WHILE LASTMOVE(rList) DO
+				SET rOutBody.LaborerDetails.Laborer[x].LaborerIdNo = rList.LaborerId;
+				SET rOutBody.LaborerDetails.Laborer[x].LaborerName = rList.LaborerName;
+				SET rOutBody.LaborerDetails.Laborer[x].OriginalStartDate = rList.OriginalStartDate;
+				SET x=x+1;
+
+				MOVE rList NEXTSIBLING REPEAT NAME ;
+			END WHILE;
+			SET rOutBody.TotalRecordCount = Environment.Variables.DB.Result[1].TotalRecordsCount ;
+			CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,rOutHeaderRef);
+
+		ELSE
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.NoData,rInHeaderRef,rOutHeaderRef);
+
+		END IF ;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	CREATE PROCEDURE TeminateContracts_Get_TCLaborersList
+	(IN LaborOffice INTEGER ,
+	IN Sequence INTEGER,
+	IN OriginalDate DATE ,
+	IN LaborerIdNo CHARACTER,
+
+	IN LaborerName CHARACTER,
+	IN PageSize INTEGER ,
+	IN PageIndex INTEGER
+	)
+	LANGUAGE DATABASE
+	DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.TeminateContracts_Get_TCLaborersList";
+END MODULE;
