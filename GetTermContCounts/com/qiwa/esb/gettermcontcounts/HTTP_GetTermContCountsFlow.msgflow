@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:Qiwa_Framework_Lib_HTTPRequestAdapter.subflow="Qiwa/Framework/Lib/HTTPRequestAdapter.subflow" xmlns:Qiwa_Framework_Lib_HTTPResponseAdapter.subflow="Qiwa/Framework/Lib/HTTPResponseAdapter.subflow" xmlns:Qiwa_Framework_Lib_InternalHTTPRequestAdapter.subflow="Qiwa/Framework/Lib/InternalHTTPRequestAdapter.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow"
+    xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/gettermcontcounts/HTTP_GetTermContCountsFlow.msgflow" nsPrefix="com_qiwa_esb_gettermcontcounts_HTTP_GetTermContCountsFlow.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" nodeLayoutStyle="SQUARE">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="HTTP_GetTermContCountsFlow" bundleName="com/qiwa/esb/gettermcontcounts/HTTP_GetTermContCountsFlow" pluginId="GetTermContCounts"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/GetTermContCounts/icons/full/obj16/HTTP_GetTermContCountsFlow.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/GetTermContCounts/icons/full/obj30/HTTP_GetTermContCountsFlow.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="308,93" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb.gettermcontcounts#Call_DB.Main">
+        <translation xmi:type="utility:ConstantString" string="Call_DB"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_HTTPResponseAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="488,94">
+        <translation xmi:type="utility:ConstantString" string="HTTPResponseAdapter"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_HTTPRequestAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="92,92" SCHEMA_VALIDATION_ENABLED="true" LOG_ENABLED="true" PROPERTIES_ENABLED="true" ServiceURL="/tc/gettermcontcounts" TimeoutInSec="10" PropertiesGroup="GetTermContCounts.HTTP_GetTermContCountsFlow" PropertyFilename="${broker.name}/TERMINATE-CONTRACT.xml">
+        <translation xmi:type="utility:ConstantString" string="HTTPRequestAdapter"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_InternalHTTPRequestAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="85,190" SCHEMA_VALIDATION_ENABLED="true" LOG_ENABLED="true" PROPERTIES_ENABLED="true" ServiceURL="/internal/tc/gettermcontcounts" TimeoutInSec="10" PropertiesGroup="GetTermContCounts.HTTP_GetTermContCountsFlow" PropertyFilename="${broker.name}/TERMINATE-CONTRACT.xml">
+        <translation xmi:type="utility:ConstantString" string="InternalHTTPRequestAdapter"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output2" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.Output2" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<properties refresh-policy="automatic">
+<group name="SearchTerminateContractRequests.SearchTerminateContractRequests"> 
+				<group name="Logging">
+					<property name="LogEnabled" value="TRUE" />
+					<property name="AuditEnabled" value="FALSE" />
+					<property name="key1" value="" />
+					<property name="value1" value="" />
+					<property name="key2" value="" />
+					<property name="value2" value="" />
+					<property name="key3" value="" />
+					<property name="value3" value="" />
+					<property name="key4" value="" />
+					<property name="value4" value="" />
+				</group>
+				<group name="Variables">							
+					<property name="NoDataFound" value="E0000422" />
+                    <property name="MissingParameters" value="E0000454" />
+					<property name="TechnicalError" value="E0000430" />
+				</group>
+				
+				<group name="column">
+                    <property name="column1" value="LaborerExist" />
+                    <property name="column2" value="UnifiedNumberExist" />
+                </group>
+				
+				<group name="SchemaValidation">
+					<property name="ValidationEnabled" value="TRUE" />
+				</group>
+				<group name="Retry">
+						<property name="RetryEnabled" value="FALSE" />
+					<property name="minWaitDurationSec" value="60" />
+					<property name="maxRetryCount" value="5" />
+				</group>
+		</group>
+			
+		<group name="SearchTerminateContractRequests.INT_SearchTerminateContractRequests"> 
+				<group name="Logging">
+					<property name="LogEnabled" value="TRUE" />
+					<property name="AuditEnabled" value="FALSE" />
+					<property name="key1" value="" />
+					<property name="value1" value="" />
+					<property name="key2" value="" />
+					<property name="value2" value="" />
+					<property name="key3" value="" />
+					<property name="value3" value="" />
+					<property name="key4" value="" />
+					<property name="value4" value="" />
+				</group>
+				<group name="Variables">							
+                    <property name="NoDataFound" value="E0000422" />
+                    <property name="MissingParameters" value="E0000454" />
+					<property name="TechnicalError" value="E0000430" />				
+				</group>
+				
+				<group name="column">
+                    <property name="column1" value="LaborerExist" />
+                    <property name="column2" value="UnifiedNumberExist" />
+                </group>
+				
+				<group name="SchemaValidation">
+					<property name="ValidationEnabled" value="TRUE" />
+				</group>
+				<group name="Retry">
+						<property name="RetryEnabled" value="FALSE" />
+					<property name="minWaitDurationSec" value="60" />
+					<property name="maxRetryCount" value="5" />
+				</group>
+		</group>
+	
+</properties>
