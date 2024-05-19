@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:Qiwa_Framework_Lib_MQ_Input_Node.subflow="Qiwa/Framework/Lib/MQ_Input_Node.subflow" xmlns:Qiwa_Framework_Lib_MQ_Output_Node.subflow="Qiwa/Framework/Lib/MQ_Output_Node.subflow" xmlns:Qiwa_Framework_Lib_MWBusinessErrorResponse.subflow="Qiwa/Framework/Lib/MWBusinessErrorResponse.subflow" xmlns:com_qiwa_esb_getcontracttemplatedetails_CheckUserEligiblityFlow.subflow="com/qiwa/esb/getcontracttemplatedetails/CheckUserEligiblityFlow.subflow"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/getcontracttemplatedetails/GetContractTemplateDetailsFlow.msgflow" nsPrefix="com_qiwa_esb_getcontracttemplatedetails_GetContractTemplateDetailsFlow.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="GetContractTemplateDetailsFlow" bundleName="com/qiwa/esb/getcontracttemplatedetails/GetContractTemplateDetailsFlow" pluginId="GetContractTemplateDetails"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/GetContractTemplateDetails/icons/full/obj16/GetContractTemplateDetailsFlow.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/GetContractTemplateDetails/icons/full/obj30/GetContractTemplateDetailsFlow.gif"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_MQ_Input_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="27,122" LOG_ENABLED="true" PROPERTIES_ENABLED="true" queueName="ESB.GETCONTRACTTEMPDETAILS.RQ" messageDomainProperty="XMLNSC" PropertiesGroup="GetContractTemplateDetails.GetContractTemplateDetailsFlow" PropertyFilename="${broker.name}/CONTRACT-MANAGEMENT.xml">
+        <translation xmi:type="utility:ConstantString" string="MQ_Input_Node"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_MQ_Output_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="618,26" LOG_ENABLED="true" queueName="ESB.GETCONTRACTTEMPDETAILS.RS">
+        <translation xmi:type="utility:ConstantString" string="MQ_Output_Node"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="190,122" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb.getcontracttemplatedetails#GetContractsFlow_Compute.Main">
+        <translation xmi:type="utility:ConstantString" string="CallSP"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_MWBusinessErrorResponse.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="597,238" OUT_QUEUE="ESB.GETCONTRACTTEMPDETAILS.RS">
+        <translation xmi:type="utility:ConstantString" string="MWBusinessErrorResponse"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="537,25" computeExpression="esql://routine/com.qiwa.esb.getcontracttemplatedetails#GetContractTemplateDetailsFlow_Response.Main">
+        <translation xmi:type="utility:ConstantString" string="Response"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="507,237" computeExpression="esql://routine/com.qiwa.esb.getcontracttemplatedetails#GetContractTemplateDetailsFlow_SetHeaders.Main">
+        <translation xmi:type="utility:ConstantString" string="SetHeaders"/>
+      </nodes>
+      <nodes xmi:type="com_qiwa_esb_getcontracttemplatedetails_CheckUserEligiblityFlow.subflow:FCMComposite_1" xmi:id="FCMComposite_1_11" location="360,123">
+        <translation xmi:type="utility:ConstantString" string="CheckUserEligiblityFlow"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out2" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

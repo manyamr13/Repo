@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  targetNamespace="http://Qiwa/ContractManagement/GetContractWorkLocations/v1.0" 
+  xmlns="http://www.w3.org/2001/XMLSchema"  
+  xmlns:bons0="http://Qiwa/ContractManagement/GetContractWorkLocations/v1.0"
+  xmlns:bons1="http://Qiwa/Common/Types"
+  xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions">
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>   	
+  	
+    <xsd:element name="GetContractWorkLocationsRq" type="bons0:GetContractWorkLocationsRq_Type"/>
+	<xsd:element name="GetContractWorkLocationsRs" type="bons0:GetContractWorkLocationsRs_Type"/>
+ 
+	<complexType name="GetContractWorkLocationsRq_Type">
+		<sequence>
+				<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+			</sequence>
+		</complexType>
+	
+	<complexType name="GetContractWorkLocationsRs_Type">
+		<sequence>
+				<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+				<xsd:element name="Body" type="bons0:GetContractWorkLocationsRs_BodyType"/>
+			</sequence>
+		</complexType>
+		 
+	 
+	<complexType name="GetContractWorkLocationsRs_BodyType">
+		<all>
+			<element minOccurs="1" name="WorkLocationList" type="bons0:WorkLocationList_Type"/> 
+		</all>
+	</complexType>
+	
+	
+	<complexType name="WorkLocationList_Type">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="1" name="WorkLocationItem" type="bons0:WorkLocationItem_Type"/>
+		</sequence>
+	</complexType>
+		
+	<complexType name="WorkLocationItem_Type">
+		<all>
+			<element minOccurs="1" name="Code" type="integer"/>
+			<element minOccurs="1" name="NameAr" type="string"/>
+			<element minOccurs="1" name="NameEn" type="string"/>
+		</all>
+	</complexType>
+	
+</xsd:schema> 
+			

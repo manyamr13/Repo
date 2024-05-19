@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+	targetNamespace="http://Qiwa/ContractManagement/GetContLabList/v1.0"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:bons0="http://Qiwa/ContractManagement/GetContLabList/v1.0"
+	xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:bons1="http://Qiwa/Common/Types">
+
+	<xsd:import namespace="http://Qiwa/Common/Types"
+		schemaLocation="../common/types/ESB_common_types_v1.0.xsd" />
+ 
+	<xsd:element name="GetContractLaborersListRq" type="bons0:GetContractLaborersListRq_Type" />
+	<xsd:element name="GetContractLaborersListRs" type="bons0:GetContractLaborersListRs_Type" />
+
+	<complexType ibmSchExtn:docRoot="true" name="GetContractLaborersListRq_Type">
+		<sequence>
+			<xsd:element name="Header" 	type="bons1:ESBXMLRequestHeader_Type" />
+			<xsd:element name="Body" 	type="bons0:GetContractLaborersListRq_BodyType" />
+		</sequence>
+	</complexType>
+
+	<complexType ibmSchExtn:docRoot="true" name="GetContractLaborersListRs_Type">
+		<sequence>
+			<xsd:element name="Header" 	type="bons1:ESBXMLResponseHeader_Type" />
+			<xsd:element name="Body" 	type="bons0:GetContractLaborersListRs_BodyType" />
+		</sequence>
+	</complexType>
+
+
+	<complexType name="GetContractLaborersListRq_BodyType">
+		<all> 
+			<element minOccurs="1" name="LaborOfficeId" 			type="integer" />
+			<element minOccurs="1" name="SequenceNumber" 			type="integer"  /> 
+			<element minOccurs="0" name="LaborerIdNo" 			type="integer"  /> 
+			<element minOccurs="0" name="LaborerFirstName" 			type="string"  /> 
+			<element minOccurs="0" name="LaborerTypeId"             type= "bons0:Integer_Type_1_2" /> 
+			<element minOccurs="1" name="PageSize" 					type="integer" />
+			<element minOccurs="1" name="PageIndex" 				type="integer" />
+		</all>
+	</complexType>
+ 
+	<xsd:simpleType name="Integer_Type_1_2">
+		<xsd:restriction base="xsd:integer">
+			<xsd:enumeration value="1"/>
+   			<xsd:enumeration value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<complexType name="GetContractLaborersListRs_BodyType">
+		<all>
+			<element minOccurs="0" name="LaborersList" type="bons0:LaborersList_Type" />
+			<element minOccurs="1" name="TotalRecordsCount" type="integer" />
+		</all>
+	</complexType>
+
+
+	<complexType name="LaborersList_Type">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="1" name="LaborerItem" type="bons0:LaborerItem_Type" />
+		</sequence>
+	</complexType>
+
+	<complexType name="LaborerItem_Type">
+		<all> 
+			<element minOccurs="1" name="LaborerIdNo" type="integer" />
+			<element minOccurs="1" name="LaborerName" type="string" /> 
+		</all>
+	</complexType> 
+
+</xsd:schema>

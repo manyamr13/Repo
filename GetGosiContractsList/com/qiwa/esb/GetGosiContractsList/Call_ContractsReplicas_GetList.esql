@@ -1,0 +1,103 @@
+
+BROKER SCHEMA com.qiwa.esb.GetGosiContractsList
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE Call_ContractsReplicas_GetList
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- copy message headers
+		SET OutputRoot.Properties = Environment.OriginalRequest.Properties;
+		SET OutputRoot.MQMD = Environment.OriginalRequest.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.OriginalRequest.MQRFH2;
+		-- properties reference
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetGosiContractsList.HTTP_GetGosiContractsList;
+		-- input header and body references
+		DECLARE rInHeaderRef REFERENCE TO Environment.OriginalRequest.XMLNSC.GetGosiContractsListRq.Header;
+		DECLARE rInBodyRef REFERENCE TO Environment.OriginalRequest.XMLNSC.GetGosiContractsListRq.Body;
+		-- create OutputRoot and references to header and body
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetGosiContractsListRs NAME 'Header';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetGosiContractsListRs.Header;
+
+		DECLARE respHeaderRef REFERENCE TO InputRoot.XMLNSC.CheckUserEligibilityRs.Header;
+
+		IF respHeaderRef.ResponseStatus.Code = GetESBSuccessCode() OR rInHeaderRef.ChannelId = loadedPropertiesRef.Variables.unifiedPortal OR rInHeaderRef.ChannelId = 'ESB' OR rInHeaderRef.ChannelId = 'Qiwa Individual' THEN
+			-- reference necessary variables
+			DECLARE LaborOfficeId INTEGER rInBodyRef.EstablishmentDetails.LaborOfficeId;
+			DECLARE SequenceNumber INTEGER rInBodyRef.EstablishmentDetails.SequenceNumber;
+			DECLARE EstablishmentId INTEGER rInBodyRef.EstablishmentDetails.EstablishmentId;
+			DECLARE UnifiedNumberId INTEGER rInBodyRef.EstablishmentDetails.UnifiedNumberId;
+			DECLARE LaborerIdNo CHARACTER rInBodyRef.LaborerDetails.LaborerIdNo;
+			DECLARE LaborerTypeId INTEGER rInBodyRef.LaborerDetails.LaborerTypeId;
+			DECLARE RequesterIdNo CHARACTER rInBodyRef.RequesterIdNo;
+			DECLARE GOSIRequestTypeId INTEGER rInBodyRef.GOSIRequestTypeId;
+			DECLARE PageSize INTEGER rInBodyRef.PageSize;
+			DECLARE PageIndex INTEGER rInBodyRef.PageIndex;
+			-- db call
+			DECLARE returnVal INTEGER;
+			CALL ContractsReplicas_GetList( LaborOfficeId,
+			SequenceNumber,
+			EstablishmentId,
+			UnifiedNumberId,
+			LaborerIdNo,
+			LaborerTypeId,
+			RequesterIdNo,
+			GOSIRequestTypeId,
+			PageSize,
+			PageIndex,
+			Environment.Variables.DB.Result[]) INTO returnVal;
+
+			DECLARE ErrorCode CHARACTER;
+
+			IF returnVal = -1 THEN
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.Error_3, rInHeaderRef, rOutHeaderRef);
+			ELSEIF returnVal = -2 THEN
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.Error_1, rInHeaderRef, rOutHeaderRef);
+			ELSEIF returnVal = -3 THEN
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.Error_4, rInHeaderRef, rOutHeaderRef);
+			ELSEIF returnVal = 0 THEN
+				-- construct body from db result
+				DECLARE I INT 1;
+				DECLARE dbResult REFERENCE TO Environment.Variables.DB.Result[1];
+				CALL Create_esbXML_Response_Header(GetESBSuccessCode(), rInHeaderRef, rOutHeaderRef);
+				CREATE LASTCHILD OF OutputRoot.XMLNSC.GetGosiContractsListRs NAME 'Body';
+				DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.GetGosiContractsListRs.Body;
+				WHILE LASTMOVE(dbResult) DO
+					SET rOutBodyRef.ContractsList.ContractsItem[I].ContractId = dbResult.ContractId;
+					SET rOutBodyRef.ContractsList.ContractsItem[I].LaborerIdNo = dbResult.LaborerIdNo;
+					SET rOutBodyRef.ContractsList.ContractsItem[I].LaborerName = dbResult.LaborerName;
+					SET rOutBodyRef.ContractsList.ContractsItem[I].RequesterIdNo = dbResult.RequesterIdNo;
+					SET rOutBodyRef.ContractsList.ContractsItem[I].RequesterName = dbResult.RequesterName;
+					SET rOutBodyRef.ContractsList.ContractsItem[I].GOSIStatus.Status = dbResult.GOSIStatus;
+					SET rOutBodyRef.ContractsList.ContractsItem[I].GOSIStatus.Description = dbResult.GOSIDescription;
+					SET rOutBodyRef.ContractsList.ContractsItem[I].LastModificationDate = dbResult.LastModificationDate;
+					SET I = I + 1;
+					MOVE dbResult NEXTSIBLING REPEAT NAME;
+				END WHILE;
+				SET rOutBodyRef.TotalRecordsCount = dbResult.TotalRecordsCount;
+			END IF;
+		ELSE
+			--return error if user not eligible and exit flow
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.Error_2;
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		END IF;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE ContractsReplicas_GetList( IN LaborOfficeId INTEGER ,
+	IN SequenceNumber INTEGER,
+	IN EstablishmentId INTEGER,
+	IN UnifiedNumberId INTEGER,
+	IN LaborerIdNo CHARACTER,
+	IN LaborerTypeId INTEGER,
+	IN RequesterIdNo CHARACTER,
+	IN GOSIRequestTypeId INTEGER,
+	IN PageSize INTEGER ,
+	IN PageIndex INTEGER
+	)
+	RETURNS INTEGER
+	LANGUAGE DATABASE
+	DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.ContractsReplicas_GetList";
+END MODULE;

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<properties refresh-policy="automatic">
+	
+	<group name="GetContractDetails.GetContractDetailsFlow">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="Nodata" value="E0000159"/> 
+			<property name="NoIdNumber" value="E0000168"/>
+			<property name="Error_Contract" value="E0000545"/>
+			<property name="Error_3" value="E0000436"/>
+			<property name="CheckUserCode" value="CUE00001" />
+			<property name="ChannelId" value="ESB" />
+			<property name="Unified" value="FK_UnifiedNumberId" />
+			<property name="DPURL" value="http://192.168.80.48:7022/GetSaudiNonSaudiLaborerInfo" />
+			<property name="TimeOutError"  value="E9999998" />
+			<property name="unifiedPortal" value="unifiedPortal" />
+		</group>	
+		
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>		
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	
+	
+</properties>

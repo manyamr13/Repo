@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+targetNamespace="http://Qiwa/ContractManagement/GetContractSpecialties/v1.0"
+	
+	xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:bons0="http://Qiwa/ContractManagement/GetContractSpecialties/v1.0"
+	xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions"
+	xmlns:bons1="http://Qiwa/Common/Types">
+
+	<xsd:import namespace="http://Qiwa/Common/Types"
+		schemaLocation="../common/types/ESB_common_types_v1.0.xsd" />
+
+	<xsd:element name="GetContractSpecialtiesRq"
+		type="bons0:GetContractSpecialtiesRq_Type" />
+	<xsd:element name="GetContractSpecialtiesRs"
+		type="bons0:GetContractSpecialtiesRs_Type" />
+
+	<xsd:complexType name="GetContractSpecialtiesRs_Type">
+		<xsd:sequence>
+			<xsd:element name="Header"
+				type="bons1:ESBXMLRequestHeader_Type" />
+			<xsd:element name="Body"
+				type="bons0:GetContractSpecialtiesRs_BodyType" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+
+	<xsd:complexType name="GetContractSpecialtiesRq_Type">
+		<xsd:sequence>
+			<xsd:element name="Header"
+				type="bons1:ESBXMLResponseHeader_Type" />
+		
+		</xsd:sequence>
+	</xsd:complexType>
+
+
+	<xsd:complexType name="GetContractSpecialtiesRs_BodyType">
+		<xsd:all>
+			<xsd:element minOccurs="1" name="SpecialtyList" type="bons0:SpecialtyList_Type" />
+		</xsd:all>
+	</xsd:complexType>
+
+
+	<xsd:complexType name="SpecialtyList_Type">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="SpecialtyItem" type="bons0:SpecialtyItem_Type" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="SpecialtyItem_Type">
+		<xsd:all>
+			<xsd:element minOccurs="1" name="Code" type="integer" />
+			<xsd:element minOccurs="1" name="NameAr" type="string" />
+			<xsd:element minOccurs="1" name="NameEn" type="string" />
+		</xsd:all>
+	</xsd:complexType>
+
+</xsd:schema>

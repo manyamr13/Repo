@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://Qiwa/ContractManagement/GetBulkList/v1.0" 
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+xmlns="http://www.w3.org/2001/XMLSchema" 
+xmlns:bons0="http://Qiwa/ContractManagement/GetBulkList/v1.0" 
+xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:Q1	="http://Qiwa/Common/Types">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<xsd:element name="GetBulkListRq" type="bons0:GetBulkListRq_Type"/>
+	<xsd:element name="GetBulkListRs" type="bons0:GetBulkListRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="GetBulkListRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="Q1:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons0:GetBulkListRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="GetBulkListRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="Q1:ESBXMLResponseHeader_Type"/>
+				<xsd:element name="Body" type="bons0:GetBulkListRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="GetBulkListRq_BodyType">
+		<all>
+			<element minOccurs="1" name="LaborOfficeId" type="integer"/>
+			<element minOccurs="1" name="SequenceNumber" type="integer"/>
+			<element minOccurs="1" name="PageSize" type="integer"/>
+			<element minOccurs="1" name="PageIndex" type="integer"/>
+		</all>
+	</complexType>
+	
+	<complexType name="GetBulkListRs_BodyType">
+		<all>
+			<element minOccurs="1" name="BulkList" type="bons0:BulkList_Type"/>
+			<element minOccurs="1" name="TotalRecordsCount" type="integer"/>
+		</all>
+	</complexType>
+	<complexType name="BulkList_Type">
+		<sequence>
+			<element minOccurs="1" maxOccurs="unbounded" name="Bulk" type="bons0:Bulk_Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="Bulk_Type">
+		<all>
+			<element minOccurs="1" name="BulkId" type="integer"/>
+			<element minOccurs="1" name="CreationDate" type="Q1:Tmstmp_Type"/>
+			<element minOccurs="1" name="RequesterName" type="string"/>
+			<element minOccurs="1" name="NbOfContracts" type="integer"/>
+			<element minOccurs="1" name="NbSucessfullyContract" type="integer"/>
+			<element minOccurs="1" name="NbFailedContract" type="integer"/>
+			<element minOccurs="1" name="NbPendingContract" type="integer"/>
+			<element minOccurs="1" name="IsDraft" type="integer"/>
+		</all>
+	</complexType>
+	
+</xsd:schema>

@@ -1,0 +1,64 @@
+BROKER SCHEMA com.qiwa.esb.getcontractscounts 
+ 
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE Call_DB
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		-- Create reference to flow Environment.Properties
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetContractsCounts.HTTP_GetContractsCountsFlow.Variables;
+		-- Create refrences for the header and body of the request
+		DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.GetContractsCountsRq.Header;
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.GetContractsCountsRq.Body;
+		
+		-- Create refrences for the Properties and header of the response
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetContractsCountsRs NAME 'Header';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetContractsCountsRs.Header;
+		 
+		-- Send all variables sent in the request and call procedure 
+		CALL Contracts_Count_Get(
+											COALESCE(CAST(rInBodyRef.LaborOfficeId AS INTEGER),NULL),
+											COALESCE(CAST(rInBodyRef.SequenceNumber AS INTEGER),NULL),
+											Environment.Variables.DB.ResultSet[]);
+			 
+		-- Prepare the response
+		DECLARE rResult REFERENCE TO Environment.Variables.DB.ResultSet[1];
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetContractsCountsRs NAME 'Body';
+		DECLARE OutRef REFERENCE TO OutputRoot.XMLNSC.GetContractsCountsRs.Body;
+		DECLARE i INTEGER 0;
+		WHILE LASTMOVE(rResult) DO
+			SET i = i + 1;
+			SET OutRef.RequestsCountList.RequestsCountItem[i].StatusId VALUE = rResult.StatusId; 
+			SET OutRef.RequestsCountList.RequestsCountItem[i].StatusEn VALUE = rResult.StatusEn; 
+			SET OutRef.RequestsCountList.RequestsCountItem[i].StatusAr VALUE = rResult.StatusAr; 
+			SET OutRef.RequestsCountList.RequestsCountItem[i].RequestsCount VALUE = rResult.RequestsCount; 
+			MOVE rResult NEXTSIBLING REPEAT NAME;
+		END WHILE;
+		
+		-- Return success via response status
+		CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,rOutHeaderRef); 	  
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	-- Procedure to Get Contracts Counts
+	CREATE PROCEDURE Contracts_Count_Get (IN p_LaborOfficeId INTEGER,
+	IN p_SequenceNumber INTEGER) LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Contracts_Count_Get";
+END MODULE;

@@ -1,0 +1,161 @@
+
+
+
+
+BROKER SCHEMA com.qiwa.esb.getcontractslist
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE CheckUserEligibilityFlow_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetContractsList.GetContractsListFlow.Variables;
+
+
+
+		IF (InputRoot.XMLNSC.CheckUserEligibilityRs.Header.ResponseStatus.Code = GetESBSuccessCode()OR Environment.Variables.CheckUserEligibilityIsSkipped = 1)THEN
+			SET OutputRoot.Properties = Environment.Variables.Properties;
+			SET OutputRoot.MQMD = Environment.Variables.MQMD;
+			SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+			-- creating the response structure "header and body"
+			CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+			CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetContractsListRs NAME 'Header';
+			-- creating refrences for the header and body of the response
+
+			DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetContractsListRs.Header;
+			DECLARE rInputHeader REFERENCE TO Environment.Variables.XMLNSC.GetContractsListRq.Header;
+			DECLARE rInputBody REFERENCE TO Environment.Variables.XMLNSC.GetContractsListRq.Body;
+
+			DECLARE StatusList CHARACTER '';
+			DECLARE c INTEGER 2;
+			IF EXISTS(rInputBody.StatusList.Status[]) THEN
+				DECLARE ListCount INTEGER CARDINALITY(rInputBody.StatusList.Status[]);
+				SET StatusList = CAST(rInputBody.StatusList.Status[1].Id as CHARACTER);
+				WHILE c <= ListCount DO
+					SET StatusList = StatusList || ',' || CAST(rInputBody.StatusList.Status[c].Id as CHARACTER);
+					SET c = c + 1;
+				END WHILE;
+			ELSE
+				SET StatusList = NULL;
+			END IF;
+
+
+
+			DECLARE TotalRecordsCount INT;
+
+			CALL Get_ContractsList(
+			COALESCE(CAST(rInputBody.LaborerDetails.LaborerIdNo AS CHARACTER),NULL),
+			COALESCE(CAST(rInputBody.LaborerDetails.LaborerTypeId AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.LaborerDetails.LaborerName AS CHARACTER),NULL),
+			COALESCE(CAST(rInputBody.EstablishmentDetails.LaborOfficeId AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.EstablishmentDetails.SequenceNumber AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.EstablishmentDetails.EstablishmentId AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.EstablishmentDetails.UnifiedNumberId AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.EstablishmentDetails.EntityId AS CHARACTER),NULL),
+			COALESCE(CAST(rInputBody.RequesterDetails.RequesterUserId AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.RequesterDetails.RequesterIdNo AS CHARACTER),NULL),
+			COALESCE(CAST(rInputBody.RequesterDetails.RequesterName AS CHARACTER),NULL),
+			COALESCE(CAST(rInputBody.SortByExpiryDate AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.SortByNoticePeriod AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.SortByModificationDate AS INTEGER),NULL),
+			StatusList,
+			COALESCE(CAST(rInputBody.SalaryTypeId AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.DateTypeId AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.PageSize AS INTEGER),NULL),
+			COALESCE(CAST(rInputBody.PageIndex AS INTEGER),NULL),
+			TotalRecordsCount,
+			Environment.Variables.DB.ResultSet[]);
+			-- Prepare Final Response
+			DECLARE DateTypeId INT rInputBody.DateTypeId;
+			DECLARE i INT 0;
+			DECLARE j INTEGER 1;
+			DECLARE resultSetCount REFERENCE TO Environment.Variables.DB.ResultSet[1];
+			IF EXISTS ( Environment.Variables.DB.ResultSet[]) THEN
+				CREATE LASTCHILD OF OutputRoot.XMLNSC.GetContractsListRs NAME 'Body';
+				DECLARE RsRoot REFERENCE TO OutputRoot.XMLNSC.GetContractsListRs.Body;
+
+				WHILE LASTMOVE (resultSetCount) DO
+					SET i = i + 1;
+					SET RsRoot.ContractsList.ContractsItem[i].ContractId = resultSetCount.ContractId;
+					SET RsRoot.ContractsList.ContractsItem[i].LaborerName = resultSetCount.LaborerName;
+					SET RsRoot.ContractsList.ContractsItem[i].ContractTypeNameEn = resultSetCount.ContractTypeNameEn;
+					SET RsRoot.ContractsList.ContractsItem[i].ContractTypeNameAr = resultSetCount.ContractTypeNameAr;
+					SET RsRoot.ContractsList.ContractsItem[i].RequesterName = resultSetCount.RequesterName;
+
+					IF rInputBody.DateTypeId IS NULL THEN
+						SET DateTypeId = resultSetCount.DateTypeId;
+					END IF ;
+
+					IF DateTypeId = 1 THEN
+						SET RsRoot.ContractsList.ContractsItem[i].ExpiryDate.Hijri = resultSetCount.HijriExpiryDate;
+						SET RsRoot.ContractsList.ContractsItem[i].LastModifiedDate.Hijri = resultSetCount.LastModifiedDateHijri;
+
+					ELSEIF DateTypeId = 2 THEN
+						SET RsRoot.ContractsList.ContractsItem[i].ExpiryDate.Greogrian = resultSetCount.GregorianExpiryDate;
+						SET RsRoot.ContractsList.ContractsItem[i].LastModifiedDate.Greogrian = resultSetCount.LastModifiedDate;
+
+					ELSE
+						SET RsRoot.ContractsList.ContractsItem[i].ExpiryDate.Hijri = resultSetCount.HijriExpiryDate;
+						SET RsRoot.ContractsList.ContractsItem[i].LastModifiedDate.Hijri = resultSetCount.LastModifiedDateHijri;
+						SET RsRoot.ContractsList.ContractsItem[i].ExpiryDate.Greogrian = resultSetCount.GregorianExpiryDate;
+						SET RsRoot.ContractsList.ContractsItem[i].LastModifiedDate.Greogrian = resultSetCount.LastModifiedDate;
+					END IF;
+
+					SET RsRoot.ContractsList.ContractsItem[i].NoticePeriod = resultSetCount.NoticePeriod;
+					SET RsRoot.ContractsList.ContractsItem[i].Status.Code = resultSetCount.StatusId;
+					SET RsRoot.ContractsList.ContractsItem[i].Status.NameAr = resultSetCount.StatusAr;
+					SET RsRoot.ContractsList.ContractsItem[i].Status.NameEn = resultSetCount.StatusEn;
+					SET RsRoot.ContractsList.ContractsItem[i].RelatedTo.Code = resultSetCount.ContractSourceId;
+					SET RsRoot.ContractsList.ContractsItem[i].RelatedTo.NameAr = resultSetCount.ContractSourceAr;
+					SET RsRoot.ContractsList.ContractsItem[i].RelatedTo.NameEn = resultSetCount.ContractSourceEn;
+					SET RsRoot.ContractsList.ContractsItem[i].LaborerId = resultSetCount.LaborerId;
+					SET RsRoot.ContractsList.ContractsItem[i].EstablishmentNameAr = resultSetCount.EstablishmentNameAr;
+					SET RsRoot.ContractsList.ContractsItem[i].EstablishmentNameEn = resultSetCount.EstablishmentNameEn;
+					SET RsRoot.ContractsList.ContractsItem[i].IsExternal = resultSetCount.IsExternal;
+
+
+					MOVE resultSetCount NEXTSIBLING REPEAT NAME;
+
+				END WHILE;
+
+				SET RsRoot.TotalRecordsCount = Environment.Variables.DB.ResultSet[1].TotalRecordsCount ;
+				CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInputHeader,rOutHeaderRef);
+			ELSE
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Nodata,rInputHeader,rOutHeaderRef);
+			END IF;
+
+		ELSE
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Error_Contract;
+			propagate to terminal 'out1' delete none;
+			RETURN FALSE;
+		END IF;
+		RETURN TRUE;
+
+
+	END;
+
+	CREATE PROCEDURE Get_ContractsList (
+	IN LaborerIdNo CHARACTER,
+	IN LaborerTypeId INTEGER,
+	IN LaborerName CHARACTER,
+	IN LaborOfficeId INTEGER,
+	IN SequenceNumber INTEGER,
+	IN EstablishmentId INTEGER,
+	IN UnifiedNumberId INTEGER,
+	IN EntityId CHARACTER,
+	IN RequesterUserId INTEGER,
+	IN RequesterIdNo CHARACTER,
+	IN RequesterName CHARACTER,
+	IN SortByExpiryDate INTEGER,
+	IN SortByNoticePeriod INTEGER,
+	IN SortByLastModifiedDate INTEGER,
+	IN StatusList CHARACTER,
+	IN SalaryTypeId INTEGER,
+	IN DateTypeId INTEGER,
+	IN PageSize INTEGER,
+	IN PageIndex INTEGER,
+	INOUT TotalRecordsCount INTEGER)
+
+
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Get_ContractsList";
+
+END MODULE;

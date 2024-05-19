@@ -1,0 +1,177 @@
+BROKER SCHEMA com.qiwa.esb.getcontracttemplatedetails
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE GetContractTemplateDetailsFlow_Response
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN 
+
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.Header;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetContractTemplateDetails.GetContractTemplateDetailsFlow.Variables;
+
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetContractTemplateDetailsRs NAME 'Header';
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetContractTemplateDetailsRs.Header;
+
+		IF 	NOT EXISTS(Environment.Variables.SkipChck[]) AND InputRoot.XMLNSC.CheckUserEligibilityRs.Header.ResponseStatus.Code <> GetESBSuccessCode() THEN			
+
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.Error_Contract,rInHeaderRef,OutHeaderRef);
+			RETURN TRUE;
+
+		END IF;		
+
+		IF NOT EXISTS (Environment.Variables.DB.ResultSet[]) THEN
+
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.NoDataFound, rInHeaderRef, OutHeaderRef);
+			RETURN TRUE; 
+
+		END IF;								 
+
+		CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,OutHeaderRef);
+
+		CREATE LASTCHILD of OutputRoot.XMLNSC.GetContractTemplateDetailsRs name 'Body';
+		DECLARE OutRef REFERENCE TO OutputRoot.XMLNSC.GetContractTemplateDetailsRs.Body;
+		DECLARE ResultSetCount REFERENCE TO Environment.Variables.DB.ResultSet[1];
+
+		-- mapping
+		SET OutRef.TemplateDetails.TemplateId = ResultSetCount.TemplateId;
+		SET OutRef.TemplateDetails.TemplateName = ResultSetCount.TemplateName;
+		SET OutRef.TemplateDetails.TemplateDescription = ResultSetCount.TemplateDescription;
+
+		-- mapping clauses from string xml to json array
+		IF (ResultSetCount.ClausesList IS NOT NULL) THEN
+			DECLARE ClausesXML CHAR ResultSetCount.ClausesList;
+			DECLARE ClausesXMLMsg BLOB CAST (ClausesXML AS BLOB CCSID 1208);
+			CREATE LASTCHILD OF Environment.Variables.Clauses DOMAIN('XMLNSC') PARSE(ClausesXMLMsg,546,1208);
+			DECLARE ClausesList REFERENCE TO Environment.Variables.Clauses.XMLNSC.Clauses.row[1]; 
+			DECLARE x INTEGER 1;
+			WHILE LASTMOVE (ClausesList) DO
+				-- WHILE x <= ClausesList DO
+				SET OutRef.ClausesList.AddedClauses[x].Key = ClausesList.ClauseKey;
+				SET OutRef.ClausesList.AddedClauses[x].Value = ClausesList.ClauseValue;
+				MOVE ClausesList NEXTSIBLING REPEAT NAME;
+				set x =x +1;
+				END WHILE; 
+ 		END IF; 
+		DELETE FIELD Environment.Variables.XMLNSC;
+
+		--mapping allowance from string xml to json array
+		IF (ResultSetCount.AllowancesList IS NOT NULL) THEN
+			DECLARE AllowancesXML CHAR ResultSetCount.AllowancesList;
+			DECLARE AllowancesXMLMsg BLOB CAST (AllowancesXML AS BLOB CCSID 1208);
+			CREATE LASTCHILD OF Environment.Variables.Allowances DOMAIN('XMLNSC') PARSE(AllowancesXMLMsg,546,1208);
+			DECLARE AllowancesList REFERENCE TO Environment.Variables.Allowances.XMLNSC.Allowances.row[1];
+			DECLARE y INTEGER 1;
+			WHILE LASTMOVE (AllowancesList) DO
+				SET OutRef.ClausesList.Allowances[y].Key = AllowancesList.AllowanceKey;
+				SET OutRef.ClausesList.Allowances[y].Value = AllowancesList.AllowanceValue;
+				set y =y +1;
+				MOVE AllowancesList NEXTSIBLING REPEAT NAME;
+			END WHILE;
+		END IF;
+
+		SET OutRef.EstablishmentDetails.LaborOfficeId = ResultSetCount.LaborOfficeId;
+		SET OutRef.EstablishmentDetails.SequenceNumber = ResultSetCount.SequenceNumber;
+		SET OutRef.EstablishmentDetails.EstablishmentId = ResultSetCount.EstablishmentId;
+		SET OutRef.EstablishmentDetails.UnifiedNumberId = ResultSetCount.UnifiedNumberId;
+		SET OutRef.EstablishmentDetails.EntityId = ResultSetCount.EntityId;
+		SET OutRef.EstablishmentDetails.EstablishmentNameAr = ResultSetCount.EstablishmentNameAr;
+		SET OutRef.EstablishmentDetails.EstablishmentNameEn = ResultSetCount.EstablishmentNameEn;
+		SET OutRef.EstablishmentDetails.EstablishmentEmail = ResultSetCount.EstablishmentEmail;
+
+		SET OutRef.RequesterDetails.RequesterIdNo = ResultSetCount.RequesterIdNo;
+		SET OutRef.RequesterDetails.RequesterUserId = ResultSetCount.RequesterUserId;
+		SET OutRef.RequesterDetails.RequesterName = ResultSetCount.RequesterName;
+
+		SET OutRef.LaborerDetails.LaborerIdNo = ResultSetCount.LaborerId;
+		SET OutRef.LaborerDetails.LaborerName = ResultSetCount.LaborerName;
+		SET OutRef.LaborerDetails.LaborerTypeId = ResultSetCount.LaborerTypeId;
+		SET OutRef.LaborerDetails.LaborerIdExpiryDate = ResultSetCount.LaborerIdExpiryDate;
+		SET OutRef.LaborerDetails.LaborerEmail = ResultSetCount.LaborerEmail;
+		SET OutRef.LaborerDetails.LaborerMobileNumber = ResultSetCount.LaborerMobileNumber;
+
+		SET OutRef.ContractDetails.JobTitle.JobTitleAr = ResultSetCount.JobTitleAr;
+		SET OutRef.ContractDetails.JobTitle.JobTitleEn = ResultSetCount.JobTitleEn;
+		SET OutRef.ContractDetails.LaborerJobNumber = ResultSetCount.LaborerJobNumber;
+
+		SET OutRef.ContractDetails.ContractTypeId = ResultSetCount.ContractTypeId;
+		SET OutRef.ContractDetails.ContractDurationId = ResultSetCount.ContractDurationId;
+		IF ResultSetCount.ContractDurationId = 1 THEN
+			SET OutRef.ContractDetails.ContractPeriod = ResultSetCount.ContractPeriod;
+		END IF;
+
+		SET OutRef.ContractDetails.ProbationPeriod = ResultSetCount.ProbationPeriod;
+		SET OutRef.ContractDetails.ProbationTerminationRight.Code = ResultSetCount.ProbationTerminationRightCode;
+		SET OutRef.ContractDetails.ProbationTerminationRight.NameEn = ResultSetCount.ProbationTerminationRightEn;
+		SET OutRef.ContractDetails.ProbationTerminationRight.NameAr = ResultSetCount.ProbationTerminationRightAr;	
+		SET OutRef.ContractDetails.WorkingHoursTypeId = ResultSetCount.WorkingHoursTypeId;
+		SET OutRef.ContractDetails.VacationPeriod = ResultSetCount.VacationPeriod;
+
+		SET OutRef.ContractDetails.Salary = ResultSetCount.Salary;
+		SET OutRef.ContractDetails.SalaryType.Code = ResultSetCount.SalaryTypeId;
+		SET OutRef.ContractDetails.SalaryType.NameEn = ResultSetCount.SalaryTypeEn;
+		SET OutRef.ContractDetails.SalaryType.NameAr = ResultSetCount.SalaryTypeAr;	
+
+
+		SET OutRef.ContractDetails.PercentageReasonEN = ResultSetCount.PercentageReasonEn;
+		SET OutRef.ContractDetails.PercentageReasonAR = ResultSetCount.PercentageReasonAr;
+
+		SET OutRef.ContractDetails.StartDate.Hijri = ResultSetCount.HijriStartDate;
+		SET OutRef.ContractDetails.StartDate.Gergoian = ResultSetCount.GregorianStartDate;
+
+		SET OutRef.ContractDetails.ExpiryDate.Hijri = ResultSetCount.HijriExpiryDate;
+		SET OutRef.ContractDetails.ExpiryDate.Gergoian = ResultSetCount.GregorianExpiryDate;
+
+		SET OutRef.ContractDetails.RenewalStatus = ResultSetCount.RenewalStatusId;
+		SET OutRef.ContractDetails.NoticePeriod = ResultSetCount.NoticePeriod;  
+		SET OutRef.ContractDetails.SalaryFrequency = ResultSetCount.SalaryFrequency;
+
+		-- mapping clauses from string xml to json array
+		IF (ResultSetCount.AdditionalItems IS NOT NULL) THEN
+			DECLARE AddItemsXML CHAR ResultSetCount.AdditionalItems;
+			DECLARE AddItemsXMLMsg BLOB CAST (AddItemsXML AS BLOB CCSID 1208);
+			CREATE LASTCHILD OF Environment.Variables.AddList DOMAIN('XMLNSC') PARSE(AddItemsXMLMsg,546,1208);
+			DECLARE AddList REFERENCE TO Environment.Variables.AddList.XMLNSC.AdditionalItems.row[1];
+			DECLARE x INTEGER 1;
+			WHILE LASTMOVE (AddList) DO
+				SET OutRef.ContractDetails.AdditionalAllowancesList.Item[x].BenefitNameAr = AddList.BenefitNameAr;
+				SET OutRef.ContractDetails.AdditionalAllowancesList.Item[x].BenefitNameEn = AddList.BenefitNameEn;
+				SET OutRef.ContractDetails.AdditionalAllowancesList.Item[x].FrequencyId = AddList.FrequencyId;
+				SET OutRef.ContractDetails.AdditionalAllowancesList.Item[x].FrequencyAr = AddList.FrequencyAr;
+				SET OutRef.ContractDetails.AdditionalAllowancesList.Item[x].FrequencyEn = AddList.FrequencyEn;
+				SET OutRef.ContractDetails.AdditionalAllowancesList.Item[x].AmountTypeId = AddList.AmountTypeId;
+				SET OutRef.ContractDetails.AdditionalAllowancesList.Item[x].AmountTypeAr = AddList.AmountTypeAr;
+				SET OutRef.ContractDetails.AdditionalAllowancesList.Item[x].AmountTypeEn = AddList.AmountTypeEn;
+				SET OutRef.ContractDetails.AdditionalAllowancesList.Item[x].Amount = AddList.Amount;
+				set x =x +1;
+				MOVE AddList NEXTSIBLING REPEAT NAME;
+			END WHILE;
+		END IF;
+
+		IF ResultSetCount.WorkingHoursTypeId = 1 THEN
+			SET OutRef.ContractDetails.HoursPerWeek = ResultSetCount.HoursPerWeek;
+		ELSEIF ResultSetCount.WorkingHoursTypeId = 2 THEN
+			SET OutRef.ContractDetails.DaysPerWeek = ResultSetCount.DaysPerWeek;
+			SET OutRef.ContractDetails.HoursPerDay = ResultSetCount.HoursPerDay;
+		END IF;	
+
+
+		SET OutRef.ContractDetails.OptionalArticles.Period = ResultSetCount.Period;
+		SET OutRef.ContractDetails.OptionalArticles.Location = ResultSetCount.Location;
+		SET OutRef.ContractDetails.OptionalArticles.WorkField = ResultSetCount.WorkField;	
+
+		SET OutRef.Language.LanguageId = ResultSetCount.LanguageId;
+		SET OutRef.Language.LanguageAr = ResultSetCount.LanguageAr;
+		SET OutRef.Language.LanguageEn = ResultSetCount.LanguageEn;
+
+		SET OutRef.DateType.DateTypeId = ResultSetCount.DateTypeId;
+		SET OutRef.DateType.DateTypeAr = ResultSetCount.DateTypeAr;
+		SET OutRef.DateType.DateTypeEn = ResultSetCount.DateTypeEn;
+
+		RETURN TRUE;
+	END;
+
+END MODULE;

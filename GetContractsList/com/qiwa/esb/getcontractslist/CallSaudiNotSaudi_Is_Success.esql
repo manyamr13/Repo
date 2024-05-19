@@ -1,0 +1,28 @@
+BROKER SCHEMA com.qiwa.esb.getcontractslist
+
+
+CREATE FILTER MODULE CallSaudiNotSaudi_Is_Success
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE LoadProperties REFERENCE TO Environment.Properties.GetContractsList.GetContractsListFlow;
+
+		-- Get Unified Number from DP 
+		DECLARE MLSDrow ROW;
+		DECLARE col CHARACTER; 
+		SET col = LoadProperties.Variables.Unified;
+		SET MLSDrow.{col}[]= (
+		SELECT R.value as ColValue
+		FROM Root.XMLNSC.row[1].column[] as R
+		WHERE R.name = LoadProperties.Variables.Unified);
+
+		IF NOT EXISTS (MLSDrow.{col}.ColValue[]) THEN
+			SET Environment.Variables.MWResponse.status = LoadProperties.Variables.Error_Contract;
+			RETURN FALSE;
+		END IF;
+		
+		SET Environment.Variables.Unified = MLSDrow.{col}.ColValue;
+		RETURN TRUE;
+	END;
+
+END MODULE;

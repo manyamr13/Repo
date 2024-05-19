@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<properties refresh-policy="automatic">
+	<group name="GetGosiContractsList.HTTP_GetGosiContractsList">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+		</group>
+		<group name="Variables">		
+			<property name="IDNumberInHeaderMissing" value="E0000168" /> <!-- No Id Number entered -->
+			<property name="IDNumberNotEqualsLaborerIdNo" value="E0000539" /> <!-- IDNumber from header is not identical to IDNumber in request body -->
+			<property name="Error_1" value="E0000024" /> <!-- No data found -->
+			<property name="Error_2" value="E0000545" /> <!-- The login user doesn’t have a privilege to get contract details -->
+			<property name="Error_3" value="E0000436" /> <!-- Sorry, something went wrong, please try again. -->
+			<property name="Error_4" value="E0000004" /> <!-- Missing Parameters -->
+			<property name="Error_5" value="E0000263" /> <!-- Either LaborOfficeId or EstablishmentSequence is missing -->
+			<property name="Error_6" value="E0000772" /> <!-- Laborer Id Number is Empty -->
+			<property name="ServiceCodeCUE" value="CUE00001"/>  
+			<property name="unifiedPortal" value="unifiedPortal"/>  
+			<property name="ServiceId" value="18" /> 
+			<property name="TimeOutError" value="E9999998" />    
+			
+		</group>  
+		
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+        
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	<group name="GetGosiContractsList.HTTP_INT_GetGosiContractsList">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+		</group>
+		<group name="Variables">		
+			<property name="IDNumberInHeaderMissing" value="E0000168" /> <!-- No Id Number entered -->
+			<property name="IDNumberNotEqualsLaborerIdNo" value="E0000539" /> <!-- IDNumber from header is not identical to IDNumber in request body -->
+			<property name="Error_1" value="E0000024" /> <!-- No data found -->
+			<property name="Error_2" value="E0000545" /> <!-- The login user doesn’t have a privilege to get contract details -->
+			<property name="Error_3" value="E0000436" /> <!-- Sorry, something went wrong, please try again. -->
+			<property name="Error_4" value="E0000004" /> <!-- Missing Parameters -->
+			<property name="Error_5" value="E0000263" /> <!-- Either LaborOfficeId or EstablishmentSequence is missing -->
+			<property name="Error_6" value="E0000772" /> <!-- Laborer Id Number is Empty -->
+			<property name="ServiceCodeCUE" value="CUE00001"/>  
+			<property name="unifiedPortal" value="unifiedPortal"/>  
+			<property name="ServiceId" value="18" />
+			<property name="TimeOutError" value="E9999998" />    
+		</group>  
+		
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+        
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+	
+	
+	
+</properties>

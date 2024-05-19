@@ -1,0 +1,10 @@
+BROKER SCHEMA com.qiwa.esb.getcontracttemplatedetails
+
+CREATE FILTER MODULE Timeout
+	CREATE FUNCTION Main() RETURNS BOOLEAN 
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetContractTemplateDetails.GetContractTemplateDetailsFlow;		
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.TimeOutError;
+		RETURN TRUE;
+	END;
+END MODULE;

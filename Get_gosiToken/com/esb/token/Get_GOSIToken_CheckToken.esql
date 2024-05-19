@@ -1,0 +1,69 @@
+
+
+
+
+BROKER SCHEMA com.esb.token
+DECLARE XToken SHARED CHARACTER;
+DECLARE XExpiryDate SHARED TIMESTAMP;
+
+CREATE COMPUTE MODULE Get_GOSIToken_CheckToken
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN	
+	
+	 	
+
+
+		IF XToken IS NOT NULL AND XExpiryDate IS NOT NULL THEN 
+			DECLARE T1 TIMESTAMP XExpiryDate ; --Input
+			DECLARE T2 TIMESTAMP CURRENT_TIMESTAMP ;
+			--DECLARE myInterval CHARACTER '20';
+			--DECLARE DIFF TIMESTAMP T1 + CAST( myInterval as INTERVAL MINUTE) ; --Calculate the expiryDateTime
+
+			IF T1 > T2 THEN --Not Expired
+
+				propagate to terminal 'out1' delete none ;
+				RETURN FALSE; 
+			END IF;			
+		END IF ; 
+			
+
+
+			SET Environment.Variables.GotToken = 1;
+
+
+			DELETE FIELD InputRoot.BLOB;
+			SET OutputRoot.HTTPRequestHeader."Accept-Encoding" = 'gzip,deflate';
+			SET OutputRoot.HTTPRequestHeader."Content-Type"='application/x-www-form-urlencoded';
+			SET OutputRoot.HTTPRequestHeader."Content-Length" = 126;
+			SET OutputRoot.HTTPRequestHeader."Host" = 'datapower.qiwa.info:9056';
+			SET OutputRoot.HTTPRequestHeader."Connection" = 'Keep-Alive';
+			SET OutputRoot.HTTPRequestHeader."User-Agent" = 'Apache-HttpClient/4.5.5 (Java/12.0.1)';
+			SET OutputLocalEnvironment.Destination.HTTP.RequestLine.Method = 'POST';
+			SET OutputLocalEnvironment.Destination.HTTP.RequestURL ='http://datapower.qiwa.info:9056/v1/token';
+
+			DECLARE AppSid CHAR 'grant_type=client_credentials&scope=IntegrationScope&client_id=RJ8OwCcp3rSBMzAGmS9h5nL7ibsancMu&client_secret=iDCurmczoUAR1Dgg';
+
+			DECLARE outBody CHAR AppSid ;
+			SET OutputRoot.BLOB.BLOB = CAST(outBody AS BLOB CCSID 1208 );
+			propagate to terminal 'out' delete none ;
+
+	
+			RETURN FALSE;
+
+
+		END;
+
+		CREATE PROCEDURE CopyMessageHeaders() BEGIN
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER;
+			SET J = CARDINALITY(InputRoot.*[]);
+			WHILE I < J DO
+				SET OutputRoot.*[I] = InputRoot.*[I];
+				SET I = I + 1;
+			END WHILE;
+		END;
+
+		CREATE PROCEDURE CopyEntireMessage() BEGIN
+			SET OutputRoot = InputRoot;
+		END;
+	END MODULE;
