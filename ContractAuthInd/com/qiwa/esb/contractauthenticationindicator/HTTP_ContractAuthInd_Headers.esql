@@ -1,0 +1,47 @@
+BROKER SCHEMA com.qiwa.esb.contractauthenticationindicator
+PATH Qiwa.Framework.Lib;
+
+
+CREATE COMPUTE MODULE HTTP_ContractAuthInd_Headers
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD; 
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2; 
+ 
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC'; 
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs NAME 'Header';   
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Header; 
+		DECLARE reqHeaderRef REFERENCE TO Environment.Variables.XMLNSC.ContractAuthenticationIndicatorRq.Header;
+		
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ContractAuthInd.HTTP_ContractAuthInd;
+
+		DECLARE pathRef REFERENCE TO InputExceptionList.RecoverableException.RecoverableException.RecoverableException; 
+		  
+		IF EXISTS(pathRef.SocketTimeoutException[]) THEN          
+ 			CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.TimeOutError,reqHeaderRef,rOutHeaderRef); 
+		ELSE
+ 			CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.ServerDown,reqHeaderRef,rOutHeaderRef);
+ 		END IF;
+		
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

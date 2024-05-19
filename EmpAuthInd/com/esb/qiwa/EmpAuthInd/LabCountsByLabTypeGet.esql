@@ -1,0 +1,80 @@
+
+BROKER SCHEMA com.esb.qiwa.EmpAuthInd
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE LabCountsByLabTypeGet
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.EmpAuthInd.HTTP_EmpAuthInd;
+		--reference to dp
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.sql;
+		DECLARE row1 REFERENCE TO rInBodyRef.row[1];
+
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.MQRFH2;
+		-- declare referencing for input
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.Header;
+		IF(rInBodyRef.result = 'success')THEN
+		--DP ref
+		DECLARE SaudisCount,ForeignersCount INT;
+		SET SaudisCount = row1.column[1].value;
+		SET ForeignersCount = row1.column[2].value;
+		--call SP
+		CALL Laborers_ContractsAuth_Count_Get(Environment.Variables.DB.ResultSet[]);
+		DECLARE rDB REFERENCE TO Environment.Variables.DB.ResultSet;
+
+		DECLARE pattern CHARACTER '###0.00';
+		DECLARE SaudisContractsCount,ForeignersContractsCount,TotalAuthenticationPercentage CHARACTER;
+		SET SaudisContractsCount = rDB.SaudisContractsCount;
+		SET ForeignersContractsCount = rDB.ForeignersContractsCount;
+		--prepare output references
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.EmployeeAuthenticationIndicatorRs NAME 'Header';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.EmployeeAuthenticationIndicatorRs.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.EmployeeAuthenticationIndicatorRs NAME 'Body';
+		DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.EmployeeAuthenticationIndicatorRs.Body;
+		-- Calculations for Final Output fields
+		SET rOutBodyRef.ForeignersCount = CAST(ForeignersCount AS INT);
+		SET rOutBodyRef.SaudisCount = CAST(SaudisCount AS INT);
+		SET rOutBodyRef.TotalLaborersCount = CAST(SaudisCount AS INT) + CAST(ForeignersCount AS INT) ;
+		SET rOutBodyRef.ForeignersAuthenticatedContracts = CAST (ForeignersContractsCount AS INT);
+		SET rOutBodyRef.SaudisAuthenticatedContracts= CAST(SaudisContractsCount AS INT);
+		SET rOutBodyRef.TotalAuthenticatedContracts = CAST(SaudisContractsCount AS INT) + CAST(ForeignersContractsCount AS INT);
+		IF(CAST(SaudisCount AS INT)> 0) THEN
+		SET rOutBodyRef.SaudisAuthenticationPercentage = CAST(((CAST(SaudisContractsCount AS DECIMAL)/ CAST (SaudisCount AS DECIMAL))*100)AS CHARACTER FORMAT pattern)|| loadedPropertiesRef.Variables.percentage;
+	ELSE
+		SET rOutBodyRef.SaudisAuthenticationPercentage = '0.00'|| loadedPropertiesRef.Variables.percentage;
+	END IF;
+
+	IF(CAST (ForeignersCount AS INT)> 0) THEN
+	SET rOutBodyRef.ForeignersAuthenticationPercentage = CAST((((CAST(ForeignersContractsCount AS DECIMAL)/CAST(ForeignersCount AS DECIMAL)))*100)AS CHARACTER FORMAT pattern)|| loadedPropertiesRef.Variables.percentage;
+    ELSE
+	SET rOutBodyRef.ForeignersAuthenticationPercentage='0.00'|| loadedPropertiesRef.Variables.percentage;
+	END IF;
+
+	IF(rOutBodyRef.TotalLaborersCount>0) THEN
+	SET rOutBodyRef.TotalAuthenticationPercentage = CAST((((CAST (rOutBodyRef.TotalAuthenticatedContracts AS DECIMAL))/(CAST(rOutBodyRef.TotalLaborersCount AS DECIMAL)))*100)AS CHARACTER FORMAT pattern)|| loadedPropertiesRef.Variables.percentage;
+	ELSE
+	SET rOutBodyRef.TotalAuthenticationPercentage = '0.00'|| loadedPropertiesRef.Variables.percentage;
+	END IF;
+
+	SET rOutBodyRef.HRSDAuthenticationPercentage = CAST(Environment.HRSDAuthenticationPercentage AS CHARACTER FORMAT pattern)|| loadedPropertiesRef.Variables.percentage;
+	CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,rOutHeaderRef);
+
+
+		RETURN TRUE;
+		--return an error if the DP does not return success
+	ELSE
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.DPError;
+		PROPAGATE TO TERMINAL 'out1';
+		RETURN FALSE;
+	END IF;
+END;
+
+
+
+CREATE PROCEDURE Laborers_ContractsAuth_Count_Get()
+LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Laborers_ContractsAuth_Count_Get";
+END MODULE;

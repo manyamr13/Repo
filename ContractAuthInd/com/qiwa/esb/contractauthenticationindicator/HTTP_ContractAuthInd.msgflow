@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmWSRequest.msgnode="ComIbmWSRequest.msgnode" xmlns:Qiwa_Framework_Lib_HTTPRequestAdapter.subflow="Qiwa/Framework/Lib/HTTPRequestAdapter.subflow" xmlns:Qiwa_Framework_Lib_HTTPResponseAdapter.subflow="Qiwa/Framework/Lib/HTTPResponseAdapter.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility"
+    nsURI="com/qiwa/esb/contractauthenticationindicator/HTTP_ContractAuthInd.msgflow" nsPrefix="com_qiwa_esb_contractauthenticationindicator_HTTP_ContractAuthInd.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="HTTP_ContractAuthInd" bundleName="com/qiwa/esb/contractauthenticationindicator/HTTP_ContractAuthInd" pluginId="ContractAuthInd"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ContractAuthInd/icons/full/obj16/HTTP_ContractAuthInd.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ContractAuthInd/icons/full/obj30/HTTP_ContractAuthInd.gif"/>
+    <shortDescription xmi:type="utility:ConstantString" string="ContractAuthenticationIndicator -->GetEstablishmentCurrentData-->Get_NumberOfForeigners-->Contracts_Get_NbSaudisAuths"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_HTTPRequestAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="23,170" PROPERTIES_ENABLED="true" ServiceURL="/contractmanagement/contractauthindicator" TimeoutInSec="90" PropertiesGroup="ContractAuthInd.HTTP_ContractAuthInd" PropertyFilename="${broker.name}/CONTRACT-MANAGEMENT.xml">
+        <translation xmi:type="utility:ConstantString" string="HTTPRequestAdapter"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_HTTPResponseAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="937,175">
+        <translation xmi:type="utility:ConstantString" string="HTTPResponseAdapter"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="482,402" computeExpression="esql://routine/com.qiwa.esb.contractauthenticationindicator#PrepDpRq.Main" computeMode="all">
+        <translation xmi:type="utility:ConstantString" string="PrepDpRq"/>
+        <shortDescription xmi:type="utility:ConstantString" string="prepare request message for GetEstablishmentCurrentData"/>
+        <longDescription xmi:type="utility:ConstantString" string="ESB will call the &quot;GetEstablishmentCurrentData(data power)&quot; procedure by passing to get the count of foreigner laborers in the establishment."/>
+      </nodes>
+      <nodes xmi:type="ComIbmWSRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="655,404" URLSpecifier="http://whatever" timeoutForServer="30" httpVersion="1.1" protocol="TLS" messageDomainProperty="XMLNSC">
+        <translation xmi:type="utility:ConstantString" string="HTTP Request"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="922,404" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb.contractauthenticationindicator#PrepDPResp.Main" computeMode="all">
+        <translation xmi:type="utility:ConstantString" string="PrepResp"/>
+        <shortDescription xmi:type="utility:ConstantString" string="call Get_NumberOfForeigners , Contracts_Get_NbSaudisAuths"/>
+        <longDescription xmi:type="utility:ConstantString" string="ESB will receive the output from GetEstablishmentCurrentData &#xD;&#xA;ESB will call the &quot;Get_NumberOfForeigners&quot; procedure below to get the number of foreigners that have an authenticated contracts.&#xD;&#xA;ESB will receive the output from Get_NumberOfForeigners&#xD;&#xA;The result will be stored in the ForeignersPercentage= [NbLaborers/ CurrentForeignersCount]&#xD;&#xA;ESB will call the &quot;Contracts_Get_NbSaudisAuths&quot; procedure  below to get the number of saudis that have an authenticated contracts.&#xD;&#xA;ESB will receive the output from Contracts_Get_NbSaudisAuths "/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="923,514" computeExpression="esql://routine/com.qiwa.esb.contractauthenticationindicator#HTTP_ContractAuthInd_Headers.Main">
+        <translation xmi:type="utility:ConstantString" string="SET Headers"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="429,172" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb.contractauthenticationindicator#DBCall.Main">
+        <translation xmi:type="utility:ConstantString" string="DBCall"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.error" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output2" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

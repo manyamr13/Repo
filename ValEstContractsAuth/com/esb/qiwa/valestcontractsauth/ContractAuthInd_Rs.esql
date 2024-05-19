@@ -1,0 +1,69 @@
+
+
+
+
+BROKER SCHEMA com.esb.qiwa.valestcontractsauth
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE ContractAuthIndRs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE inMSGRef REFERENCE TO InputRoot.XMLNSC.ContractAuthenticationIndicatorRs ;
+
+		DECLARE EV REFERENCE TO Environment.Variables;
+		-- declare output properties
+		SET OutputRoot.Properties = EV.Properties;
+		SET OutputRoot.MQMD = EV.MQMD;
+		SET OutputRoot.MQRFH2 = EV.MQRFH2;
+		SET EV.XMLNSC = InputRoot.XMLNSC;
+		-- declare referencing for input
+		Declare rInHeader REFERENCE TO EV.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Header;
+		Declare rInBody REFERENCE TO EV.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body;
+		-- declare property file
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ValEstContractsAuth.HTTP_ValEstContractsAuthFlow;
+		-- declare data types for variables
+		DECLARE EnDescription, ArDescription, errorStatus, ESB_CODE CHAR;		
+		
+
+
+		IF InputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Header.ResponseStatus.Code <> GetESBSuccessCode() THEN
+			propagate to terminal 'out1' delete none;
+			RETURN FALSE;
+			
+		ELSE
+			CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+			CREATE FIRSTCHILD OF OutputRoot.XMLNSC.ValidateEstablishmentContractsAuthenticationRs NAME 'Header';
+			CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateEstablishmentContractsAuthenticationRs NAME 'Body';
+			-- return output as ValidateEstablishmentContractsAuthenticationRs
+			DECLARE outBodyRef REFERENCE TO OutputRoot.XMLNSC.ValidateEstablishmentContractsAuthenticationRs.Body;
+			DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.ValidateEstablishmentContractsAuthenticationRs.Header;
+			DECLARE rInputHeader REFERENCE TO EV.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Header;
+			CALL Create_esbXML_Response_Header( GetESBSuccessCode(),rInputHeader, rOutHeaderRef);
+			RETURN TRUE;
+		END IF;
+
+		
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+
+	CREATE PROCEDURE Contracts_Get_NumberOfAuthenticated_List (IN p_LaborOfficeId INTEGER,
+	IN p_SequenceNumber INTEGER)RETURNS INTEGER
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 2 EXTERNAL NAME "dbo.Contracts_Get_NumberOfAuthenticated_List";
+
+
+END MODULE;

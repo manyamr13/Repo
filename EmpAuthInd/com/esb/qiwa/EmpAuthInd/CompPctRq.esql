@@ -1,0 +1,61 @@
+
+
+
+
+BROKER SCHEMA com.esb.qiwa.EmpAuthInd
+PATH Qiwa.Framework.Lib;
+
+DECLARE chec NAMESPACE 'http://www.ibm.com/rules/decisionservice/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage';
+DECLARE par NAMESPACE 'http://www.ibm.com/rules/decisionservice/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/param';
+DECLARE soapenv NAMESPACE 'http://schemas.xmlsoap.org/soap/envelope/';
+
+
+CREATE COMPUTE MODULE CompPctRq
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF EXISTS(Environment.Properties.EmpAuthInd.HTTP_INT_EmpAuthInd[]) THEN
+			set Environment.Properties.EmpAuthInd.HTTP_EmpAuthInd =
+			Environment.Properties.EmpAuthInd.HTTP_INT_EmpAuthInd;
+			DELETE FIELD Environment.Properties.EmpAuthInd.HTTP_INT_EmpAuthInd;
+		END IF;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.EmpAuthInd.HTTP_EmpAuthInd;
+		
+		DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.EmployeeAuthenticationIndicatorRq.Header;
+		SET Environment.Variables.Header =rInHeaderRef;
+
+		SET Environment.Variables.Properties = InputRoot.Properties;
+		SET Environment.MQMD = InputRoot.MQMD;
+		SET Environment.MQRFH2 = InputRoot.MQRFH2;
+
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.MQRFH2;
+		SET OutputRoot.MQRFH2.usr.soap.url = loadedPropertiesRef.Variables.ODMURL;
+  		-- reference to output 
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.CheckContractCompliancePercentageReq NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.CheckContractCompliancePercentageReq NAME 'Body';
+		SET OutputRoot.XMLNSC.CheckContractCompliancePercentageReq.Header = rInHeaderRef.Header;
+		DECLARE backendBodyRq REFERENCE TO OutputRoot.XMLNSC.CheckContractCompliancePercentageReq.Body;
+		--prepare the ODM Request
+		SET backendBodyRq.chec:CheckContractCompliancePercentageRequest.chec:DecisionID = rInHeaderRef.Header.TransactionId;
+		SET backendBodyRq.chec:CheckContractCompliancePercentageRequest.par:CheckContractCompliancePercentageReq.CheckContractCompliancePercentageReq.ServiceCode = loadedPropertiesRef.Variables.ServiceCode;
+		SET backendBodyRq.chec:CheckContractCompliancePercentageRequest.par:CheckContractCompliancePercentageReq.CheckContractCompliancePercentageReq.ContractCompliancePercentage = loadedPropertiesRef.Variables.Zero;
+		RETURN TRUE;
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<properties refresh-policy="automatic">
+	<group name="ValEstContractsAuth.HTTP_ValEstContractsAuthFlow">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+
+		<group name="Variables">
+			<property name="ODMURL"
+				value="https://icp-proxy.qiwa.info:30509/DecisionService/ws/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/v75" />
+			<property name="Authorization" value="Basic cmVzQWRtaW4xOnJlc0FkbWlu" />
+			<property name="ODMError" value="ODM00110" />
+			<property name="ValidationError" value="E0000022" />
+			<property name="ServiceCode" value="CAI00001" /> 
+		    <property name="TimeOutError" value="E9999998" />
+			<property name="ServerDown" value="E0000616" />
+			<property name="ODMSuccess" value="I0000000" />
+			<property name="ChannelId" value="ESB" />
+			<property name="Zero" value="0" />
+			<property name="AuthURL"
+				value="http://icp-proxy.qiwa.info:32119/internal/contractmanagement/contractauthindicator" />
+		</group>
+
+		<group name="SchemaValidation">
+			<property name="ValidationEnabled" value="TRUE" />
+		</group>
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+
+	<group name="ValEstContractsAuth.HTTP_INT_ValEstContractsAuthFlow">
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="ODMURL"
+				value="https://icp-proxy.qiwa.info:30509/DecisionService/ws/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/v75" />
+			<property name="Authorization" value="Basic cmVzQWRtaW4xOnJlc0FkbWlu" />
+			<property name="ODMError" value="ODM00110" />
+			<property name="ValidationError" value="E0000022" />
+			<property name="ServiceCode" value="CAI00001" /> 
+		    <property name="TimeOutError" value="E9999998" />
+			<property name="ServerDown" value="E0000616" />
+			<property name="ODMSuccess" value="I0000000" />
+			<property name="ChannelId" value="ESB" />
+			<property name="Zero" value="0" />
+			<property name="AuthURL"
+				value="http://icp-proxy.qiwa.info:32119/internal/contractmanagement/contractauthindicator" />
+		</group>
+
+		<group name="SchemaValidation">
+			<property name="ValidationEnabled" value="TRUE" />
+		</group>
+		<group name="Retry">
+			<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+
+</properties>

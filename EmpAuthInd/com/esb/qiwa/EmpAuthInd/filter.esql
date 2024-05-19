@@ -1,0 +1,13 @@
+BROKER SCHEMA com.esb.qiwa.EmpAuthInd
+
+
+CREATE FILTER MODULE filter
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+				DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.EmpAuthInd.HTTP_EmpAuthInd;
+				SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Variables.TimeOutError;
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;

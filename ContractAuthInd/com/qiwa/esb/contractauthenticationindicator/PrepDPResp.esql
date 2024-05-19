@@ -1,0 +1,148 @@
+BROKER SCHEMA com.qiwa.esb.contractauthenticationindicator
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE PrepDPResp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+		-- creating output properties from environment variables
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		-- declare referencing for input
+		Declare rInHeader REFERENCE TO Environment.Variables.XMLNSC.ContractAuthenticationIndicatorRq.Header;
+		Declare rInBody REFERENCE TO Environment.Variables.XMLNSC.ContractAuthenticationIndicatorRq.Body;
+		-- declare property file
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ContractAuthInd.HTTP_ContractAuthInd;
+		
+		-- declare data types for variables
+		DECLARE p_LaborOfficeId INTEGER rInBody.LaborOfficeId;
+		DECLARE p_SequenceNumber INTEGER rInBody.SequenceNumber;
+		DECLARE MLSDrow ROW;
+		DECLARE col CHARACTER;
+		DECLARE u INTEGER 1;
+		DECLARE pattern CHARACTER '###0.00';
+
+		DECLARE SaudisCount,ResultSet, ForeignersCount INT;
+		DECLARE TotalLaborersCount, TotalAuthenticatedContracts INTEGER;
+		DECLARE SaudisAuthenticationPercentage, ForeignersAuthenticationPercentage, TotalAuthenticationPercentage CHARACTER;
+
+		
+		/* Fetching data through loop has been ignored here as for this DP output the sequence will not change randomly */
+		
+		-- save DP result in environment variables
+		SET SaudisCount = CAST(InputRoot.XMLNSC.sql.row.column[1].value AS DECIMAL);
+		SET ForeignersCount = CAST(InputRoot.XMLNSC.sql.row.column[2].value AS DECIMAL);		
+		
+		-- call SP Contracts_Get_NumberOfAuthenticated_List		
+		CALL Contracts_Get_NumberOfAuthenticated_List(
+		p_LaborOfficeId,
+		p_SequenceNumber,
+		Environment.Variables.DB.SaudisData[],
+		Environment.Variables.DB.ForeignersData[])INTO ResultSet;
+
+
+		/******* 	Comparison between DP and SP output to check the  Saudis_Laborer count		******/
+		
+		DECLARE SaudisAuthenticatedContracts INT 0;
+		DECLARE SaudiId CHAR;		
+		DECLARE sList REFERENCE TO Environment.Variables.DB.SaudisData;
+		
+		WHILE LASTMOVE (sList) DO			
+			SET SaudiId = sList.Saudis_LaborerId;
+			
+			IF CONTAINS (CAST (InputRoot.XMLNSC.sql.row.column[3].value AS CHAR), SaudiId) THEN
+				SET SaudisAuthenticatedContracts = SaudisAuthenticatedContracts + 1;
+			END IF;
+			
+			MOVE sList NEXTSIBLING REPEAT NAME;
+		END WHILE;	
+		
+		
+		/******* 	Comparison between DP and SP output to check the  Foreigners_Laborer count		******/
+		
+		DECLARE ForeignersAuthenticatedContracts INT 0;
+		DECLARE ForeignerId CHAR;		
+		DECLARE fList REFERENCE TO Environment.Variables.DB.ForeignersData;
+		
+		WHILE LASTMOVE (fList) DO			
+			SET ForeignerId = fList.Foreigners_LaborerId;
+			
+			IF CONTAINS (CAST (InputRoot.XMLNSC.sql.row.column[4].value AS CHAR), ForeignerId) THEN
+				SET ForeignersAuthenticatedContracts = ForeignersAuthenticatedContracts + 1;
+			END IF;
+			
+			MOVE fList NEXTSIBLING REPEAT NAME;
+		END WHILE;	
+
+
+
+		-- Calculations for Final Output fields
+		SET TotalLaborersCount = SaudisCount + ForeignersCount ; 
+		SET TotalAuthenticatedContracts = SaudisAuthenticatedContracts + ForeignersAuthenticatedContracts ; 
+
+		IF SaudisAuthenticatedContracts > 0 AND SaudisCount > 0 THEN    
+			SET SaudisAuthenticationPercentage = (CAST(SaudisAuthenticatedContracts AS DECIMAL) /CAST(SaudisCount AS DECIMAL)* 100);
+		ELSE
+			SET SaudisAuthenticationPercentage = 0;
+		END IF;
+
+		IF ForeignersAuthenticatedContracts > 0 AND ForeignersCount > 0 THEN  
+			SET ForeignersAuthenticationPercentage = (CAST(ForeignersAuthenticatedContracts AS DECIMAL) /CAST(ForeignersCount AS DECIMAL)* 100) ;
+		ELSE
+			SET ForeignersAuthenticationPercentage = 0;
+		END IF;
+
+		IF TotalAuthenticatedContracts > 0 AND TotalLaborersCount > 0 THEN
+			SET TotalAuthenticationPercentage = (CAST(TotalAuthenticatedContracts AS DECIMAL) / CAST(TotalLaborersCount AS DECIMAL)* 100) ;
+		ELSE
+			SET TotalAuthenticationPercentage = 0;
+		END IF;
+		
+				
+		-- create output
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs NAME 'Header';
+		DECLARE rOutHeader REFERENCE TO OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs NAME 'Body';
+		
+		-- Create final Output Fields
+		SET OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Body.ForeignersCount = ForeignersCount ;
+		SET OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Body.SaudisCount = SaudisCount ;
+		SET OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Body.TotalLaborersCount = TotalLaborersCount ;
+		SET OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Body.ForeignersAuthenticatedContracts = ForeignersAuthenticatedContracts ;
+		SET OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Body.SaudisAuthenticatedContracts = SaudisAuthenticatedContracts ;
+		SET OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Body.TotalAuthenticatedContracts = TotalAuthenticatedContracts ;
+		SET OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Body.SaudisAuthenticationPercentage = CAST(CAST(SaudisAuthenticationPercentage AS DECIMAL) AS CHARACTER FORMAT pattern) || '%' ;
+		SET OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Body.ForeignersAuthenticationPercentage = CAST(CAST(ForeignersAuthenticationPercentage AS DECIMAL) AS CHARACTER FORMAT pattern) || '%' ;
+		SET OutputRoot.XMLNSC.ContractAuthenticationIndicatorRs.Body.TotalAuthenticationPercentage = CAST(CAST(TotalAuthenticationPercentage AS DECIMAL) AS CHARACTER FORMAT pattern) || '%' ;
+		-- Success call
+		CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeader,rOutHeader);
+		RETURN TRUE;
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+
+	CREATE PROCEDURE Contracts_Get_NumberOfAuthenticated_List (
+	IN p_LaborOfficeId INTEGER,
+	IN p_SequenceNumber INTEGER)
+	RETURNS INTEGER LANGUAGE DATABASE DYNAMIC RESULT SETS 2 EXTERNAL NAME "dbo.Contracts_Get_NumberOfAuthenticated_List";
+
+
+END MODULE;
