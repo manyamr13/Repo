@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:Qiwa_Framework_Lib_HTTPRequestAdapter.subflow="Qiwa/Framework/Lib/HTTPRequestAdapter.subflow" xmlns:Qiwa_Framework_Lib_HTTPResponseAdapter.subflow="Qiwa/Framework/Lib/HTTPResponseAdapter.subflow" xmlns:Qiwa_Framework_Lib_InternalHTTPRequestAdapter.subflow="Qiwa/Framework/Lib/InternalHTTPRequestAdapter.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow"
+    xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/getindividualcontractslist/HTTP_GetIndividualContractsListFlow.msgflow" nsPrefix="com_qiwa_esb_getindividualcontractslist_HTTP_GetIndividualContractsListFlow.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="HTTP_GetIndividualContractsListFlow" bundleName="com/qiwa/esb/getindividualcontractslist/HTTP_GetIndividualContractsListFlow" pluginId="GetIndividualContractsList"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/GetIndividualContractsList/icons/full/obj16/HTTP_GetIndividualContractsListFlow.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/GetIndividualContractsList/icons/full/obj30/HTTP_GetIndividualContractsListFlow.gif"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_HTTPRequestAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="31,127" SCHEMA_VALIDATION_ENABLED="true" LOG_ENABLED="true" PROPERTIES_ENABLED="true" ServiceURL="/contractmanagement/getindividualcontractslist" TimeoutInSec="15" PropertiesGroup="GetIndividualContractsList.HTTP_GetIndividualContractsListFlow" PropertyFilename="${broker.name}/CONTRACT-MANAGEMENT.xml">
+        <translation xmi:type="utility:ConstantString" string="HTTPRequestAdapter"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_HTTPResponseAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="427,129">
+        <translation xmi:type="utility:ConstantString" string="HTTPResponseAdapter"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="247,128" dataSource="MWQIWA_DS" computeExpression="esql://routine/com.qiwa.esb.getindividualcontractslist#Call_DB.Main">
+        <translation xmi:type="utility:ConstantString" string="Call_DB"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_InternalHTTPRequestAdapter.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="24,225" SCHEMA_VALIDATION_ENABLED="true" LOG_ENABLED="true" PROPERTIES_ENABLED="true" ServiceURL="/internal/contractmanagement/getindividualcontractslist" TimeoutInSec="15" PropertiesGroup="GetIndividualContractsList.HTTP_GetIndividualContractsListFlow" PropertyFilename="${broker.name}/CONTRACT-MANAGEMENT.xml">
+        <translation xmi:type="utility:ConstantString" string="InternalHTTPRequestAdapter"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output2" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output2" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

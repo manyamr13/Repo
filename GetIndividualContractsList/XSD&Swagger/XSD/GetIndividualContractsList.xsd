@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+	targetNamespace="http://Qiwa/ContractManagement/GetIndividualContractsList/v1.0"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:bons0="http://Qiwa/ContractManagement/GetIndividualContractsList/v1.0"
+	xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:bons1="http://Qiwa/Common/Types">
+
+	<xsd:import namespace="http://Qiwa/Common/Types"
+		schemaLocation="../common/types/ESB_common_types_v1.0.xsd" />
+
+
+	<xsd:element name="GetIndividualContractsListRq" type="bons0:GetIndividualContractsListRq_Type" />
+	<xsd:element name="GetIndividualContractsListRs" type="bons0:GetIndividualContractsListRs_Type" />
+
+	<complexType ibmSchExtn:docRoot="true" name="GetIndividualContractsListRq_Type">
+		<sequence>
+			<xsd:element name="Header" 	type="bons1:ESBXMLRequestHeader_Type" />
+			<xsd:element name="Body" 	type="bons0:GetIndividualContractsListRq_BodyType" />
+		</sequence>
+	</complexType>
+
+	<complexType ibmSchExtn:docRoot="true" name="GetIndividualContractsListRs_Type">
+		<sequence>
+			<xsd:element name="Header" 	type="bons1:ESBXMLResponseHeader_Type" />
+			<xsd:element name="Body" 	type="bons0:GetIndividualContractsListRs_BodyType" />
+		</sequence>
+	</complexType>
+
+
+	<complexType name="GetIndividualContractsListRq_BodyType">
+		<all>
+
+			<element minOccurs="1" name="LaborerDetails" 			type="bons0:LaborerDetails_Type" />
+			<element minOccurs="0" name="StatusList" 				type="bons0:StatusList_Type" />
+			<element minOccurs="0" name="SortByExpiryDate" 			type="bons0:Integer_0_1_2" />
+			<element minOccurs="0" name="SortByNoticePeriod" 		type="bons0:Integer_0_1_2" />
+			<element minOccurs="0" name="SortByModificationDate" 	type="bons0:Integer_0_1_2" />
+			<element minOccurs="0" name="DateTypeId">
+				<simpleType>
+					<restriction base="integer">
+						<enumeration value="1" />
+						<enumeration value="2" />
+					</restriction>
+				</simpleType>
+			</element>
+			<element minOccurs="1" name="PageSize" 					type="integer" />
+			<element minOccurs="1" name="PageIndex" 				type="integer" />
+		</all>
+	</complexType>
+
+
+	<complexType name="LaborerDetails_Type">
+		<all>
+			<element minOccurs="1" name="LaborerIdNo" 				type="integer" />
+			<element minOccurs="0" name="LaborerTypeId" 			type="integer" />
+		</all>
+	</complexType>
+
+
+	<complexType name="StatusList_Type">
+		<sequence>
+			<element minOccurs="1" maxOccurs="unbounded" name="Status" type="bons0:Status_Type" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Status_Type">
+		<all>
+			<element minOccurs="1" name="Id" 						type="integer" />
+		</all>
+	</complexType>
+
+	<complexType name="GetIndividualContractsListRs_BodyType">
+		<all>
+			<element minOccurs="0" name="ContractsList" type="bons0:ContractsList_Type" />
+			<element minOccurs="1" name="TotalRecordsCount" type="integer" />
+		</all>
+	</complexType>
+
+
+	<complexType name="ContractsList_Type">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="1" name="ContractsItem" type="bons0:ContractsItem_Type" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ContractsItem_Type">
+		<all>
+			<element minOccurs="1" name="ContractId" 				type="integer" />
+			<element minOccurs="1" name="ContractType"		 		type="bons0:CodeName_Type" />
+			<element minOccurs="1" name="DateTypeId" 				type="integer" />
+			<element minOccurs="1" name="OriginalStartDate" 		type="bons0:HGDate_Type" />
+			<element minOccurs="1" name="OriginalExpiryDate" 		type="bons0:HGDate_Type" />
+			<element minOccurs="1" name="CurrentStartDate" 			type="bons0:HGDate_Type" />
+			<element minOccurs="1" name="CurrentExpiryDate" 		type="bons0:HGDate_Type" />
+			<element minOccurs="1" name="CreationDate" 				type="bons1:Tmstmp_Type" />
+			<element minOccurs="1" name="LastModifiedDate" 			type="bons1:Tmstmp_Type" />
+			<element minOccurs="1" name="LaborerAppRejDate" 		type="bons1:Tmstmp_Type" />
+			<element minOccurs="1" name="EmployerAppRejDate" 		type="bons1:Tmstmp_Type" />
+			<element minOccurs="1" name="RejectionReason" 			type="bons0:CodeName_Type" />
+			<element minOccurs="1" name="RejectionDescription" 		type="string" />
+			<element minOccurs="1" name="UpdateReason" 				type="bons0:CodeName_Type" />
+			<element minOccurs="1" name="ModificationReason" 		type="bons0:CodeName_Type" />
+			<element minOccurs="1" name="NoticePeriod" 				type="integer" />
+			<element minOccurs="1" name="Salary" 					type="float" />
+			<element minOccurs="1" name="JobTitle" 					type="bons0:JobTitle_Type" />
+			<element minOccurs="1" name="Status" 					type="bons0:CodeName_Type" />
+			<element minOccurs="0" name="InActiveReason" 			type="bons0:InActiveReason_Type" />
+			<element minOccurs="0" name="LastWorkingDay" 			type="bons1:Dt_Type" />
+			<element minOccurs="1" name="RelatedTo" 				type="bons0:CodeName_Type" />
+			<element minOccurs="1" name="LaborerIdNo" 				type="integer" />
+			<element minOccurs="1" name="LaborerName" 				type="string" />
+			<element minOccurs="1" name="RequesterName" 			type="string" />
+			<element minOccurs="1" name="EstablishmentId" 			type="integer" />
+			<element minOccurs="1" name="LaborOfficeId" 			type="integer"  />
+			<element minOccurs="1" name="SequenceNumber" 			type="integer"  />
+			<element minOccurs="1" name="UnifiedNumberId" 			type="integer" />
+			<element minOccurs="1" name="EntityId" 					type="integer" />
+			<element minOccurs="1" name="CRNumber" 					type="integer" />
+			<element minOccurs="1" name="EstablishmentNameEn" 		type="string" />
+			<element minOccurs="1" name="EstablishmentNameAr" 		type="string" />
+			<element minOccurs="1" name="IsExternal" 				type="bons0:IsExternal_Type" />
+			<element minOccurs="1" name="ContractPeriod" 			type="integer" />
+			<element minOccurs="1" name="Occupation" 				type="bons0:CodeName_Type" />
+			<element minOccurs="1" name="WorkLocation" 				type="bons0:CodeName_Type" />
+			<element minOccurs="1" name="IsRegisteredwithGosi" 			type="boolean" />
+			<element minOccurs="1" name="IsGosiMigrated" 			type="integer" />
+		</all>
+	</complexType>
+
+	<simpleType name="IsExternal_Type">
+		<restriction base="integer">
+			<enumeration value="0" />
+			<enumeration value="1" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="Integer_0_1_2">
+		<restriction base="integer">
+			<enumeration value="0" />
+			<enumeration value="1" />
+			<enumeration value="2" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="CodeName_Type">
+		<all>
+			<element minOccurs="1" name="Code" 		type="integer" />
+			<element minOccurs="1" name="NameAr" 	type="string" />
+			<element minOccurs="1" name="NameEn" 	type="string" />
+		</all>
+	</complexType>
+
+	<complexType name="JobTitle_Type">
+		<all>
+			<element minOccurs="1" name="JobTitleAr" type="string" />
+			<element minOccurs="1" name="JobTitleEn" type="string" />
+		</all>
+	</complexType>
+
+	<complexType name="HGDate_Type">
+		<all>
+			<element minOccurs="0" name="Hijri" 	type="integer" />
+			<element minOccurs="0" name="Greogrian" type="bons1:Tmstmp_Type" />
+		</all>
+	</complexType>
+
+	<complexType name="InActiveReason_Type">
+		<all>
+			<element minOccurs="1" name="InActiveReasonId" 		type="integer" />
+			<element minOccurs="1" name="InActiveReasonEn" 		type="string" />
+			<element minOccurs="1" name="InActiveReasonAr" 		type="string" />
+			<element minOccurs="0" name="TerminationReason" 	type="bons0:CodeName_Type" />
+		</all>
+	</complexType>
+
+</xsd:schema>

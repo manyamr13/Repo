@@ -1,0 +1,90 @@
+
+
+BROKER SCHEMA com.qiwa.esb.getbulklist
+
+PATH Qiwa.Framework.Lib;
+
+
+CREATE COMPUTE MODULE PrepareBulkListResponse
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Declarations
+		DECLARE envRef REFERENCE TO Environment.Variables;
+		DECLARE inHeaderRef REFERENCE TO envRef.XMLNSC.GetBulkListRq.Header;
+		DECLARE inBodyRef REFERENCE TO envRef.XMLNSC.GetBulkListRq.Body;
+		DECLARE loadPropertiesRef REFERENCE TO Environment.Properties.GetBulkList.GetBulkListFlow.Variables;
+		
+		-- Prepare MQ Header
+		SET OutputRoot.Properties = envRef.Properties;
+		SET OutputRoot.MQMD = envRef.MQMD;
+		SET OutputRoot.MQRFH2 = envRef.MQRFH2;
+		
+		-- Prepare Payload
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetBulkListRs NAME 'Header';
+		DECLARE outHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetBulkListRs.Header;
+		
+		-- Success from CheckUserEligibiligty / Skipped CheckUserEligibility
+		IF InputRoot.XMLNSC.CheckUserEligibilityRs.Header.ResponseStatus.Code = GetESBSuccessCode() OR envRef.SkipCUE THEN
+			DECLARE resultId, totalRecordsCount INTEGER;
+			
+			-- Get_BulkList SP
+			SET resultId = Get_BulkList( CAST(inBodyRef.LaborOfficeId AS INTEGER),
+										 CAST(inBodyRef.SequenceNumber AS INTEGER),
+										 CAST(inBodyRef.PageSize AS INTEGER),
+										 CAST(inBodyRef.PageIndex AS INTEGER),
+										 totalRecordsCount,
+										 envRef.DB.ResultSet[] );
+
+			DECLARE resultSetRef REFERENCE TO envRef.DB.ResultSet;
+			
+			-- Data Found from Get_BulkList SP
+			IF EXISTS(envRef.DB.ResultSet[]) THEN
+				CREATE FIELD OutputRoot.XMLNSC.GetBulkListRs.Body;
+				DECLARE outBodyRef, bulkListRef, bulkRef REFERENCE TO OutputRoot.XMLNSC.GetBulkListRs.Body;
+
+				CREATE LASTCHILD OF outBodyRef AS bulkListRef NAME 'BulkList';
+
+				WHILE LASTMOVE(resultSetRef) DO
+					CREATE LASTCHILD OF bulkListRef AS bulkRef NAME 'Bulk';
+
+					SET bulkRef.BulkId VALUE = CAST(resultSetRef.BulkId AS INTEGER);
+					SET bulkRef.CreationDate VALUE = resultSetRef.CreationDate;
+					SET bulkRef.RequesterName VALUE = resultSetRef.RequesterName;
+					SET bulkRef.NbOfContracts VALUE = CAST(resultSetRef.NbOfContracts AS INTEGER);
+					SET bulkRef.NbSucessfullyContract VALUE = CAST(resultSetRef.NbSucessfullyContract AS INTEGER);
+					SET bulkRef.NbFailedContract VALUE = CAST(resultSetRef.NbFailedContract AS INTEGER);
+					SET bulkRef.NbPendingContract VALUE = CAST(resultSetRef.NbPendingContract AS INTEGER);
+					SET bulkRef.IsDraft = resultSetRef.IsDraft;
+
+					MOVE resultSetRef NEXTSIBLING REPEAT NAME;
+				END WHILE;
+
+				SET outBodyRef.TotalRecordsCount = totalRecordsCount;
+
+				CALL Create_esbXML_Response_Header(GetESBSuccessCode(), inHeaderRef, outHeaderRef);
+			
+			-- No Data Found from Get_BulkList SP
+			ELSE
+				CALL Create_esbXML_Response_Header(loadPropertiesRef.NoData, inHeaderRef, outHeaderRef);
+			END IF;
+		
+		-- Timeout from CheckUserEligibility
+		ELSEIF NOT EXISTS(InputRoot.*[]) THEN 
+			CALL Create_esbXML_Response_Header(loadPropertiesRef.TimeOutError, inHeaderRef,outHeaderRef);
+		
+		-- Error Response from CheckUserEligibility
+		ELSE
+			CALL Create_esbXML_Response_Header(loadPropertiesRef.LoginFaild, inHeaderRef,outHeaderRef);
+		END IF;
+
+			RETURN TRUE;
+		END;
+
+		CREATE PROCEDURE Get_BulkList ( IN LaborOfficeId INTEGER,
+										IN SequenceNumber INTEGER,
+										IN PageSize INTEGER,
+										IN PageIndex INTEGER,
+										INOUT totalRecordsCount INTEGER )
+		RETURNS INTEGER
+		LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Get_BulkList";
+	END MODULE;

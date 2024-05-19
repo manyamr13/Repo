@@ -1,0 +1,97 @@
+BROKER SCHEMA com.qiwa.esb.GetEstablishmentTemplatesList
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE GetEstablishmentTemplatesListFlow_CallProcedure
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- creating the response structure "header and body"
+		------------------------------------------------------------
+		--save the output message and headers
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		--reference to request header and body
+		DECLARE rInputHeader REFERENCE TO Environment.Variables.Request.Header;
+		DECLARE rInputBody REFERENCE TO Environment.Variables.Request.Body;
+		--create response header and body
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetEstablishmentContractTemplatesListRs NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.GetEstablishmentContractTemplatesListRs NAME 'Body';
+		--create reference to reponse header and body
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetEstablishmentContractTemplatesListRs.Header;
+		--reference to properties file
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetEstablishmentContractTemplatesList.GetEstablishmentTemplatesListFlow.Variables;
+		--------------------------------------------------- 
+		
+		-- declaring all variables sent in the request		
+		DECLARE LaborOfficeId INT rInputBody.LaborOfficeId;
+		DECLARE SequenceNumber INT rInputBody.SequenceNumber;
+		DECLARE StatusId INT rInputBody.StatusId;
+		DECLARE PageSize INT rInputBody.PageSize;
+		DECLARE PageIndex INT rInputBody.PageIndex;
+		DECLARE TotalRecordsCount INT; 
+		
+		CALL Get_EstablishmentTemplate(LaborOfficeId,
+			SequenceNumber,
+			StatusId,
+			PageSize,
+			PageIndex,
+			TotalRecordsCount,
+			Environment.Variables.DB.ResultSet[]);
+			
+		
+			DECLARE i INT 1 ;
+			DECLARE resultSetCount INT CARDINALITY(Environment.Variables.DB.ResultSet[]);
+			IF resultSetCount <> 0 THEN
+				DECLARE RsRoot REFERENCE TO OutputRoot.XMLNSC.GetEstablishmentContractTemplatesListRs.Body;
+				WHILE i <= resultSetCount DO
+
+					SET RsRoot.TemplatesList.TemplatesItem[i].TemplateId = Environment.Variables.DB.ResultSet[i].TemplateId;
+					SET RsRoot.TemplatesList.TemplatesItem[i].TemplateName = Environment.Variables.DB.ResultSet[i].TemplateName;
+					SET RsRoot.TemplatesList.TemplatesItem[i].TemplateDescription = Environment.Variables.DB.ResultSet[i].TemplateDescription;
+					SET RsRoot.TemplatesList.TemplatesItem[i].CreationDate = Environment.Variables.DB.ResultSet[i].CreationDate;
+					SET RsRoot.TemplatesList.TemplatesItem[i].RequesterIdNo = Environment.Variables.DB.ResultSet[i].RequesterIdNo;
+					SET RsRoot.TemplatesList.TemplatesItem[i].RequesterName = Environment.Variables.DB.ResultSet[i].RequesterName;
+					SET RsRoot.TemplatesList.TemplatesItem[i].NumberOfContracts = Environment.Variables.DB.ResultSet[i].NumberOfContracts;
+					SET RsRoot.TotalRecordsCount = TotalRecordsCount;		
+			
+
+
+					CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInputHeader,rOutHeaderRef);
+					SET i = i+1;
+				END WHILE ;
+			ELSE
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.Nodata,rInputHeader,rOutHeaderRef);
+			END IF;
+
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	-- the procedure that is called to Get Establishment Template 	
+	CREATE PROCEDURE Get_EstablishmentTemplate (IN LaborOfficeId INTEGER,
+	IN SequenceNumber INTEGER,
+	IN StatusId INTEGER,
+	IN PageSize INTEGER,
+	IN PageIndex INTEGER,
+	INOUT TotalRecordsCount INTEGER)												 
+
+
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Get_EstablishmentTemplate";
+
+END MODULE;

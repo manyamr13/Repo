@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://Qiwa/ContractManagement/GetSCContDetails/v1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/ContractManagement/GetSCContDetails/v1.0" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:bons1="http://Qiwa/Common/Types">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+ 
+
+	<xsd:element name="GetSCContractDetailsRq" type="bons0:GetSCContractDetailsRq_Type"/>
+	<xsd:element name="GetSCContractDetailsRs" type="bons0:GetSCContractDetailsRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="GetSCContractDetailsRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons0:GetSCContractDetailsRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="GetSCContractDetailsRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="0" name="Body" type="bons0:GetSCContractDetailsRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="GetSCContractDetailsRq_BodyType">
+		<all>
+			<element minOccurs="1" name="ContractId" type="integer"/>	
+		</all>
+	</complexType>
+	
+	<complexType name="GetSCContractDetailsRs_BodyType">
+		<all>
+			<element minOccurs="1" name="LaborerDetails" type="bons0:LaborerDetails_Type"/>
+			<element minOccurs="1" name="EstablishmentDetails" type="bons0:EstablishmentDetails_Type"/>
+			<element minOccurs="1" name="ContractDetails" type="bons0:ContractDetails_Type"/>
+		</all>
+	</complexType>
+	
+	
+	<complexType name="ContractDetails_Type">
+		<sequence>
+			<element minOccurs="1" name="ContractId" type="integer"/>
+			<element minOccurs="1" name="LaborerJobNumber" type="xsd:string"/>
+			<element minOccurs="1" name="JobTitle" type="bons0:JobTitle_Type"/>
+			<element minOccurs="1" name="ContractType" type="bons0:CodeName_Type"/>
+			<element minOccurs="1" name="Salary" type="string"/>
+			<element minOccurs="1" name="SalaryType" type="bons0:CodeName_Type"/>
+			<element minOccurs="0" name="PercentageReasonEN" type="string"/>
+			<element minOccurs="0" name="PercentageReasonAR" type="string"/>
+			<element minOccurs="1" name="SalaryFrequency" type="bons0:CodeName_Type"/>
+			<element minOccurs="1" name="CurrentStartDate" type="bons0:HGDate_Type"/>
+			<element minOccurs="1" name="CurrentExpiryDate" type="bons0:HGDate_Type"/>
+			<element minOccurs="1" name="OriginalStartDate" type="bons0:HGDate_Type"/>
+			<element minOccurs="1" name="OriginalExpiryDate" type="bons0:HGDate_Type"/>
+			<element minOccurs="1" name="Status" type="bons0:CodeName_Type"/>
+			<element minOccurs="1" name="DateType" type="bons0:CodeName_Type"/>
+			<element minOccurs="1" name="RelatedTo" type="bons0:CodeName_Type"/>
+			<element minOccurs="0" name="Allowances" type="bons0:Allowances_Type"/>
+			<element minOccurs="0" name="AdditionalAllowancesList" type="bons0:AdditionalAllowancesList_Type"/>
+			<element minOccurs="0" name="OccupationDetails" type="bons0:OccupationDetails_Type"/>
+			<element minOccurs="1" name="ContractDuration" type="bons0:CodeName_Type"/>
+			<element minOccurs="1" name="RenewalStatus" type="bons0:CodeName_Type"/>
+			<element minOccurs="1" name="LastModifiedDate" type="bons1:Dt_Type"/>
+			
+		</sequence>
+	</complexType>
+		
+	<complexType name="CodeName_Type">
+		<all>
+		    <element minOccurs="1" name="Code" type="integer"/>
+	        <element minOccurs="1" name="NameAr" type="string"/>
+		    <element minOccurs="1" name="NameEn" type="string"/>
+		</all>
+	</complexType>
+	
+	<complexType name="LaborerDetails_Type">
+		<all>
+			<element minOccurs="1" name="LaborerIdNo" type="integer"/>
+			<element minOccurs="1" name="LaborerType" type="bons0:CodeName_Type"/>
+			<element minOccurs="1" name="LaborerName" type="string"/>
+			<element minOccurs="1" name="LaborerIdExpiryDate" type="bons1:Dt_Type"/>
+			<element minOccurs="1" name="Nationality" type="bons0:CodeName_Type"/>
+			<element minOccurs="1" name="WorkLocation" type="bons0:CodeName_Type"/>
+		</all>
+	</complexType>
+	
+	<complexType name="EstablishmentDetails_Type">
+		<sequence>
+			<element minOccurs="1" name="EstablishmentId" type="integer"/>
+			<element minOccurs="1" name="LaborOfficeId" type="integer"/>
+			<element minOccurs="1" name="SequenceNumber" type="integer"/>
+			<element minOccurs="1" name="EstablishmentNameAr" type="string"/>
+			<element minOccurs="1" name="EstablishmentNameEn" type="string"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="HGDate_Type">
+		<all>
+			<element minOccurs="0" name="Hijri" type="integer"/>
+			<element minOccurs="0" name="Greogrian" type="bons1:Tmstmp_Type"/>
+		</all>
+	</complexType>
+	
+	<complexType name="JobTitle_Type">
+	<all>
+		<element minOccurs="1" name="JobTitleAr" type="string"/>
+		<element minOccurs="1" name="JobTitleEng" type="string"/>
+	</all>
+</complexType>
+
+<complexType name="Allowances_Type">
+	<sequence>
+		<element maxOccurs="unbounded" minOccurs="1" name="AllowancesItem" type="bons0:AllowancesItem_Type"/>
+	</sequence>
+</complexType>
+
+<complexType name="AdditionalAllowancesList_Type ">
+	<sequence>
+		<element maxOccurs="unbounded" minOccurs="1" name="Item" type="bons0:Item_Type"/>
+	</sequence>
+</complexType>
+
+<complexType name="AllowancesItem_Type">
+	<all>
+		<element minOccurs="0" name="Key" type="string"/>
+		<element minOccurs="0" name="Value" type="string"/>
+	</all>
+</complexType>
+
+<complexType name="Item_Type">
+	<all>
+		<element minOccurs="0" name="BenefitNameAr" type="string"/>
+		<element minOccurs="0" name="BenefitNameEn" type="string"/>
+		<element minOccurs="0" name="FrequencyId" type="bons0:CodeName_Type"/>
+		<element minOccurs="0" name="AmountType" type="bons0:CodeName_Type"/>
+		<element minOccurs="0" name="Amount" type="decimal"/>
+	</all>
+</complexType>
+
+<complexType name="OccupationDetails_Type">
+	<all>
+		<element minOccurs="0" name="OccupationId" type="integer"/>
+		<element minOccurs="0" name="OccupationAr" type="string"/>
+		<element minOccurs="0" name="OccupationEn" type="string"/>
+	</all>
+</complexType>
+	
+</xsd:schema>

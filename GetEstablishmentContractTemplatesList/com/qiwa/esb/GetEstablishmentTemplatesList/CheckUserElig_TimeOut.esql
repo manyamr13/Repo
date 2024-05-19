@@ -1,0 +1,14 @@
+BROKER SCHEMA com.qiwa.esb.GetEstablishmentTemplatesList
+Path Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE CheckUserElig_TimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetEstablishmentContractTemplatesList.GetEstablishmentTemplatesListFlow.Variables;
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.TimeOutError;
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;

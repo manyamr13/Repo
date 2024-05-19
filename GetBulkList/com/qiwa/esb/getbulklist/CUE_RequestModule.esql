@@ -1,0 +1,63 @@
+BROKER SCHEMA com.qiwa.esb.getbulklist
+
+PATH Qiwa.Framework.Lib;
+
+
+CREATE COMPUTE MODULE PrepareCUERequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN 
+		-- To be used later
+		CREATE FIELD Environment.Variables;
+		DECLARE envRef REFERENCE TO Environment.Variables;
+		
+		SET envRef.Properties = InputRoot.Properties;
+		SET envRef.MQMD = InputRoot.MQMD;
+		SET envRef.MQRFH2 = InputRoot.MQRFH2;
+		SET envRef.XMLNSC = InputRoot.XMLNSC;
+		
+		-- Preparing Headers
+		SET OutputRoot.Properties = envRef.Properties;
+		SET OutputRoot.MQMD 	  = envRef.MQMD;
+		SET OutputRoot.MQRFH2 	  = envRef.MQRFH2;
+		
+		-- Declarations 
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.GetBulkList.GetBulkListFlow.Variables;
+		DECLARE inHeaderRef REFERENCE TO envRef.XMLNSC.GetBulkListRq.Header;
+		DECLARE inBodyRef REFERENCE TO envRef.XMLNSC.GetBulkListRq.Body;
+		 
+		--Validations
+		IF inHeaderRef.UserInfo.IDNumber IS NULL THEN
+			CREATE FIRSTCHILD OF OutputRoot.XMLNSC.GetBulkListRs NAME 'Header';
+			DECLARE outHeaderRef REFERENCE TO OutputRoot.XMLNSC.GetBulkListRs.Header;
+		
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.IdNumberMissing, envRef.XMLNSC.GetBulkListRq.Header, outHeaderRef);
+			PROPAGATE TO TERMINAL 'out2';
+			RETURN FALSE;
+		
+		-- Skip CheckUserEligibility for Configured ChannelIds
+		ELSEIF CONTAINS(UPPER(loadedPropertiesRef.ExcludedChannelId), UPPER(inHeaderRef.ChannelId)) THEN
+			SET envRef.SkipCUE = TRUE;
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+
+		-- Prepare CheckUserEligibility Request
+		ELSE
+			CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+			SET OutputRoot.XMLNSC.CheckUserEligibilityRq.Header = inHeaderRef;
+			DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEligibilityRq.Header;
+			
+			CREATE LASTCHILD OF OutputRoot.XMLNSC.CheckUserEligibilityRq NAME 'Body';
+			DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEligibilityRq.Body;
+			
+			SET rOutHeaderRef.ServiceCode = loadedPropertiesRef.CheckUserServiceCode; 
+			SET rOutHeaderRef.ChannelId = loadedPropertiesRef.CUEChannelId;
+			SET rOutBodyRef.IdNo = inHeaderRef.UserInfo.IDNumber;
+			SET rOutBodyRef.LaborOfficeId = inBodyRef.LaborOfficeId;
+			SET rOutBodyRef.EstablishmentSequence  = inBodyRef.SequenceNumber;
+			SET rOutBodyRef.ServiceId  = loadedPropertiesRef.ServiceId;
+			SET Environment.InternalServiceCaller.callCorrIDOffset = CAST(loadedPropertiesRef.CorrelID AS INTEGER);
+			
+			RETURN TRUE;
+		END IF;
+	END;	
+END MODULE;

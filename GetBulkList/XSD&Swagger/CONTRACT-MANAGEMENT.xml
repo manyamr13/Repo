@@ -1,0 +1,38 @@
+<properties refresh-policy="automatic">
+	<group name="GetBulkList.GetBulkListFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" /> 
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		
+		<group name="Variables">
+			<property name="NoData" value="E0000375" />
+			<property name="CheckUserServiceCode" value="CUE00001" />
+			<property name="ServiceId" value="18" />
+			<property name="LoginFaild" value="E0000477" />
+			<property name="TimeOutError" value="E9999998"/>
+			<property name="IdNumberMissing" value="E0000217"/>
+			<property name="ExcludedChannelId" value="ESB, unifiedPortal" />
+			<property name="CorrelID" value="10" />
+			<property name="CUEChannelId" value="ESB" />
+        </group>
+
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />  
+        </group>
+        
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+</properties>

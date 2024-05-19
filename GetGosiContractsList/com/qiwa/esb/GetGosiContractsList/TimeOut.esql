@@ -1,0 +1,14 @@
+BROKER SCHEMA com.qiwa.esb.GetGosiContractsList
+
+CREATE FILTER MODULE TimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE rLoadedProp REFERENCE TO Environment.Properties.GetGosiContractsList.HTTP_GetGosiContractsList;
+		SET Environment.Variables.MWResponse.status = rLoadedProp.Variables.TimeOutError ;
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
