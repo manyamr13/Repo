@@ -104,7 +104,52 @@ CREATE COMPUTE MODULE CheckContractCompPctRq
 					
 	or (Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId = 1 AND
 			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 59989 AND CURRENT_DATE <= CAST ('2024-07-07' AS DATE) )						
-					
+
+	or (Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId = 1 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 220411 AND CURRENT_DATE <= CAST ('2024-07-15' AS DATE) )						
+										
+	
+	or (( (Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId = 15 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 1770645 ) or 
+			
+			(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId = 1 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 1374466 ) or 
+			
+					(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId = 1 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 2525473 ) or 	
+			
+						(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId = 4 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 111438 ) or 			
+			
+				(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId = 1 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 348291 ) or 			
+			
+						
+				(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId = 1 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 1959319 ) or 			
+			
+						
+				(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId = 1 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 355270 ) or 			
+		
+						(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId =9 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 191199 ) or 		
+	
+							(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId =1 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 356497 ) or 				
+			
+			
+				(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId =1 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 391277 ) or 		
+			
+						(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId =13 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 104879 ) or 	
+			
+			
+						(Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.LaborOfficeId =4 AND
+			Environment.Variables.XMLNSC.ValidateEstablishmentContractsAuthenticationRq.Body.SequenceNumber = 102803 ) )				
+			 AND CURRENT_DATE <= CAST ('2024-07-31' AS DATE) )						
+				
 			THEN 
 			CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
 			CREATE FIRSTCHILD OF OutputRoot.XMLNSC.ValidateEstablishmentContractsAuthenticationRs NAME 'Header';
