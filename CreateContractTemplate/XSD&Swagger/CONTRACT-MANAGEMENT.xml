@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<properties refresh-policy="automatic">
+
+	<group name="CreateContractTemplate.CreateContractTemplateFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" /> 
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" /> 
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="NotAllowed" value="E0000171"/>
+			<property name="MissingPercentage" value="E0000741"/>
+			<property name="MissingData" value="E0000004" />
+			<property name="ProbationPeriod" value="90" />
+			<property name="ProbationPeriodError" value="E0000169" />
+			<property name="VacationPeriod" value="21" />
+			<property name="VacationPeriodError" value="E0000170" />
+			<property name="MissingIdNumber" value="E0000059" />
+			<property name="CheckUserEligibilityServiceCode" value="CUE00001" />
+            <property name="ChannelID" value="ESB" />
+            <property name="ServiceID" value="18" />
+            <property name="NotEligible" value="E0000383" />
+            <property name="TimeOutError" value="E9999998" />
+			<property name="RepeatedNameDesc" value="E0000173" />
+			<property name="CreationFailed" value="E0000727" />
+		 	<property name="NoIdNumber" value="E0000168"/>
+		 	<property name="unifiedPortal" value="unifiedPortal" />
+		 	<property name="ProbTermRightZero" value="0" />
+			<property name="ProbTermRightError" value="E0001557" />
+        </group>
+
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />  
+        </group>
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>
+
+</properties>

@@ -1,0 +1,163 @@
+BROKER SCHEMA com.qiwa.esb.updatecontractdetails
+
+
+CREATE COMPUTE MODULE UpdateContractDetailsFlow_InputValidation
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		-- Declarations
+		DECLARE EV REFERENCE TO Environment.Variables;
+		DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.UpdateContractDetailsRq.Header;
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.UpdateContractDetailsRq.Body;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.UpdateContractDetails.UpdateContractDetailsFlow.Variables;
+		-- Saving Input
+		SET EV.Properties = InputRoot.Properties;
+		SET EV.MQMD = InputRoot.MQMD;
+		SET EV.MQRFH2 = InputRoot.MQRFH2;
+		SET EV.XMLNSC = InputRoot.XMLNSC;
+		--Calculating Greg Expiry Date and validating with Contract Period
+		IF (EXISTS(rInBodyRef.ContractDetails.ContractDurationId[]) AND (CAST(rInBodyRef.ContractDetails.ContractDurationId AS INT) = 1) AND rInBodyRef.ContractDetails.ContractPeriod IS NOT NULL) THEN
+			IF (EXISTS(rInBodyRef.ContractDetails.StartDate.GregDate[]) AND EXISTS(rInBodyRef.ContractDetails.ExpiryDate.GregDate[])) THEN
+				SET Environment.Variables.StartDate = CAST(CAST(rInBodyRef.ContractDetails.StartDate.GregDate AS TIMESTAMP) AS DATE FORMAT loadedPropertiesRef.TmpStmpFormat);
+				SET Environment.Variables.ExpiryDate = CAST(CAST(rInBodyRef.ContractDetails.ExpiryDate.GregDate AS TIMESTAMP) AS DATE FORMAT loadedPropertiesRef.TmpStmpFormat);
+				SET Environment.Variables.tempDate = CAST(Environment.Variables.StartDate AS DATE) + CAST(CAST(rInBodyRef.ContractDetails.ContractPeriod AS INT) AS INTERVAL MONTH);
+				SET Environment.Variables.tempDate = CAST(Environment.Variables.tempDate AS DATE) - CAST(1 AS INTERVAL DAY);
+
+				IF (Environment.Variables.tempDate <> Environment.Variables.ExpiryDate) THEN
+					SET Environment.Variables.MWResponse.status = loadedPropertiesRef.CPValidation; -- E0000959
+					PROPAGATE TO TERMINAL 'out1';
+					RETURN FALSE;
+				END IF;
+			END IF;
+		END IF;
+		IF rInBodyRef.ContractDetails.ContractDurationId = loadedPropertiesRef.One AND rInBodyRef.ContractDetails.ContractPeriod IS NULL THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingCP; -- E0001495
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		END IF;
+
+		IF rInBodyRef.ContractDetails.ContractDurationId = loadedPropertiesRef.One AND NOT EXISTS(rInBodyRef.ContractDetails.ExpiryDate[]) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingExpiryDate; -- E0001497
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		END IF;
+		 
+		IF CAST(rInBodyRef.ContractDetails.ProbationPeriod AS INT) > CAST(loadedPropertiesRef.Zero AS INT) AND NOT EXISTS(rInBodyRef.ContractDetails.ProbationTerminationRight[]) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.ProbTermRightError; -- E0001557
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		END IF;
+		
+		-- If more than 90 days then error E0000169
+		IF CAST(rInBodyRef.ContractDetails.ProbationPeriod AS INT) > CAST(loadedPropertiesRef.Ninety AS INT) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.ErrorProbPeriod; -- E0000169
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		END IF;
+
+		IF CAST(rInBodyRef.ContractDetails.VacationPeriod AS INT) < CAST(loadedPropertiesRef.TwentyOne AS INT) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.ErrorVacPeriod; -- E0000170
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		END IF;
+
+		IF CAST(rInBodyRef.ContractDetails.NoticePeriod AS INT) > CAST(loadedPropertiesRef.OneTwenty AS INT) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.ErrorNotPeriod; -- E0001498
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		END IF;
+		--validate IDNumber
+		IF NOT EXISTS(rInHeaderRef.UserInfo.IDNumber[]) OR (rInHeaderRef.UserInfo.IDNumber= '') THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.IdNumberMissError; --E0000217
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		END IF;
+		-- DateTypeId =1 and Hijri Date is missing, throw error
+		-- DateTypeId is mandatory if Original or Current Start or Expiry date is present
+		IF (rInBodyRef.DateTypeId = loadedPropertiesRef.DateTypeIdOne) THEN
+			IF (EXISTS(rInBodyRef.ContractDetails.StartDate[]) AND NOT EXISTS(rInBodyRef.ContractDetails.StartDate.HijriDate[]))
+				OR (EXISTS(rInBodyRef.ContractDetails.ExpiryDate[]) AND NOT EXISTS(rInBodyRef.ContractDetails.ExpiryDate.HijriDate[])) THEN
+				SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingData; --E0000004
+				PROPAGATE TO TERMINAL 'out1';
+				RETURN FALSE;
+			END IF;
+			-- DateTypeId =2 and Greg Date is missing, throw error
+			-- DateTypeId is mandatory if Original or Current Start or Expiry date is present
+		ELSEIF (rInBodyRef.DateTypeId = loadedPropertiesRef.DateTypeIdTwo) THEN
+			IF (EXISTS(rInBodyRef.ContractDetails.StartDate[]) AND NOT EXISTS(rInBodyRef.ContractDetails.StartDate.GregDate[]))
+				OR (EXISTS(rInBodyRef.ContractDetails.ExpiryDate[]) AND NOT EXISTS(rInBodyRef.ContractDetails.ExpiryDate.GregDate[])) THEN
+				SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingData; --E0000004
+				PROPAGATE TO TERMINAL 'out1';
+				RETURN FALSE;
+			END IF;
+		END IF;
+
+		IF NOT EXISTS(rInBodyRef.DateTypeId[]) AND (EXISTS(rInBodyRef.ContractDetails.StartDate[]) OR EXISTS(rInBodyRef.ContractDetails.ExpiryDate[]) ) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingDateTypeId; --E0001546
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		END IF;
+
+
+		IF (rInBodyRef.ContractDetails.SalaryTypeId = CAST(loadedPropertiesRef.SalaryTypeIdTwo AS INTEGER) AND (rInBodyRef.ContractDetails.PercentageReasonEN IS NULL OR rInBodyRef.ContractDetails.PercentageReasonAR IS NULL)) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingPerReason; --E0000741
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+			-- Validations for WorkingHoursTypeId
+		ELSEIF (rInBodyRef.ContractDetails.WorkingHoursTypeId = CAST(loadedPropertiesRef.WorkingHoursTypeIdOne AS INTEGER) AND rInBodyRef.ContractDetails.HoursPerWeek IS NULL) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingWeek; --E0001516
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+
+		ELSEIF (rInBodyRef.ContractDetails.WorkingHoursTypeId = CAST(loadedPropertiesRef.WorkingHoursTypeIdTwo AS INTEGER)
+			AND (rInBodyRef.ContractDetails.DaysPerWeek IS NULL OR
+			rInBodyRef.ContractDetails.HoursPerDay IS NULL)) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingDays; --E0001515
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+			--Validation for ReasonText
+		ELSEIF rInBodyRef.UpdateReason = CAST(loadedPropertiesRef.UpdateReason AS INTEGER) AND rInBodyRef.ReasonText IS NULL THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.ReasonMissing; --E0000775
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		ELSEIF (EXISTS (rInBodyRef.ContractDetails.Allowances[]) AND CAST(rInBodyRef.ContractDetails.DeleteAllAllowances AS INT)= CAST(loadedPropertiesRef.IsDeletedFlag AS INTEGER))
+				OR (EXISTS(rInBodyRef.ContractDetails.AdditionalAllowancesList[]) AND CAST(rInBodyRef.ContractDetails.DeleteAllAdditionalAllowances AS INT)= CAST(loadedPropertiesRef.IsDeletedFlag AS INT))
+ 				OR (EXISTS(rInBodyRef.ContractDetails.AddedClauses[]) AND CAST(rInBodyRef.ContractDetails.DeleteAllAddedClauses AS INT )= CAST (loadedPropertiesRef.IsDeletedFlag AS INTEGER))THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Deleteflagvalue; -- E0001559
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+		ELSE
+			IF CONTAINS(UPPER(loadedPropertiesRef.ExcludedChannelId), UPPER(rInHeaderRef.ChannelId)) THEN
+				PROPAGATE TO TERMINAL 'out2';
+				RETURN FALSE;
+
+			ELSE
+				-- Call for check user eligibility
+				SET OutputRoot.Properties = EV.Properties;
+				SET OutputRoot.MQMD = EV.MQMD;
+				SET OutputRoot.MQRFH2 = EV.MQRFH2;
+
+				CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+				SET OutputRoot.XMLNSC.CheckUserEligibilityRq.Header = rInHeaderRef;
+				DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEligibilityRq.Header;
+
+				SET rOutHeaderRef.ServiceCode = loadedPropertiesRef.ServiceCodeChkUserEligibility;
+				SET rOutHeaderRef.ChannelId = loadedPropertiesRef.ChannelId;
+
+				CREATE LASTCHILD OF OutputRoot.XMLNSC.CheckUserEligibilityRq NAME 'Body';
+				DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.CheckUserEligibilityRq.Body;
+
+				SET rOutBodyRef.UserId = CAST(rInHeaderRef.UserInfo.UserId AS INTEGER);
+				SET rOutBodyRef.IdNo = CAST(rInHeaderRef.UserInfo.IDNumber AS INTEGER); 
+				SET rOutBodyRef.LaborOfficeId VALUE = CAST(rInBodyRef.LaborOfficeId AS INTEGER);
+				SET rOutBodyRef.EstablishmentSequence VALUE = CAST(rInBodyRef.SequenceNumber AS INTEGER);
+				SET rOutBodyRef.ServiceId VALUE = CAST(loadedPropertiesRef.ServiceId AS INTEGER);
+				-- Call CheckUserEligibility
+				RETURN TRUE;
+			END IF;
+		END IF;
+
+	END;
+END MODULE;

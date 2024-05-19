@@ -1,0 +1,34 @@
+BROKER SCHEMA com.qiwa.esb.createcontractbulk
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE CreateContractBulkFlow_Rs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE EV REFERENCE TO Environment.Variables;
+		SET OutputRoot.Properties = EV.Properties;
+		SET OutputRoot.MQMD 	  = EV.MQMD;
+		SET OutputRoot.MQRFH2 	  = EV.MQRFH2;
+		-- ref properties , body , header
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CreateContractBulk.CreateContractBulkFlow.Variables;
+		DECLARE InHeaderRef REFERENCE TO EV.XMLNSC.CreateContractBulkRq.Header;
+		IF CAST(EV.ESB.BackgroundProcess as BOOLEAN) THEN
+			RETURN FALSE;
+		END IF;
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.CreateContractBulkRs NAME 'Header';
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CreateContractBulkRs.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.CreateContractBulkRs NAME 'Body';
+		DECLARE OutBodyRef REFERENCE TO OutputRoot.XMLNSC.CreateContractBulkRs.Body;
+		
+		SET OutBodyRef.BulkId = EV.ESB.BulkId[1].BulkId;
+		DECLARE x INTEGER 1;
+		DECLARE ContractList INTEGER CARDINALITY(EV.ESB.ContractList[]);
+		WHILE x <= ContractList DO
+			SET OutBodyRef.ContractList.ContractItem[x].ContractId = EV.ESB.ContractList[x].ContractId;
+			SET x = x +1;
+		END WHILE;
+		CALL Create_esbXML_Response_Header(GetESBSuccessCode(),InHeaderRef,OutHeaderRef);
+		RETURN TRUE;
+		
+	END;
+
+END MODULE;

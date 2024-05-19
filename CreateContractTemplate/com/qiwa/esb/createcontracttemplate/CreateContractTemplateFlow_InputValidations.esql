@@ -1,0 +1,61 @@
+BROKER SCHEMA com.qiwa.esb.createcontracttemplate
+
+
+CREATE FILTER MODULE CreateContractTemplateFlow_InputValidations
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- save the headers
+		SET Environment.Variables.Properties = Root.Properties;
+		SET Environment.Variables.MQMD = Root.MQMD;
+		SET Environment.Variables.MQRFH2 = Root.MQRFH2;
+		SET Environment.Variables.XMLNSC = Root.XMLNSC;
+		SET Environment.Variables.Request = Root.XMLNSC.CreateContractTemplateRq;
+		-- load properties
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CreateContractTemplate.CreateContractTemplateFlow.Variables;
+		-- refererence to Body
+		DECLARE rInBodyRef REFERENCE TO Environment.Variables.Request.Body;
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+		-- Check Request
+		-- Check if LaborerTypeId 2 (non-saudi) and ContractDurationId 2 (unlimited)
+		-- Unlimited contract is not allowed for non-saudi laborer
+		IF CAST(rInBodyRef.LaborerDetails.LaborerTypeId AS INTEGER) = 2 AND
+			CAST(rInBodyRef.ContractDetails.ContractDurationId AS INTEGER) = 2 THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.NotAllowed;
+			RETURN FALSE;
+			-- ContractPeriod mandatory if ContractDurationId equals 1
+		ELSEIF CAST(rInBodyRef.ContractDetails.ContractDurationId AS INTEGER) = 1 AND rInBodyRef.ContractDetails.ContractPeriod IS NULL THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingData;
+			RETURN FALSE;
+			-- ProbationPeriod couldn’t be more than 90 days
+		ELSEIF CAST(rInBodyRef.ContractDetails.ProbationPeriod AS INTEGER) > CAST(loadedPropertiesRef.ProbationPeriod AS INTEGER) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.ProbationPeriodError;
+			RETURN FALSE;
+		ELSEIF CAST(rInBodyRef.ContractDetails.ProbationPeriod AS INTEGER) > CAST(loadedPropertiesRef.ProbTermRightZero AS INTEGER) AND NOT EXISTS(rInBodyRef.ContractDetails.ProbationTerminationRight[]) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.ProbTermRightError;
+			RETURN FALSE;
+			-- VacationPeriod couldn’t be less than 21 days
+		ELSEIF CAST(rInBodyRef.ContractDetails.VacationPeriod AS INTEGER)< CAST(loadedPropertiesRef.VacationPeriod AS INTEGER) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.VacationPeriodError;
+			RETURN FALSE;
+			--PercentageReason couldn’t be Null if SalaryTypeId = 2
+		ELSEIF ( (rInBodyRef.ContractDetails.PercentageReasonEN IS NULL OR rInBodyRef.ContractDetails.PercentageReasonAR IS NULL) AND CAST(rInBodyRef.ContractDetails.SalaryTypeId AS INTEGER) = 2 )THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingPercentage;
+			RETURN FALSE;
+			-- Depending on WorkingHoursTypeId
+		ELSEIF (rInBodyRef.ContractDetails.WorkingHoursTypeId = 1 AND rInBodyRef.ContractDetails.HoursPerWeek IS NULL) OR
+			(rInBodyRef.ContractDetails.WorkingHoursTypeId = 2 AND (rInBodyRef.ContractDetails.DaysPerWeek IS NULL OR rInBodyRef.ContractDetails.HoursPerDay IS NULL)) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingData;
+			RETURN FALSE;
+			-- If IDNumber is NULL
+		ELSEIF (rInHeaderRef.UserInfo.IDNumber IS NULL) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.NoIdNumber;
+			RETURN FALSE;
+		ELSEIF (rInHeaderRef.ChannelId = loadedPropertiesRef.unifiedPortal) THEN
+			-- for unifiedPortal ChannelID skip CHeckUserEligibility
+			RETURN UNKNOWN;
+		ELSE
+			RETURN TRUE;
+		END IF;
+	END;
+
+END MODULE;

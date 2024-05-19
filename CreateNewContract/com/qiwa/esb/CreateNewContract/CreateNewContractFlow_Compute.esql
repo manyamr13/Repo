@@ -1,0 +1,45 @@
+BROKER SCHEMA com.qiwa.esb.CreateNewContract
+
+
+CREATE COMPUTE MODULE ValidateRequest
+	
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CreateNewContract.CreateNewContractFlow.Variables;
+			--CHECK Get All Data response
+		IF NOT EXISTS(InputRoot.XMLNSC.sql.resultSet.row[]) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.getEstDown;
+			PROPAGATE TO TERMINAL 'out1';
+			RETURN FALSE;
+			
+		ELSE
+			SET Environment.Variables.GetEst = InputRoot.XMLNSC.sql.resultSet.row;
+		END IF;	
+		
+		
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateEmploymentContractRq NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateEmploymentContractRq NAME 'Body';
+		
+
+		DECLARE InBodyRef REFERENCE TO Environment.Variables.XMLNSC.CreateNewContractRq.Body;
+		
+
+			
+			
+		SET OutputRoot.XMLNSC.ValidateEmploymentContractRq.Header = Environment.Variables.XMLNSC.CreateNewContractRq.Header;
+		SET OutputRoot.XMLNSC.ValidateEmploymentContractRq.Header.ChannelId= loadedPropertiesRef.ChannelId;
+		SET OutputRoot.XMLNSC.ValidateEmploymentContractRq.Header.ServiceCode= loadedPropertiesRef.valempcontractSC;
+		
+		SET OutputRoot.XMLNSC.ValidateEmploymentContractRq.Body.LaborOfficeId = InBodyRef.EstablishmentDetails.LaborOfficeId;
+		SET OutputRoot.XMLNSC.ValidateEmploymentContractRq.Body.SequenceNumber = InBodyRef.EstablishmentDetails.SequenceNumber;
+		SET OutputRoot.XMLNSC.ValidateEmploymentContractRq.Body.LaborerIdNo = InBodyRef.LaborerDetails.LaborerIdNo;
+		SET OutputRoot.XMLNSC.ValidateEmploymentContractRq.Body.OccupationId = InBodyRef.ContractDetails.OccupationId;
+		SET OutputRoot.XMLNSC.ValidateEmploymentContractRq.Body.RelatedToId = InBodyRef.RelatedToId;
+		
+		SET OutputLocalEnvironment.Destination.HTTP.RequestURL = loadedPropertiesRef.valempcontract;
+		
+		RETURN TRUE;
+	END;
+
+
+END MODULE;

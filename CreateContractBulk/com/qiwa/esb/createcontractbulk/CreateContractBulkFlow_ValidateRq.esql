@@ -1,0 +1,76 @@
+BROKER SCHEMA com.qiwa.esb.createcontractbulk
+
+
+CREATE FILTER MODULE CreateContractBulkFlow_ValidateRq
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		DECLARE EV REFERENCE TO Environment.Variables;
+		-- save the headers
+		SET EV.Properties = Root.Properties ;
+		SET EV.MQMD = Root.MQMD;
+		SET EV.MQRFH2 = Root.MQRFH2;
+		SET EV.XMLNSC = Root.XMLNSC;
+		-- ref properties , body
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CreateContractBulk.CreateContractBulkFlow.Variables;
+		DECLARE InBodyRef REFERENCE TO Root.XMLNSC.CreateContractBulkRq.Body;
+		DECLARE InHeaderRef REFERENCE TO Root.XMLNSC.CreateContractBulkRq.Header;
+		--If the IdNumber in the header is not exist
+		IF InHeaderRef.UserInfo.IDNumber IS NULL OR InHeaderRef.UserInfo.IDNumber = '' THEN
+			SET EV.MWResponse.status = loadedPropertiesRef.IdNumMissing;
+			RETURN FALSE;
+		END IF;
+		-- loop - check Request
+		DECLARE x INTEGER 1;
+		DECLARE ListCount INTEGER CARDINALITY(InBodyRef.ContractList.ContractItem[]);
+		WHILE x <= ListCount DO
+			-- check if LaborOfficeId 2 (non-saudi) and ContractDurationId 2 (unlimited)
+			-- Unlimited contract is not allowed for non-saudi laborer
+			IF InBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerTypeId = 2 AND
+				InBodyRef.ContractList.ContractItem[x].ContractDetails.ContractDurationId = 2 THEN
+				SET EV.MWResponse.status = loadedPropertiesRef.NotAllowed;
+				RETURN FALSE;
+				-- ContractPeriod M if the ContractDuration is 1
+				-- HoursPerWeek M if the WorkingHoursTypeId is 1
+				-- DaysPerWeek M if the WorkingHoursTypeId is 2
+				-- HoursPerDay M if the WorkingHoursTypeId is 3
+			ELSEIF (InBodyRef.ContractList.ContractItem[x].ContractDetails.ContractDurationId = 1 AND
+				InBodyRef.ContractList.ContractItem[x].ContractDetails.ContractPeriod IS NULL) OR
+				(InBodyRef.ContractList.ContractItem[x].ContractDetails.WorkingHoursTypeId = 1 AND
+				InBodyRef.ContractList.ContractItem[x].ContractDetails.HoursPerWeek IS NULL) OR
+				(InBodyRef.ContractList.ContractItem[x].ContractDetails.WorkingHoursTypeId = 2 AND
+				InBodyRef.ContractList.ContractItem[x].ContractDetails.DaysPerWeek IS NULL AND
+				InBodyRef.ContractList.ContractItem[x].ContractDetails.HoursPerDay IS NULL)
+				OR (InBodyRef.ContractList.ContractItem[x].ContractDetails.SalaryTypeId =2 AND InBodyRef.ContractList.ContractItem[x].ContractDetails.PercentageReasonEN IS NULL
+				AND InBodyRef.ContractList.ContractItem[x].ContractDetails.PercentageReasonAR IS NULL) THEN
+				SET EV.MWResponse.status = loadedPropertiesRef.MissingData;
+				RETURN FALSE;
+				--validate the Choosen LaborerDOB
+			ELSEIF (InBodyRef.ContractList.ContractItem[x].LaborersDetails.DOBType = 1 AND InBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerDOB.HijriDate IS NULL) OR
+				(InBodyRef.ContractList.ContractItem[x].LaborersDetails.DOBType = 2 AND InBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerDOB.GregDate IS NULL) OR
+				((EXISTS(InBodyRef.ContractList.ContractItem[x].ContractDetails.UploadedFiles.UploadedFilesItem[]) AND InBodyRef.ContractList.ContractItem[x].ContractDetails.CategoryId IS NULL)) OR
+				(NOT EXISTS(InBodyRef.ContractList.ContractItem[x].ContractDetails.UploadedFiles.UploadedFilesItem[]) AND EXISTS(InBodyRef.ContractList.ContractItem[x].ContractDetails.CategoryId[])) THEN
+				SET EV.MWResponse.status = loadedPropertiesRef.MissingData;
+				RETURN FALSE;
+				-- ProbationPeriod it couldn’t be more than 180 days
+			ELSEIF CAST(InBodyRef.ContractList.ContractItem[x].ContractDetails.ProbationPeriod as INTEGER) > CAST(loadedPropertiesRef.ProbationPeriod as INTEGER) THEN
+				SET EV.MWResponse.status = loadedPropertiesRef.ProbationPeriodError;
+				RETURN FALSE;
+			ELSEIF CAST(InBodyRef.ContractList.ContractItem[x].ContractDetails.ProbationPeriod AS INTEGER) > CAST(loadedPropertiesRef.ProbTermRightZero AS INTEGER) AND NOT EXISTS(InBodyRef.ContractList.ContractItem[x].ContractDetails.ProbationTerminationRight[]) THEN
+				SET Environment.Variables.MWResponse.status = loadedPropertiesRef.ProbTermRightError;
+				PROPAGATE TO TERMINAL 'out1';
+				RETURN FALSE;
+				-- VacationPeriod it couldn’t be less than 21 days
+			ELSEIF CAST(InBodyRef.ContractList.ContractItem[x].ContractDetails.VacationPeriod as INTEGER) < CAST(loadedPropertiesRef.VacationPeriod as INTEGER) THEN
+				SET EV.MWResponse.status = loadedPropertiesRef.VacationPeriodError;
+				RETURN FALSE;
+			END IF;
+			SET x = x +1;
+		END WHILE;
+
+		RETURN TRUE;
+	END;
+
+END MODULE;

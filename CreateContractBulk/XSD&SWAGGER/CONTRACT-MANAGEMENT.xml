@@ -1,0 +1,46 @@
+	<group name="CreateContractBulk.CreateContractBulkFlow"> 
+		<group name="Logging">
+			<property name="LogEnabled" value="TRUE" />
+			<property name="AuditEnabled" value="FALSE" />
+			<property name="key1" value="" />
+			<property name="value1" value="" />
+			<property name="key2" value="" />
+			<property name="value2" value="" />
+			<property name="key3" value="" />
+			<property name="value3" value="" />
+			<property name="key4" value="" />
+			<property name="value4" value="" />
+		</group>
+		<group name="Variables">
+			<property name="CheckUserServiceCode" value="CUE00001"/>
+			<property name="ChannelId" value="ESB"/>
+			<property name="ServiceId" value="18"/>
+			<property name="TimeOutError" value="E9999998"/>
+			<property name="LoginFaild" value="E0000220" />
+			<property name="NotAllowed" value="E0000171"/>
+			<property name="MissingData" value="E0000004" />
+			<property name="ProbationPeriod" value="180" />
+			<property name="VacationPeriod" value="21" />
+			<property name="ProbationPeriodError" value="E0000169" />
+			<property name="VacationPeriodError" value="E0000170" />
+			<property name="Count" value="10"/>
+			<property name="UnderProcessing" value="E0000352"/>
+			<property name="CannotInsert" value="E0000353"/>
+			<property name="CreateNewContractSC" value="CNC00001"/>
+			<property name="CreatedStatusId" value="2"/>
+			<property name="RejectedStatusId" value="3"/>
+			<property name="CreateContractDraftSC" value="CCRD0001"/>
+			<property name="ExcludeChannel" value="unifiedPortal"/>
+			<property name="IdNumMissing" value="E0000217" />
+			<property name="ProbTermRightZero" value="0" />
+			<property name="ProbTermRightError" value="E0001557" />
+		</group>
+		<group name="SchemaValidation">
+            <property name="ValidationEnabled" value="TRUE" />
+        </group>
+		<group name="Retry">
+				<property name="RetryEnabled" value="FALSE" />
+			<property name="minWaitDurationSec" value="60" />
+			<property name="maxRetryCount" value="5" />
+		</group>
+	</group>

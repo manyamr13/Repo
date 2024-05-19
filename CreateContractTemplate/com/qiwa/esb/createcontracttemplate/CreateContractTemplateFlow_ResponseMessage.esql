@@ -1,0 +1,213 @@
+BROKER SCHEMA com.qiwa.esb.createcontracttemplate
+Path Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE CreateContractTemplateFlow_ResponseMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		DECLARE rInHeaderRef REFERENCE TO Environment.Variables.Request.Header;
+		DECLARE rInBodyRef REFERENCE TO Environment.Variables.Request.Body;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CreateContractTemplate.CreateContractTemplateFlow;
+		SET Environment.XmlObject VALUE = NULL;
+		DECLARE xmlObj reference to Environment.XmlObject;
+		DECLARE AdditionalItems CHAR ;
+
+		DECLARE index INT 1;
+		DECLARE index2 INT 1;
+		DECLARE ListSize INT cardinality (rInBodyRef.ClausesList.AddedClauses[]);
+		-- store the values in xml object
+		WHILE index <= ListSize DO
+			SET xmlObj.ClausesList.AddedClausesList.ClauseItem[index].Key = rInBodyRef.ClausesList.AddedClauses[index].Key;
+			SET xmlObj.ClausesList.AddedClausesList.ClauseItem[index].Value = rInBodyRef.ClausesList.AddedClauses[index].Value;
+			SET index = index +1;
+		END WHILE;
+		DECLARE ListSize2 INT cardinality (rInBodyRef.ClausesList.Allowances[]);
+		WHILE index2 <= ListSize2 DO
+			SET xmlObj.ClausesList.AllowancesList.AllowanceItem[index2].Key = rInBodyRef.ClausesList.Allowances[index2].Key;
+			SET xmlObj.ClausesList.AllowancesList.AllowanceItem[index2].Value = rInBodyRef.ClausesList.Allowances[index2].Value;
+			SET index2 = index2 +1;
+		END WHILE;
+		--Create XML object XMLNSC Domain
+		Create FIRSTCHILD of Environment DOMAIN 'XMLNSC' Name 'xml';
+		--SET UsersSubsciptionList value
+		SET Environment.xml.ClausesList = xmlObj.ClausesList;
+		--Pars ClausesList object to XMl object
+		SET Environment.xml.ClausesList = CAST(ASBITSTREAM(Environment.xml CCSID 1208) AS CHARACTER CCSID 1208);
+		DECLARE ClausesList CHAR ;
+		SET ClausesList = CAST (Environment.xml.ClausesList AS CHARACTER);		
+
+		--Create XML object XMLNSC Domain for AddtionalItemsList
+		SET index = 1;
+		DECLARE xmlObj3 reference to Environment.XmlObject3;
+		SET Environment.xml = null;
+
+		Create FIRSTCHILD of Environment DOMAIN 'XMLNSC' Name 'xml';
+		IF EXISTS(rInBodyRef.ContractDetails.AdditionalAllowancesList.Items[]) THEN
+			DECLARE AdditionalAllowancesList INTEGER CARDINALITY(rInBodyRef.ContractDetails.AdditionalAllowancesList.Items[]);
+			WHILE index <= AdditionalAllowancesList DO
+				SET xmlObj3.AddtionalItemsList.AddtionalItem[index].BenefitNameAr =rInBodyRef.ContractDetails.AdditionalAllowancesList.Items[index].BenefitNameAr;
+				SET xmlObj3.AddtionalItemsList.AddtionalItem[index].BenefitNameEn =rInBodyRef.ContractDetails.AdditionalAllowancesList.Items[index].BenefitNameEn;
+				SET xmlObj3.AddtionalItemsList.AddtionalItem[index].Amount =rInBodyRef.ContractDetails.AdditionalAllowancesList.Items[index].Amount;
+				SET xmlObj3.AddtionalItemsList.AddtionalItem[index].AmountType =rInBodyRef.ContractDetails.AdditionalAllowancesList.Items[index].AmountType;
+				SET xmlObj3.AddtionalItemsList.AddtionalItem[index].Frequency =rInBodyRef.ContractDetails.AdditionalAllowancesList.Items[index].Frequency;
+				SET index = index + 1;
+			END WHILE;
+			SET Environment.xml.AddtionalItemsList = xmlObj3.AddtionalItemsList;
+			SET Environment.xml.AddtionalItemsList = CAST(ASBITSTREAM(Environment.xml CCSID 1208 ) AS CHARACTER CCSID 1208);
+			SET AdditionalItems = CAST(Environment.xml.AddtionalItemsList as CHARACTER);
+		ELSE
+			SET AdditionalItems = NULL;
+		END IF;
+		--checks for missing data
+		--EstablishmentDetails(LaborOfficeId,SequenceNumber) ,ClausesList,LanguageId,TemplateName,TemplateDescription,DateTypeId
+		--IF InbodyRef.DraftId IS NOT NULL then
+		DECLARE ContractTemplate_ID INTEGER 0 ;
+		SET ContractTemplate_ID = Create_ContractTemplate(
+		rInBodyRef.TemplateName, --Testt9ffpo0ttt
+		COALESCE(rInBodyRef.TemplateDescription,NULL), --tesfftdesc
+		CAST(rInBodyRef.EstablishmentDetails.LaborOfficeId AS INTEGER), --16
+		CAST(rInBodyRef.EstablishmentDetails.SequenceNumber AS INTEGER), -- 1234
+		CAST(rInBodyRef.LanguageId AS INTEGER), -- 1
+		COALESCE(CAST(rInBodyRef.DateTypeId AS INTEGER),NULL), -- 1
+		rInHeaderRef.UserInfo.IDNumber, -- 1098210600
+		COALESCE(CAST(rInHeaderRef.TranscationId AS INTEGER),NULL), -- 1613668707
+		COALESCE(ClausesList,NULL), -- <ClausesList><AddedClausesList><ClauseItem><Key>Term1</Key><Value>test6</Value></ClauseItem><ClauseItem><Key>Term2</Key><Value>test6</Value></ClauseItem></AddedClausesList><AllowancesList><AllowanceItem><Key>Term3</Key><Value>test6</Value></AllowanceItem><AllowanceItem><Key>Term4</Key><Value>test6</Value></AllowanceItem></AllowancesList></ClausesList>
+		COALESCE(CAST(rInBodyRef.EstablishmentDetails.EstablishmentId AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.EstablishmentDetails.UnifiedNumberId AS INTEGER),NULL),
+		COALESCE(rInBodyRef.EstablishmentDetails.EntityId ,NULL),
+		COALESCE(rInBodyRef.EstablishmentDetails.EstablishmentNameAr,NULL),
+		COALESCE(rInBodyRef.EstablishmentDetails.EstablishmentNameEn,NULL),
+		COALESCE(rInBodyRef.EstablishmentDetails.EstablishmentEmail,NULL),
+		COALESCE(CAST(rInBodyRef.RequesterDetails.RequesterUserId AS INTEGER),NULL),
+		COALESCE(rInBodyRef.RequesterDetails.RequesterName,NULL),
+		COALESCE(rInBodyRef.LaborerDetails.LaborerIdNo,NULL),
+		COALESCE(rInBodyRef.LaborerDetails.LaborerName,NULL),
+		COALESCE(CAST(rInBodyRef.LaborerDetails.LaborerTypeId AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.LaborerDetails.LaborerIdExpiryDate AS DATE),NULL),
+		COALESCE(rInBodyRef.LaborerDetails.LaborerEmail,NULL),
+		COALESCE(rInBodyRef.LaborerDetails.LaborerMobileNumber,NULL),
+		COALESCE(rInBodyRef.ContractDetails.JobTitle.JobTitleAr,NULL),
+		COALESCE(rInBodyRef.ContractDetails.JobTitle.JobTitleEng,NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.LaborerJobNumber AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.ProbationPeriod AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.WorkingHoursTypeId AS INTEGER),NULL),
+		COALESCE(CAST (rInBodyRef.ContractDetails.VacationPeriod AS INTEGER),NULL),
+		COALESCE(rInBodyRef.ContractDetails.Salary,NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.RenewalStatusId AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.ContractTypeId AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.ContractDurationId AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.ContractPeriod AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.NoticePeriod AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.StartDate.HijriDate AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.StartDate.GregDate AS TIMESTAMP),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.ExpiryDate.HijriDate AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.ExpiryDate.GregDate AS TIMESTAMP),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.SalaryFrequency AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.HoursPerWeek AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.DaysPerWeek AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.HoursPerDay AS INTEGER),NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.OptionalArticles.Period AS INTEGER),NULL),
+		COALESCE(rInBodyRef.ContractDetails.OptionalArticles.Location,NULL),
+		COALESCE(rInBodyRef.ContractDetails.OptionalArticles.WorkField,NULL),
+		COALESCE(CAST(rInBodyRef.ContractDetails.OccupationId AS INTEGER),NULL),
+		COALESCE(AdditionalItems,NULL),
+		CAST(rInBodyRef.ContractDetails.SalaryTypeId AS INTEGER),
+		CAST(rInBodyRef.ContractDetails.PercentageReasonAR AS CHARACTER),
+		CAST(rInBodyRef.ContractDetails.PercentageReasonEN AS CHARACTER),
+ 		COALESCE(CAST(rInBodyRef.ContractDetails.ProbationTerminationRight AS INTEGER),NULL));
+
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.CreateContractTemplateRs NAME 'Header';
+		DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.CreateContractTemplateRs.Header;
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.CreateContractTemplateRs NAME 'Body';
+		DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.CreateContractTemplateRs.Body;
+
+		IF (ContractTemplate_ID = -1)
+			THEN
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.CreationFailed,rInHeaderRef,rOutHeaderRef);
+			
+		ELSEIF 	(ContractTemplate_ID = -2) THEN 
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.Variables.RepeatedNameDesc,rInHeaderRef,rOutHeaderRef);
+			
+		ELSE
+			CALL Create_esbXML_Response_Header(GetESBSuccessCode(),rInHeaderRef,rOutHeaderRef);
+		END IF;
+		SET rOutBodyRef.TemplateId = ContractTemplate_ID;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+	CREATE PROCEDURE Create_ContractTemplate(
+	IN TemplateName CHARACTER,
+	IN TemplateDescription CHARACTER,
+	IN LaborOfficeId INTEGER,
+	IN SequenceNumber INTEGER,
+	IN LanguageId INTEGER,
+	IN DateTypeId INTEGER,
+	IN RequesterIdNo CHARACTER,
+	IN MWTransactionId INTEGER,
+	IN ClausesList CHARACTER,
+	IN EstablishmentId INTEGER,
+	IN UnifiedNumberId INTEGER,
+	IN EntityId CHARACTER,
+	IN EstablishmentNameAr CHARACTER,
+	IN EstablishmentNameEn CHARACTER,
+	IN EstablishmentEmail CHARACTER,
+	IN RequesterUserId INTEGER,
+	IN RequesterName CHARACTER,
+	IN LaborerId CHARACTER,
+	IN LaborerName CHARACTER,
+	IN LaborerTypeId INTEGER,
+	IN LaborerIdExpiryDate DATE,
+	IN LaborerEmail CHARACTER,
+	IN LaborerMobileNumber CHARACTER,
+	IN JobTitleAr CHARACTER,
+	IN JobTitleEn CHARACTER,
+	IN LaborerJobNumber INTEGER,
+	IN ProbationPeriod INTEGER,
+	IN WorkingHoursTypeId INTEGER,
+	IN VacationPeriod INTEGER,
+	IN Salary CHARACTER,
+	IN RenewalStatusId INTEGER,
+	IN ContractTypeId INTEGER,
+	IN ContractDurationId INTEGER,
+	IN ContractPeriod INTEGER,
+	IN NoticePeriod INTEGER,
+	IN HijriStartDate INTEGER,
+	IN GregorianStartDate TIMESTAMP,
+	IN HijriExpiryDate INTEGER,
+	IN GregorianExpiryDate TIMESTAMP,
+	IN SalaryFrequency INTEGER,
+	IN HoursPerWeek INTEGER,
+	IN DaysPerWeek INTEGER,
+	IN HoursPerDay INTEGER,
+	IN Period INTEGER,
+	IN Location CHARACTER,
+	IN WorkField CHARACTER,
+	IN OccupationId INTEGER,
+	IN AdditionalItems CHARACTER,
+	IN SalaryTypeId INTEGER, 
+	IN PercentageReasonAr CHARACTER,
+	IN PercentageReasonEn CHARACTER,
+	IN ProbationTerminationRightCode INTEGER)
+
+	RETURNS INTEGER
+	LANGUAGE DATABASE
+	EXTERNAL NAME "dbo.Create_ContractTemplate";
+
+END MODULE;
