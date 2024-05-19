@@ -1,0 +1,19 @@
+BROKER SCHEMA com.qiwa.esb.requestupdatecontract
+PATH Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE GetContractDetailsFlow_IsSuccess
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.RequestUpdateContract.RequestUpdateContractFlow;
+
+		IF Root.XMLNSC.GetContractDetailsRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			SET Environment.Variabl.GetContractDetailsRs = Root.XMLNSC.GetContractDetailsRs.Body;
+
+			RETURN TRUE;
+		
+		ELSE
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.GetContractDetailsRs.Header.ResponseStatus.Code;
+			RETURN FALSE;
+		END IF;
+	END;
+END MODULE;

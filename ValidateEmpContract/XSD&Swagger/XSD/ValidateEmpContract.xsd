@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://Qiwa/ContractManagement/ValidateEmpContract/v1.0" 
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" 
+xmlns:bons0="http://Qiwa/ContractManagement/ValidateEmpContract/v1.0" 
+xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:bons1="http://Qiwa/Common/Types">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+  
+
+	<xsd:element name="ValidateEmploymentContractRq" type="bons0:ValidateEmploymentContractRq_Type"/>
+	<xsd:element name="ValidateEmploymentContractRs" type="bons0:ValidateEmploymentContractRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="ValidateEmploymentContractRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons1:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons0:ValidateEmploymentContractRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="ValidateEmploymentContractRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="bons1:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="1" name="Body" type="bons0:ValidateEmploymentContractRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="ValidateEmploymentContractRq_BodyType">
+		<all>
+  		   <xsd:element minOccurs="1" name="LaborOfficeId" type="xsd:integer" />
+           <xsd:element minOccurs="1" name="SequenceNumber" type="xsd:integer" />
+            <xsd:element minOccurs="1" name="LaborerIdNo" type="bons0:LaborerId_Type" />
+            <xsd:element minOccurs="1" name="OccupationId" type="xsd:integer" />
+              <xsd:element minOccurs="1" name="RelatedToId" type="bons0:RelatedToId_Type" />
+ 		</all>
+	</complexType>
+	
+	<simpleType name="LaborerId_Type">
+			<restriction base="integer">
+				<pattern value="\d{10}"/>
+			</restriction>
+		</simpleType>
+	
+				
+				
+	<simpleType name="RelatedToId_Type">
+		<restriction base="integer">
+			<enumeration value="1" />
+			<enumeration value="2" />
+			<enumeration value="3" />
+			<enumeration value="4" />
+			<enumeration value="5" />
+			<enumeration value="6" />
+			<enumeration value="7" />
+			<enumeration value="8" />	
+			<enumeration value="9" />
+					
+		</restriction>
+	</simpleType>
+	
+	<complexType name="ValidateEmploymentContractRs_BodyType"> 
+		<all>
+           
+         
+            <xsd:element minOccurs="0" name="ValidationsErrorsList" type="bons0:ValidationsErrorsList_Type" />
+		</all>
+	</complexType>
+	
+					
+
+	<xsd:complexType name="ValidationsErrorsList_Type">
+		       
+        <xsd:sequence>            
+            <xsd:element minOccurs="1" maxOccurs="unbounded" name="ValidationsError" type="bons0:ValidationError_Type" />
+        </xsd:sequence>
+    </xsd:complexType>
+	
+	
+		
+	<xsd:complexType name="ValidationError_Type"> 
+		
+        <xsd:all>
+						
+              <xsd:element minOccurs="1" name="ErrorCode" type="xsd:string" />
+              <xsd:element minOccurs="1" name="ArDescription" type="xsd:string" />
+              <xsd:element minOccurs="1" name="EnDescription" type="xsd:string" />
+        </xsd:all>
+    </xsd:complexType>
+
+</xsd:schema>

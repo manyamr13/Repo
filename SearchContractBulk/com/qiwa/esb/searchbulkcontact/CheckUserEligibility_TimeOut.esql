@@ -1,0 +1,12 @@
+BROKER SCHEMA com.qiwa.esb.searchbulkcontact
+
+
+CREATE FILTER MODULE CheckUserEligibility_TimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- load properties 
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.SearchContractBulk.SearchContractBulkFlow.Variables;
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.TimeOutError;
+		RETURN TRUE;
+	END;
+END MODULE;

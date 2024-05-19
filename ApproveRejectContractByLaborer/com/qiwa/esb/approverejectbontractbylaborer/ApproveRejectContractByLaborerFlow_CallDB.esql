@@ -1,0 +1,284 @@
+BROKER SCHEMA com.qiwa.esb.approverejectbontractbylaborer
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE ApproveRejectContractByLaborerFlow_CallDB
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE InHeaderRef REFERENCE TO InputRoot.XMLNSC.ApproveRejectContractByLaborerRq.Header;
+		DECLARE rInBodyRef REFERENCE TO InputRoot.XMLNSC.ApproveRejectContractByLaborerRq.Body;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ApproveRejectContractByLaborer.ApproveRejectContractByLaborerFlow.Variables;
+
+
+		DECLARE RequestRef REFERENCE TO InputRoot.XMLNSC.ApproveRejectContractByLaborerRq.Body;
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+
+
+
+		CREATE LASTCHILD OF OutputRoot DOMAIN 'XMLNSC';
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.ApproveRejectContractByLaborerRs NAME 'Header';
+		CREATE LASTCHILD OF OutputRoot.XMLNSC.ApproveRejectContractByLaborerRs NAME 'Body';
+
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.ApproveRejectContractByLaborerRs.Header;
+		SET OutHeaderRef = InHeaderRef;
+
+		IF NOT EXISTS(InHeaderRef.UserInfo.IDNumber[]) THEN -- cheaking header
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.NoIdNumber,InHeaderRef,OutHeaderRef);
+		ELSEIF rInBodyRef.IsApproved = 0 AND rInBodyRef.RejectionReason IS NULL THEN
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.MissingRejection,InHeaderRef,OutHeaderRef);
+		ELSEIF rInBodyRef.IsApproved = 2 AND rInBodyRef.ModificationReason IS NULL THEN
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.MissingModificationReason,InHeaderRef,OutHeaderRef);
+		ELSEIF (rInBodyRef.RejectionReason = '7' OR rInBodyRef.ModificationReason = '6') AND rInBodyRef.ReasonText IS NULL THEN
+			CALL Create_esbXML_Response_Header(loadedPropertiesRef.MissingParameter,InHeaderRef,OutHeaderRef);
+		ELSE
+
+			DECLARE Res int;
+			CALL Get_ContractDetails(CAST(rInBodyRef.ContractId AS INTEGER),Environment.Variables.DB.GetCntractSP[])INTO Res;
+			DECLARE GetCntrResp REFERENCE TO Environment.Variables.DB.GetCntractSP;
+			IF EXISTS(Environment.Variables.DB.GetCntractSP[]) THEN
+				DECLARE Status int;
+				IF rInBodyRef.IsApproved = 0 THEN
+					SET Status = 7;
+				ELSEIF rInBodyRef.IsApproved = 1 THEN
+					IF EXISTS(GetCntrResp.GregorianStartDate[]) THEN
+						------ Preparing GregorianStartDate to Set Status
+						DECLARE GregDtUnh CHAR CAST(GetCntrResp.GregorianStartDate AS CHAR FORMAT 'yyyy-MM-dd');
+						DECLARE GregDt DATE CAST(GregDtUnh AS DATE FORMAT 'yyyy-MM-dd'); 
+						DECLARE CurrentDt DATE CURRENT_DATE;
+						IF GregDt<=CurrentDt THEN
+							SET Status = 15;
+						ELSE
+							SET Status = 6;
+						END IF;
+					ELSE
+						DECLARE CurrentHijri INT ;
+						DECLARE HijriDt INT CAST(GetCntrResp.HijriStartDate as INT); -------------------------
+						CALL Get_CurrentHijriDate (Environment.Variables.DB.HijriDate[]); -- Get Current Hijridate
+						SET CurrentHijri =Environment.Variables.DB.HijriDate.CurrentHijriDate;
+						IF HijriDt <= CurrentHijri THEN
+							SET Status = 15;
+						ELSE
+							SET Status = 6;
+						END IF;
+					END IF;
+				ELSEIF rInBodyRef.IsApproved = 2 THEN
+					SET Status = 8;
+				END IF;
+
+				DECLARE TerminateAllSC INT 1;
+				DECLARE TransactionID CHAR CAST(InHeaderRef.TransactionId AS CHAR);
+				--Checking if the entered IDNumber in the header equels the laborerId returned from Get Contract Details
+				IF CAST(InHeaderRef.UserInfo.IDNumber AS INTEGER) = CAST(GetCntrResp.LaborerIdNo AS INTEGER) THEN
+					DECLARE StatusId INT CAST(GetCntrResp.StatusId AS INTEGER);
+					DECLARE RelatedTo INT CAST(GetCntrResp.RelatedToId AS INTEGER);
+					IF ((StatusId = loadedPropertiesRef.StatusFive)
+						OR (StatusId = 18 OR StatusId = 20)) THEN
+
+						DECLARE Result, RejectionReason, ModificationReason INTEGER;
+						DECLARE TerminateAllSC INTEGER 1;
+						SET RejectionReason = RequestRef.RejectionReason;
+						SET ModificationReason = RequestRef.ModificationReason;
+
+						IF RequestRef.IsApproved = loadedPropertiesRef.IsApprovedZero AND CAST(GetCntrResp.StatusId AS INTEGER) = 20 THEN -- 20 and 0
+							CALL RestoreActiveOrApprocedStatus(CAST(rInBodyRef.ContractId AS INTEGER),Environment.Variables.DB.GetCntractSP[]) INTO Res;
+
+							IF Res = 0 THEN
+								CALL Create_esbXML_Response_Header(GetESBSuccessCode(),InHeaderRef,OutHeaderRef);
+								PROPAGATE TO TERMINAL 'out';
+								RETURN FALSE;
+
+							ELSE
+								CALL Create_esbXML_Response_Header(loadedPropertiesRef.RestoredError,InHeaderRef,OutHeaderRef);
+							END IF;
+
+
+						ELSEIF RequestRef.IsApproved = loadedPropertiesRef.IsApprovedOne AND CAST(GetCntrResp.StatusId AS INTEGER) = 20 THEN
+							SET TerminateAllSC = 2;
+							IF EXISTS(GetCntrResp.GregorianStartDate[]) THEN
+								------ Preparing GregorianStartDate to Set Status
+								DECLARE GregDtUnh CHAR CAST(GetCntrResp.GregorianStartDate AS CHAR FORMAT 'yyyy-MM-dd');
+								DECLARE GregDt DATE CAST(GregDtUnh AS DATE FORMAT 'yyyy-MM-dd');
+								DECLARE CurrentDt DATE CURRENT_DATE;
+								IF GregDt<=CurrentDt THEN
+									SET Status = 15;
+								ELSE
+									SET Status = 6;
+								END IF;
+							ELSE
+								DECLARE CurrentHijri INT ;
+								DECLARE HijriDt INT CAST(GetCntrResp.HijriStartDate as INT); -------------------------
+								CALL Get_CurrentHijriDate (Environment.Variables.DB.HijriDate[]); -- Get Current Hijridate
+								SET CurrentHijri =Environment.Variables.DB.HijriDate.CurrentHijriDate;
+								IF HijriDt <= CurrentHijri THEN
+									SET Status = 15;
+								ELSE
+									SET Status = 6;
+								END IF;
+							END IF;
+							DECLARE RecordsCount INTEGER;
+
+							CALL Search_TerminateContractRequests(
+							NULL,
+							NULL,
+							NULL,
+							NULL,
+							CAST(GetCntrResp.LaborerIdNo AS CHARACTER),
+							NULL,
+							NULL,
+							'1',
+							NULL,
+							NULL,
+							NULL,
+							NULL,
+							NULL,
+							NULL,
+							100,
+							1,
+							RecordsCount,
+							Environment.Variables.DB.TerSPres[])INTO Res;
+							IF NOT EXISTS(Environment.Variables.DB.TerSPres[]) THEN
+
+								CALL Update_ContractElements (
+								CAST(rInBodyRef.ContractId AS INTEGER),
+								CURRENT_TIMESTAMP,
+								CAST(rInBodyRef.RejectionReason AS INTEGER),
+								rInBodyRef.ModificationReason,
+								rInBodyRef.ReasonText,
+								Status,
+								TerminateAllSC,
+								TransactionID)INTO Res;
+								COMMIT;
+								IF Res = 0 THEN
+									CALL Create_esbXML_Response_Header(GetESBSuccessCode(),InHeaderRef,OutHeaderRef);
+									RETURN TRUE;
+								ELSE
+									CALL Create_esbXML_Response_Header(loadedPropertiesRef.NoDataFound,InHeaderRef,OutHeaderRef);
+								END IF;
+							ELSE
+
+								CALL Terminate_TerminateContractRequest(CAST (Environment.Variables.DB.TerSPres.TCRequestId AS INTEGER))INTO Res;
+								IF Res <> 0 THEN
+									CALL Create_esbXML_Response_Header(loadedPropertiesRef.TerminatContract,InHeaderRef,OutHeaderRef);
+								END IF;
+								CALL Update_ContractElements ( ---------SP
+								CAST(rInBodyRef.ContractId AS INTEGER),
+								CURRENT_TIMESTAMP,
+								CAST(rInBodyRef.RejectionReason AS INTEGER),
+								rInBodyRef.ModificationReason,
+								rInBodyRef.ReasonText,
+								Status,
+								TerminateAllSC,
+								TransactionID)INTO Res;
+								COMMIT;
+								IF Res = 0 THEN
+									CALL Create_esbXML_Response_Header(GetESBSuccessCode(),InHeaderRef,OutHeaderRef);
+									PROPAGATE TO TERMINAL 'out'; --SUCC
+									RETURN FALSE;
+								ELSE
+									CALL Create_esbXML_Response_Header(loadedPropertiesRef.RestoredError,InHeaderRef,OutHeaderRef);
+								END IF;
+
+							END IF;
+						ELSE
+							-------------------------------------------------------------------update
+							CALL Update_ContractElements (
+							CAST(rInBodyRef.ContractId AS INTEGER),
+							CURRENT_TIMESTAMP,
+							CAST(rInBodyRef.RejectionReason AS INTEGER),
+							CAST (rInBodyRef.ModificationReason AS INTEGER ) ,
+							rInBodyRef.ReasonText,
+							Status,
+							TerminateAllSC,
+							TransactionID)INTO Res;
+							COMMIT;
+							IF Res = 0 THEN
+								CALL Create_esbXML_Response_Header(GetESBSuccessCode(),InHeaderRef,OutHeaderRef);
+								PROPAGATE TO TERMINAL 'out'; --SUCC
+								RETURN FALSE;
+							ELSE
+								CALL Create_esbXML_Response_Header(loadedPropertiesRef.RestoredError,InHeaderRef,OutHeaderRef);
+							END IF;
+						END IF;
+
+					ELSE
+						CALL Create_esbXML_Response_Header(loadedPropertiesRef.ContractStatusNotAllowed,InHeaderRef,OutHeaderRef);
+					END IF;
+
+				ELSE
+					CALL Create_esbXML_Response_Header(loadedPropertiesRef.LaborerIdError,InHeaderRef,OutHeaderRef);
+				END IF;
+
+			ELSE
+				CALL Create_esbXML_Response_Header(loadedPropertiesRef.InvalidContr,InHeaderRef,OutHeaderRef);
+			END IF;
+		END IF;
+		RETURN TRUE;
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+
+	CREATE PROCEDURE Get_ContractDetails(IN RequestId INTEGER)
+	RETURNS INTEGER LANGUAGE DATABASE DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Get_ContractDetails";
+
+
+	CREATE PROCEDURE RestoreActiveOrApprocedStatus (IN ContractId INTEGER ) RETURNS INTEGER
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Contract_RestoreActiveOrApprocedStatus";
+
+	CREATE PROCEDURE Update_ContractElements (
+	IN ContractId INTEGER,
+	IN LaborerAppRejDate TIMESTAMP,
+	IN RejectionReasonId INTEGER,
+	IN ModificationReasonID INTEGER,
+	IN RejectionDescription CHARACTER,
+	IN StatusId INTEGER,
+	IN TerminateAIISC INTEGER,
+	IN MWtransactionID CHARACTER)
+	RETURNS INTEGER
+	LANGUAGE DATABASE EXTERNAL NAME "dbo.Update_ContractElements";
+
+
+	CREATE PROCEDURE Search_TerminateContractRequests(IN LaborOfficeId INTEGER,
+	IN SequenceNumber INTEGER,
+	IN TCRequestID INTEGER,
+	IN RequesterIdNo CHARACTER,
+	IN LaborerIdNo CHARACTER,
+	IN LaborerName CHARACTER,
+	IN RequesterTypeId INTEGER,
+	IN StatusIds CHARACTER,
+	IN RDUpdateRequestId INTEGER,
+	IN CancelationRequestId INTEGER,
+	IN TCReasonId INTEGER,
+	IN CreationDate TIMESTAMP,
+	IN ReleaseDate TIMESTAMP,
+	IN RemainingDays INTEGER,
+	IN PageSize INTEGER,
+	IN PageIndex INTEGER,
+	INOUT TotalRecordsCount INTEGER)
+	RETURNS INTEGER
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Search_TerminateContractRequests";
+
+	CREATE PROCEDURE Get_CurrentHijriDate()
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Get_CurrentHijriDate";
+
+
+	CREATE PROCEDURE Terminate_TerminateContractRequest(IN TerminateRequestId INTEGER)
+	RETURNS INTEGER
+	LANGUAGE DATABASE EXTERNAL NAME "dbo.Terminate_TerminateContractRequest";
+
+END MODULE;

@@ -1,0 +1,34 @@
+BROKER SCHEMA com.qiwa.esb.requestupdatecontract
+
+
+CREATE FILTER MODULE RequestUpdateContractFlow_RequestValidate
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		
+		DECLARE rInHeaderRef REFERENCE TO Root.XMLNSC.RequestUpdateContractRq.Header;
+		DECLARE rInBodyRef REFERENCE TO Root.XMLNSC.RequestUpdateContractRq.Body;  
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.RequestUpdateContract.RequestUpdateContractFlow.Variables;
+		DECLARE EV REFERENCE TO Environment.Variables;
+		
+		SET EV.Properties = Root.Properties; 
+		SET EV.MQMD = Root.MQMD;
+		SET EV.MQRFH2 = Root.MQRFH2;
+		SET EV.XMLNSC = Root.XMLNSC;
+		SET EV.Header = rInHeaderRef;
+		SET EV.Body = rInBodyRef;
+		
+		IF NOT EXISTS(rInHeaderRef.UserInfo.IDNumber[]) THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.NoIdNumber;
+			RETURN FALSE;
+		
+		ELSEIF rInBodyRef.ModificationReason = loadedPropertiesRef.ModificationReason AND rInBodyRef.ReasonText IS NULL THEN
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingReason;
+			RETURN FALSE;
+		END IF;
+		
+		RETURN TRUE;
+	END;
+END MODULE;

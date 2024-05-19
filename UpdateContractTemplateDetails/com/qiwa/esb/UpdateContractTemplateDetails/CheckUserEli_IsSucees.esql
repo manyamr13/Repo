@@ -1,0 +1,16 @@
+BROKER SCHEMA com.qiwa.esb.UpdateContractTemplateDetails
+path Qiwa.Framework.Lib;
+
+CREATE FILTER MODULE CheckUserEli_IsSucees
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.UpdateContractTemplateDetails.UpdateContractTemplateDetailsFlow.Variables;
+		 IF  Root.XMLNSC.CheckUserEligibilityRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN
+			RETURN TRUE;
+		 ELSE
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.UserPrivilegesError; 
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;

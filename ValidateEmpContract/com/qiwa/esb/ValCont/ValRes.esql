@@ -1,0 +1,28 @@
+
+
+
+
+BROKER SCHEMA com.qiwa.esb.ValCont
+
+PATH Qiwa.Framework.Lib;
+CREATE FILTER MODULE ValRes
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		IF Root.XMLNSC.ValidateOccupationRs.Header.ResponseStatus.Code = GetESBSuccessCode() THEN --success proceed 
+			RETURN TRUE;
+
+		ELSEIF EXISTS ( Root.XMLNSC.ValidateOccupationRs.Body.ValidationsErrorsList.ValidationsError[])THEN--return the error list
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.ValidateOccupationRs.Header.ResponseStatus.Code;
+
+			SET Environment.ValidationsErrorsList =Root.XMLNSC.ValidateOccupationRs.Body.ValidationsErrorsList;
+			RETURN FALSE;
+		ELSE-- return other errors 
+			SET Environment.Variables.MWResponse.status = Root.XMLNSC.ValidateOccupationRs.Header.ResponseStatus.Code;
+			RETURN FALSE;
+
+		END IF ;
+
+	END;
+
+END MODULE;

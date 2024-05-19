@@ -1,0 +1,12 @@
+BROKER SCHEMA com.qiwa.esb.DeleteDeactivateContractTemplate
+
+
+CREATE FILTER MODULE CheckUserEligibility_SetTimeOut
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.DeleteDeactivateContractTemplate.DeleteDeactivateContractTemplateFlow.Variables;
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.TimeOutError;
+		RETURN TRUE;
+	END;
+
+END MODULE;

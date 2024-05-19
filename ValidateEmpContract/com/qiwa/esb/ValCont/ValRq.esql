@@ -1,0 +1,74 @@
+
+
+
+
+
+
+
+
+BROKER SCHEMA com.qiwa.esb.ValCont
+
+
+CREATE COMPUTE MODULE ValRq
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--Copying Msg
+		SET Environment.Variables.Properties= InputRoot.Properties; 
+		SET Environment.Variables.MQMD = InputRoot.MQMD;
+		SET Environment.Variables.MQRFH2 = InputRoot.MQRFH2;
+		SET Environment.Variables.XMLNSC= InputRoot.XMLNSC;
+		--refrences
+		DECLARE rInHeader REFERENCE TO InputRoot.XMLNSC.*[<].Header;
+		DECLARE rInBody REFERENCE TO InputRoot.XMLNSC.*[<].Body;
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ValidateEmpContract.ValContFlow.Variables;
+
+
+		IF rInBody.RelatedToId IN (4,6) THEN --homeworker/ dependent --- check thier occupations
+			-- CALL ValidateOccupation
+			SET OutputRoot.Properties= InputRoot.Properties; 
+			--prepare XML outMsg
+			CREATE LASTCHILD OF OutputRoot DOMAIN ('XMLNSC');
+			SET OutputRoot.XMLNSC.ValidateOccupationRq.Header = rInHeader;
+			DECLARE rOutHeaderRef REFERENCE TO OutputRoot.XMLNSC.ValidateOccupationRq.Header;
+			CREATE LASTCHILD OF OutputRoot.XMLNSC.ValidateOccupationRq NAME 'Body';
+			DECLARE rOutBodyRef REFERENCE TO OutputRoot.XMLNSC.ValidateOccupationRq.Body;
+			--prep out header
+			SET rOutHeaderRef= rInHeader;
+			SET rOutHeaderRef.ServiceCode = loadedPropertiesRef.ValidateOccupationCode;
+			SET rOutHeaderRef.ChannelId = loadedPropertiesRef.ChannelId;
+
+
+
+			SET OutputLocalEnvironment.Destination.HTTP.RequestURL =loadedPropertiesRef.ValidateOccupationURL ;
+			--prep Body
+			SET rOutBodyRef.LaborOfficeId = CAST(rInBody.LaborOfficeId AS INT) ;
+			SET rOutBodyRef.SequenceNumber = CAST(rInBody.SequenceNumber AS INT) ;
+
+			IF rInBody.RelatedToId = 4 THEN
+				SET rOutBodyRef.LaborerSourceId =3 ;
+
+			ELSEIF rInBody.RelatedToId = 6 THEN
+				SET rOutBodyRef.LaborerSourceId =2 ;
+			END IF;
+
+			SET rOutBodyRef.LaborerIdNo = CAST( rInBody.LaborerIdNo AS INT) ;
+			SET rOutBodyRef.NewOccupationId = CAST ( rInBody.OccupationId AS INT) ;			 
+
+
+			RETURN TRUE;
+
+		ELSEIF (STARTSWITH (CAST(rInBody.LaborerIdNo AS CHARACTER), '2') AND rInBody.RelatedToId IN (1,2,3))THEN
+			--Non Sudies and Related 1,2,3, need to validate the current establish
+			--CALL LAB INFO
+			SET OutputRoot.XMLNSC.data.LaborerIdNo = rInBody.LaborerIdNo;
+			SET OutputLocalEnvironment.Destination.HTTP.RequestURL =loadedPropertiesRef.DPURL ;
+			PROPAGATE TO TERMINAL 'out2';
+
+
+		ELSE--other proceed 
+			PROPAGATE TO TERMINAL 'out1';
+		END IF;
+		RETURN FALSE;
+	END;
+
+END MODULE;

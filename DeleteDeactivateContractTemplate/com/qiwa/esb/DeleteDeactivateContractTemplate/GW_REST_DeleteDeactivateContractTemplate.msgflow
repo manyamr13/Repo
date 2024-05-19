@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:Qiwa_Framework_Lib_LogError.subflow="Qiwa/Framework/Lib/LogError.subflow" xmlns:Qiwa_Framework_Lib_Rest_Input_Node.subflow="Qiwa/Framework/Lib/Rest_Input_Node.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/qiwa/esb/DeleteDeactivateContractTemplate/GW_REST_DeleteDeactivateContractTemplate.msgflow" nsPrefix="com_qiwa_esb_DeleteDeactivateContractTemplate_GW_REST_DeleteDeactivateContractTemplate.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="GW_REST_DeleteDeactivateContractTemplate" bundleName="com/qiwa/esb/DeleteDeactivateContractTemplate/GW_REST_DeleteDeactivateContractTemplate" pluginId="DeleteDeactivateContractTemplate"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/DeleteDeactivateContractTemplate/icons/full/obj16/GW_REST_DeleteDeactivateContractTemplate.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/DeleteDeactivateContractTemplate/icons/full/obj30/GW_REST_DeleteDeactivateContractTemplate.gif"/>
+    <composition>
+      <nodes xmi:type="Qiwa_Framework_Lib_Rest_Input_Node.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="204,184" ServiceCallCorrIDOffset="10" Service_URL="/contractmanagement/deletedeactivatecontracttemplate" Time_Out="30" waitInterval="25000">
+        <translation xmi:type="utility:ConstantString" string="Rest_Input_Node"/>
+      </nodes>
+      <nodes xmi:type="Qiwa_Framework_Lib_LogError.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="527,184">
+        <translation xmi:type="utility:ConstantString" string="LogError"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

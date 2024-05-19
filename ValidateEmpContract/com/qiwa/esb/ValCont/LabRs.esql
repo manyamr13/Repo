@@ -1,0 +1,50 @@
+
+
+
+
+
+
+BROKER SCHEMA com.qiwa.esb.ValCont
+
+
+CREATE FILTER MODULE LabRs
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.ValidateEmpContract.ValContFlow.Variables;
+		DECLARE InBodyRef REFERENCE TO Environment.Variables.XMLNSC.ValidateEmploymentContractRq.Body;
+
+		IF (NOT EXISTS (Root.XMLNSC.row[]) OR Root.XMLNSC.row[1].column[2].value.isNull = true OR Root.XMLNSC.row[1].column[3].value.isNull = true) AND InBodyRef.RelatedToId= 3 THEN
+			--NO data found but the related to id =3 proceed
+			RETURN TRUE;
+		ELSEIF (NOT EXISTS (Root.XMLNSC.row[]) OR Root.XMLNSC.row[1].column[2].value.isNull = true OR Root.XMLNSC.row[1].column[3].value.isNull = true) THEN
+			--NO data found but the related to id <>3 error
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.NoLabInfo; --E0000735
+
+			RETURN FALSE;
+
+		ELSEIF EXISTS (Root.XMLNSC.row[]) THEN --Success
+			DECLARE RecievedLaborOffice, RecievedSequence INTEGER ;
+			SET RecievedLaborOffice = CAST ( FIELDVALUE (Root.XMLNSC.row[1].column[2].value) AS INTEGER);
+			SET RecievedSequence= CAST( FIELDVALUE (Root.XMLNSC.row[1].column[3].value) AS INTEGER);
+			--comparing the recieved estab with input establishment
+			IF RecievedLaborOffice = CAST(InBodyRef.LaborOfficeId AS INTEGER) AND RecievedSequence = CAST(InBodyRef.SequenceNumber AS INTEGER) AND InBodyRef.RelatedToId =3 THEN
+				--if relatedTo 3 the lab shouldn't be at this estab
+				SET Environment.Variables.MWResponse.status = loadedPropertiesRef.Related3Err; --ERROR E0000310
+				RETURN FALSE;
+			ELSEIF (RecievedLaborOffice <> CAST(InBodyRef.LaborOfficeId AS INTEGER) OR RecievedSequence <> CAST(InBodyRef.SequenceNumber AS INTEGER)) THEN
+				--for all cases if it difrent estab then proceed but make sure to SET RelatedToId=3;
+				SET InBodyRef.RelatedToId=3;
+				SET Environment.Variables.Output.RelatedToId=3; 
+				RETURN TRUE;
+			ELSE -- other cases fine to proceed with it
+				RETURN TRUE;
+			END IF;
+
+
+		END IF;
+		--if un expected behaviour happened 
+		SET Environment.Variables.MWResponse.status = loadedPropertiesRef.NoLabInfo;
+		RETURN FALSE;
+	END;
+
+END MODULE;

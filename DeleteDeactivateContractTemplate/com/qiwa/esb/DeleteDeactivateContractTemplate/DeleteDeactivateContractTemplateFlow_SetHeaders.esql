@@ -1,0 +1,14 @@
+BROKER SCHEMA com.qiwa.esb.DeleteDeactivateContractTemplate
+
+
+CREATE COMPUTE MODULE DeleteDeactivateContractTemplateFlow_SetHeaders
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD 	  = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 	  = Environment.Variables.MQRFH2;
+		SET OutputRoot.XMLNSC	  = Environment.Variables.XMLNSC;
+		RETURN TRUE;
+	END;
+
+END MODULE;

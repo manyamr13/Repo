@@ -1,0 +1,237 @@
+
+
+BROKER SCHEMA com.qiwa.esb.searchbulkcontact
+PATH Qiwa.Framework.Lib;
+
+CREATE COMPUTE MODULE SearchContractBulkFlow_CallDB
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		SET OutputRoot.Properties = Environment.Variables.Properties;
+		SET OutputRoot.MQMD = Environment.Variables.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		-- ref
+		DECLARE LoadPropertiesRef REFERENCE TO Environment.Properties.SearchContractBulk.SearchContractBulkFlow.Variables;
+		DECLARE InHeaderRef REFERENCE TO Environment.Variables.XMLNSC.SearchContractBulkRq.Header;
+		DECLARE InBodyRef REFERENCE TO Environment.Variables.XMLNSC.SearchContractBulkRq.Body;
+		-- create header
+		CREATE FIRSTCHILD OF OutputRoot.XMLNSC.SearchContractBulkRs NAME 'Header';
+		DECLARE OutHeaderRef REFERENCE TO OutputRoot.XMLNSC.SearchContractBulkRs.Header;
+		DECLARE TotalRecordsCount INTEGER;
+		DECLARE rInHeaderRef REFERENCE TO InputRoot.XMLNSC.CheckUserEligibilityRs.Header;
+		--check privillige
+		IF rInHeaderRef.ResponseStatus.Code = GetESBSuccessCode() OR CONTAINS(UPPER(LoadPropertiesRef.ExcludedChannelId), UPPER(InHeaderRef.ChannelId)) THEN
+			-- call DB
+			CALL Search_ContractBulk(CAST(InBodyRef.BulkId as INTEGER),
+			CAST(InBodyRef.PageSize as INTEGER),
+			CAST(InBodyRef.PageIndex as INTEGER),
+			TotalRecordsCount,
+			Environment.Variables.DB.ResultSet[]);
+			IF EXISTS(Environment.Variables.DB.ResultSet[]) THEN
+				DECLARE x INTEGER 0;
+				DECLARE j INTEGER 1;
+
+				CREATE LASTCHILD OF OutputRoot.XMLNSC.SearchContractBulkRs NAME 'Body';
+				DECLARE OutBodyRef REFERENCE TO OutputRoot.XMLNSC.SearchContractBulkRs.Body;
+				DECLARE rDBresult REFERENCE TO Environment.Variables.DB.ResultSet[1];
+				WHILE LASTMOVE(rDBresult) DO
+					-- ContractList LaborersDetails
+					IF rDBresult.LaborOfficeId = InBodyRef.LaborOfficeId AND rDBresult.SequenceNumber = InBodyRef.SequenceNumber THEN
+
+						SET x = x + 1;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerIdNo = rDBresult.LaborerIdNo;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerName = rDBresult.LaborerName;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerTypeId = rDBresult.LaborerTypeId;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerIdExpiryDate = rDBresult.LaborerIdExpiryDate;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerEmail = rDBresult.LaborerEmail;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerMobileNumber = rDBresult.LaborerMobileNumber;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.DOBType = rDBresult.DobTypeId;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerDOB.HijriDate = rDBresult.LaborerDOBHijri;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.LaborerDOB.GregDate = rDBresult.LaborerDOBGregorian;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Nationality.Code = rDBresult.NationalityId;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Nationality.NameAr = rDBresult.NationalityAr;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Nationality.NameEn = rDBresult.NationalityEn;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Gender.Code = rDBresult.GenderId;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Gender.NameAr = rDBresult.GenderAr;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Gender.NameEn = rDBresult.GenderEn;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Religion.Code = rDBresult.ReligionId;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Religion.NameAr = rDBresult.ReligionAr;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Religion.NameEn = rDBresult.ReligionEn;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.MaritalStatus.Code = rDBresult.MaritalStatusId;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.MaritalStatus.NameAr = rDBresult.MaritalStatusAr;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.MaritalStatus.NameEn = rDBresult.MaritalStatusEn;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Education.Code = rDBresult.EducationId;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Education.NameAr = rDBresult.EducationAr;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Education.NameEn = rDBresult.EducationEn;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Specialty.Code = rDBresult.SpecialityId;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Specialty.NameAr = rDBresult.SpecialtyAr;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.Specialty.NameEn = rDBresult.SpecialtyEn;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.WorkLocation.Code = rDBresult.WorklocationId;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.WorkLocation.NameAr = rDBresult.WorklocationAr;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.WorkLocation.NameEn = rDBresult.WorklocationEn;
+						SET OutBodyRef.ContractList.ContractItem[x].LaborersDetails.IBAN= rDBresult.IBAN;
+						--ContractList ContractDetails JobTitle
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ContractId = rDBresult.ContractId;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.JobTitle.JobTitleAr = rDBresult.JobTitleAr;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.JobTitle.JobTitleEng = rDBresult.JobTitleEn;
+						--ContractList ContractDetails
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.LaborerJobNumber = rDBresult.LaborerJobNumber;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ContractTypeId = rDBresult.ContractTypeId;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ContractDurationId = rDBresult.ContractDurationId;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ContractPeriod = rDBresult.ContractPeriod;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ProbationPeriod = rDBresult.ProbationPeriod;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ProbationTerminationRight.Code = rDBresult.ProbationTerminationRightCode;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ProbationTerminationRight.NameAr = rDBresult.ProbationTerminationRightAr;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ProbationTerminationRight.NameEn = rDBresult.ProbationTerminationRightEn;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.WorkingHoursTypeId = rDBresult.WorkingHoursTypeId;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.VacationPeriod = rDBresult.VacationPeriod;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.Salary = rDBresult.Salary;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.SalaryType.Code = rDBresult.SalaryTypeId;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.SalaryType.NameAr = rDBresult.SalaryTypeAr;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.SalaryType.NameEn = rDBresult.SalaryTypeEn;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.PercentageReasonEN = rDBresult.PercentageReasonEn;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.PercentageReasonAR = rDBresult.PercentageReasonAr;
+						--ContractList ContractDetails Allowances
+						IF rDBresult.Allowances IS NOT NULL THEN
+							SET Environment.Variables.Allowances = NULL;
+							CREATE LASTCHILD OF Environment.Variables.Allowances DOMAIN('XMLNSC') PARSE(CAST(rDBresult.Allowances as BLOB CCSID 1208),546,1208);
+							DECLARE AllowancesList INTEGER CARDINALITY(Environment.Variables.Allowances.XMLNSC.Allowances.row[]);
+							WHILE j <= AllowancesList DO
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.Allowances.Item[j].Key = Environment.Variables.Allowances.XMLNSC.Allowances.row[j].AllowanceKey;
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.Allowances.Item[j].Value = Environment.Variables.Allowances.XMLNSC.Allowances.row[j].AllowanceValue;
+								SET j = j +1;
+							END WHILE;
+						END IF;
+						--ContractList ContractDetails StartDate ExpiryDate
+						IF CAST(rDBresult.DateTypeId AS INTEGER) = 1 THEN
+							SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.StartDate.HijriDate = rDBresult.HijriStartDate;
+							SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ExpiryDate.HijriDate = rDBresult.HijriExpiryDate;
+						ELSEIF CAST(rDBresult.DateTypeId AS INTEGER) = 2 THEN
+							SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.StartDate.GregDate = rDBresult.GregorianStartDate;
+							SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ExpiryDate.GregDate = rDBresult.GregorianExpiryDate;
+						ELSE
+							SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.StartDate.HijriDate = rDBresult.HijriStartDate;
+							SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.StartDate.GregDate = rDBresult.GregorianStartDate;
+							SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ExpiryDate.HijriDate = rDBresult.HijriExpiryDate;
+							SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.ExpiryDate.GregDate = rDBresult.GregorianExpiryDate;
+						END IF;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.JoiningDate = rDBresult.JoiningDate;
+						--ContractList ContractDetails
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.RenewalStatusId = rDBresult.RenewalStatusId;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.NoticePeriod = rDBresult.NoticePeriod;
+						--ContractList ContractDetails AddedClauses
+						IF rDBresult.AddedClauses IS NOT NULL THEN
+							SET j = 1;
+							SET Environment.Variables.AddedClauses = NULL;
+							CREATE LASTCHILD OF Environment.Variables.AddedClauses DOMAIN('XMLNSC') PARSE(CAST(rDBresult.AddedClauses as BLOB CCSID 1208),546,1208);
+							DECLARE AddedClausesList INTEGER CARDINALITY(Environment.Variables.AddedClauses.XMLNSC.Clauses.row[]);
+							WHILE j <= AddedClausesList DO
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.AddedClauses.Item[j].Key = Environment.Variables.AddedClauses.XMLNSC.Clauses.row[j].ClauseKey;
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.AddedClauses.Item[j].Value = Environment.Variables.AddedClauses.XMLNSC.Clauses.row[j].ClauseValue;
+								SET j = j +1;
+							END WHILE;
+						END IF;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.SalaryFrequency = rDBresult.SalaryFrequencyId;
+						--ContractList ContractDetails AdditionalAllowancesList
+						IF rDBresult.AdditionalItems IS NOT NULL THEN
+							SET j = 1;
+							SET Environment.Variables.AdditionalItems = NULL;
+							CREATE LASTCHILD OF Environment.Variables.AdditionalItems DOMAIN('XMLNSC') PARSE(CAST(rDBresult.AdditionalItems as BLOB CCSID 1208),546,1208);
+							DECLARE AdditionalItemsList INTEGER CARDINALITY(Environment.Variables.AdditionalItems.XMLNSC.AdditionalItems.row[]);
+							WHILE j <= AdditionalItemsList DO
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.AdditionalAllowancesList.Item[j].BenefitNameAr = Environment.Variables.AdditionalItems.XMLNSC.AdditionalItems.row[j].BenefitNameAr;
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.AdditionalAllowancesList.Item[j].BenefitNameEn = Environment.Variables.AdditionalItems.XMLNSC.AdditionalItems.row[j].BenefitNameEn;
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.AdditionalAllowancesList.Item[j].Frequency = Environment.Variables.AdditionalItems.XMLNSC.AdditionalItems.row[j].FrequencyId;
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.AdditionalAllowancesList.Item[j].AmountType = Environment.Variables.AdditionalItems.XMLNSC.AdditionalItems.row[j].AmountTypeId;
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.AdditionalAllowancesList.Item[j].Amount = Environment.Variables.AdditionalItems.XMLNSC.AdditionalItems.row[j].Amount;
+								SET j = j +1;
+							END WHILE;
+							SET j = 1;
+						END IF;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.HoursPerWeek = rDBresult.HoursPerWeek;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.DaysPerWeek = rDBresult.DaysPerWeek;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.HoursPerDay = rDBresult.HoursPerDay;
+						--ContractList ContractDetails OptionalArticles
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.OptionalArticles.Period = rDBresult.Period;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.OptionalArticles.Location = rDBresult.Location;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.OptionalArticles.WorkField = rDBresult.WorkField;
+						SET OutBodyRef.ContractList.ContractItem[x].LanguageId = rDBresult.LanguageId;
+						SET OutBodyRef.ContractList.ContractItem[x].DateTypeId = rDBresult.DateTypeId;
+						SET OutBodyRef.ContractList.ContractItem[x].RelatedToId = rDBresult.RelatedToId;
+						SET OutBodyRef.ContractList.ContractItem[x].BulkItemDetails.BulkStatus.BulkStatusId = rDBresult.StatusId;
+						SET OutBodyRef.ContractList.ContractItem[x].BulkItemDetails.BulkStatus.BulkStatusAr = rDBresult.StatusAr;
+						SET OutBodyRef.ContractList.ContractItem[x].BulkItemDetails.BulkStatus.BulkStatusEn = rDBresult.StatusEn;
+						SET OutBodyRef.ContractList.ContractItem[x].BulkItemDetails.RejectionReason = rDBresult.RejectionReason;
+
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.Category.Code = rDBresult.CategoryId;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.Category.NameEn = rDBresult.CategoryEn;
+						SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.Category.NameAr = rDBresult.CategoryAr;
+						--ContractList ContractDetails UploadedFiles
+						IF rDBresult.ContractFiles IS NOT NULL THEN
+							SET j = 1;
+							SET Environment.Variables.ContractFiles = NULL;
+							CREATE LASTCHILD OF Environment.Variables.ContractFiles DOMAIN('XMLNSC') PARSE(CAST(rDBresult.ContractFiles as BLOB CCSID 1208),546,1208);
+							DECLARE UploadedFiles REFERENCE TO Environment.Variables.ContractFiles.XMLNSC.UploadedFiles.UplodedFileItem[1];
+							WHILE LASTMOVE(UploadedFiles) DO
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.UploadedFilesList.UploadedFilesItem[j].FileId = UploadedFiles.FileId;
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.UploadedFilesList.UploadedFilesItem[j].FileTypeId = UploadedFiles.FileTypeId;
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.UploadedFilesList.UploadedFilesItem[j].FileTypeEn = UploadedFiles.FileTypeEn;
+								SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.UploadedFilesList.UploadedFilesItem[j].FileTypeAr = UploadedFiles.FileTypeAr;
+								MOVE UploadedFiles NEXTSIBLING REPEAT NAME;
+								SET j = j + 1;
+							END WHILE;
+							SET j = 1;
+						END IF;
+
+						IF rDBresult.IsUploadFilesSkiped <> FALSE THEN
+							SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.IsUploadFilesSkiped = 1;
+						ELSE
+							SET OutBodyRef.ContractList.ContractItem[x].ContractDetails.IsUploadFilesSkiped = 0;
+						END IF;
+						-- EstablishmentDetails
+						SET OutBodyRef.EstablishmentDetails.LaborOfficeId = rDBresult.LaborOfficeId;
+						SET OutBodyRef.EstablishmentDetails.SequenceNumber = rDBresult.SequenceNumber;
+						SET OutBodyRef.EstablishmentDetails.EstablishmentId = rDBresult.EstablishmentId;
+						SET OutBodyRef.EstablishmentDetails.UnifiedNumberId = rDBresult.UnifiedNumberId;
+						SET OutBodyRef.EstablishmentDetails.EntityId = rDBresult.EntityId;
+						SET OutBodyRef.EstablishmentDetails.EstablishmentNameAr = rDBresult.EstablishmentNameAr;
+						SET OutBodyRef.EstablishmentDetails.EstablishmentNameEn = rDBresult.EstablishmentNameEn;
+						SET OutBodyRef.EstablishmentDetails.EstablishmentEmail = rDBresult.EstablishmentEmail;
+						-- RequesterDetails
+						SET OutBodyRef.RequesterDetails.RequesterIdNo = rDBresult.RequesterIdNo;
+						SET OutBodyRef.RequesterDetails.RequesterName = rDBresult.RequesterName;
+						SET OutBodyRef.RequesterDetails.RequesterUserId = rDBresult.RequesterUserId;
+						SET OutBodyRef.RequesterDetails.RequesterRole = rDBresult.RequesterRole;
+
+						SET OutBodyRef.TotalRecordsCount = TotalRecordsCount;
+						CALL Create_esbXML_Response_Header(GetESBSuccessCode(),InHeaderRef,OutHeaderRef);
+
+					ELSE
+						CALL Create_esbXML_Response_Header(LoadPropertiesRef.NoContacts,InHeaderRef,OutHeaderRef);
+					END IF;
+					MOVE rDBresult NEXTSIBLING REPEAT NAME;
+				END WHILE;
+
+			ELSE
+				CALL Create_esbXML_Response_Header(LoadPropertiesRef.NoContacts,InHeaderRef,OutHeaderRef);
+			END IF;
+		ELSE
+			CALL Create_esbXML_Response_Header(LoadPropertiesRef.LoginFaild,InHeaderRef,OutHeaderRef);
+		END IF;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE Search_ContractBulk (IN BulkId INTEGER,IN PageSize INTEGER,IN PageIndex INTEGER,INOUT TotalRecordsCount INTEGER )
+	LANGUAGE DATABASE DYNAMIC RESULT SETS 1
+	EXTERNAL NAME "dbo.Search_ContractBulk";
+END MODULE;

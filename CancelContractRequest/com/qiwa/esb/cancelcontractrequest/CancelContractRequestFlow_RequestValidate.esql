@@ -1,0 +1,42 @@
+BROKER SCHEMA com.qiwa.esb.cancelcontractrequest
+
+
+CREATE FILTER MODULE CancelContractRequestFlow_RequestValidate
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF FIELDNAME(Environment.Variables) IS NULL THEN
+			CREATE FIELD Environment.Variables;
+		END IF;
+		
+		DECLARE rInHeaderRef REFERENCE TO Root.XMLNSC.CancelContractRequestRq.Header;
+		DECLARE rInBodyRef REFERENCE TO Root.XMLNSC.CancelContractRequestRq.Body;  
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.CancelContractRequest.CancelContractRequestFlow.Variables;
+
+		
+		DECLARE EV REFERENCE TO Environment.Variables;
+		SET EV.Properties = Root.Properties; 
+		SET EV.MQMD = Root.MQMD;
+		SET EV.MQRFH2 = Root.MQRFH2;
+		SET EV.XMLNSC = Root.XMLNSC;
+		SET Environment.Variables.Header = rInHeaderRef;
+		SET Environment.Variables.Body = rInBodyRef;
+		
+		IF EXISTS(rInHeaderRef.UserInfo.IDNumber[]) THEN 
+			
+			IF (rInHeaderRef.ChannelId = loadedPropertiesRef.unifiedPortal) THEN 
+				-- skip CheckUserEligibility 
+				RETURN UNKNOWN;
+			ELSE
+				RETURN TRUE;
+			END IF;	
+		ELSE
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.NoIdNumber;
+			RETURN FALSE; 
+		END IF;
+		
+		
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;

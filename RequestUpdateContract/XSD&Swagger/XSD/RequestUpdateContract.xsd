@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://Qiwa/ContractManagement/RequestUpdateContract/v1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bons0="http://Qiwa/ContractManagement/RequestUpdateContract/v1.0" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" xmlns:Q1="http://Qiwa/Common/Types">
+
+	<xsd:import namespace="http://Qiwa/Common/Types" schemaLocation="../common/types/ESB_common_types_v1.0.xsd"/>
+
+
+	<xsd:element name="RequestUpdateContractRq" type="bons0:RequestUpdateContractRq_Type"/>
+	<xsd:element name="RequestUpdateContractRs" type="bons0:RequestUpdateContractRs_Type"/>
+
+	<complexType ibmSchExtn:docRoot="true" name="RequestUpdateContractRq_Type">
+			<sequence>
+				<xsd:element name="Header" type="Q1:ESBXMLRequestHeader_Type"/>
+				<xsd:element name="Body" type="bons0:RequestUpdateContractRq_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	<complexType ibmSchExtn:docRoot="true" name="RequestUpdateContractRs_Type">
+			<sequence>
+				<xsd:element name="Header" type="Q1:ESBXMLResponseHeader_Type"/>
+				<xsd:element minOccurs="1" name="Body" type="bons0:RequestUpdateContractRs_BodyType"/>
+			</sequence>
+	</complexType>
+	
+	
+	<complexType name="RequestUpdateContractRq_BodyType">
+		<all>
+			<element minOccurs="1" name="LaborOfficeId" type="integer"/>
+			<element minOccurs="1" name="SequenceNumber" type="integer"/>
+			<element minOccurs="1" name="ContractId" type="integer"/>
+			<element minOccurs="1" name="ModificationReason" type="bons0:ModificationReason_Type"/>
+			<element minOccurs="0" name="ReasonText" type="string"/>
+		</all>
+	</complexType>
+	
+	<simpleType name="ModificationReason_Type">
+		<restriction base="integer">
+			<minInclusive value="1"/>
+			<maxInclusive value="6"/>
+		</restriction>
+	</simpleType>
+	
+	<complexType name="RequestUpdateContractRs_BodyType">
+		<all>
+			
+		</all>
+	</complexType>
+	
+</xsd:schema>

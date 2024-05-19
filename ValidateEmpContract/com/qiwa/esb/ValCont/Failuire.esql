@@ -1,0 +1,12 @@
+BROKER SCHEMA com.qiwa.esb.ValCont
+
+
+CREATE FILTER MODULE Failuire
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE rLoadedProp REFERENCE TO Environment.Properties.ValidateEmpContract.ValContFlow;
+		SET Environment.Variables.MWResponse.status = rLoadedProp.Variables.HTTPFail ;
+		RETURN TRUE;
+	END;
+
+END MODULE;
