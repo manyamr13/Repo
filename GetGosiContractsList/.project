@@ -3,7 +3,9 @@
 	<name>GetGosiContractsList</name>
 	<comment></comment>
 	<projects>
+		<project>BackendAdaptersLib</project>
 		<project>Framework</project>
+		<project>HRSDLib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
