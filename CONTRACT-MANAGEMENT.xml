@@ -14,10 +14,10 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="ValidateOccupationURL" value="http://icp-proxy.qiwa.sa:31473/internal/occmng/validateoccupation"/>
+			<property name="ValidateOccupationURL" value="http://ocpm-occmgmtpost-is.ace.svc.cluster.local:7800/internal/occmng/validateoccupation"/>
 			<property name="ValidateOccupationCode" value="VO000001"/>
 			<property name="ChannelId" value="ESB"/>
-			<property name="DPURL" value="http://datapower.qiwa.info:7089/GetSaudiNonSaudiLaborerInfo"/>
+			<property name="DPURL" value="http://qiwadp.ace.svc.cluster.local:7089/GetSaudiNonSaudiLaborerInfo"/>
 			<property name="NoLabInfo" value="E0000735"/>
 			<property name="Related3Err" value="E0000310"/>
 			<property name="PendingReqError" value="E0000570"/>
@@ -204,8 +204,7 @@
 			<property name="VacationPeriodError" value="E0000387"/>
 			<property name="HoursPerWeekError" value="E0000388"/>
 			<property name="DaysAndHoursError" value="E0000389"/>
-			<property name="ProbTermMand" value="E0001557"/>  
-
+			<property name="ProbTermMand" value="E0001557"/>
 			<property name="UserPrivilegesError" value="E0000220"/>
 			<property name="LaborerAgeError" value="E0000742"/>
 			<property name="ConDuIdOne" value="1"/>
@@ -305,7 +304,7 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="HRSDUrl" value="http://datapower.qiwa.info:7089/GetEstablishmentLaborersInfo"/>
+			<property name="HRSDUrl" value="http://qiwadp.ace.svc.cluster.local:7089/GetEstablishmentLaborersInfo"/>
 			<property name="ServerDown" value="E0000616"/>
 			<property name="TimeOutError" value="E9999998"/>
 		</group>
@@ -332,7 +331,7 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="HRSDUrl" value="http://datapower.qiwa.info:7089/GetEstablishmentLaborersInfo"/>
+			<property name="HRSDUrl" value="http://qiwadp.ace.svc.cluster.local:7089/GetEstablishmentLaborersInfo"/>
 			<property name="ServerDown" value="E0000616"/>
 			<property name="TimeOutError" value="E9999998"/>
 		</group>
@@ -451,7 +450,7 @@
 			<property name="NoDataFound" value="E0000024"/>
 			<property name="Unified" value="FK_UnifiedNumberId"/>
 			<property name="TechError" value="E0000436"/>
-			<property name="DPURL" value="http://datapower.qiwa.info:7089/GetSaudiNonSaudiLaborerInfo"/>
+			<property name="DPURL" value="http://qiwadp.ace.svc.cluster.local:7089/GetSaudiNonSaudiLaborerInfo"/>
 			<property name="TimeOutError" value="E9999998"/>
 			<property name="Error_Contract" value="E0000545"/>
 			<property name="CheckUserCode" value="CUE00001"/>
@@ -563,7 +562,7 @@
 			<property name="secretKey" value="8@$%BR#!$"/>
 			<property name="Unified" value="FK_UnifiedNumberId"/>
 			<property name="TechError" value="E0000436"/>
-			<property name="DPURL" value="http://datapower.qiwa.info:7089/GetSaudiNonSaudiLaborerInfo"/>
+			<property name="DPURL" value="http://qiwadp.ace.svc.cluster.local:7089/GetSaudiNonSaudiLaborerInfo"/>
 			<property name="TimeOutError" value="E9999998"/>
 			<property name="unifiedPortal" value="unifiedPortal"/>
 		</group>
@@ -640,18 +639,23 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-		<property name="Nodata" value="E0000340" />  
-			<property name="Unified" value="FK_UnifiedNumberId" />
-			<property name="TimeOutError"  value="E9999998" />
+			<property name="Nodata" value="E0000340"/>
+			
+			<property name="Unified" value="FK_UnifiedNumberId"/>
+			
+			<property name="TimeOutError" value="E9999998"/>
 			<property name="Error_Contract" value="E0000545"/>
-			<property name="CheckUserCode" value="CUE00001" />
-			<property name="ChannelId" value="ESB" />
-			<property name="unifiedPortal" value="unifiedPortal" />
-			<property name="NoIdNumber" value="E0000168"/>		
+			<property name="CheckUserCode" value="CUE00001"/>
+			<property name="ChannelId" value="ESB"/>
+			<property name="unifiedPortal" value="unifiedPortal"/>
+
+			<property name="NoIdNumber" value="E0000168"/>
 			<property name="Individual" value="Qiwa Individual"/>
 			<property name="NoLabId" value="E0000772"/>
 			<property name="NoLabSeq" value="E0000263"/>
 			<property name="Qiwa" value="Qiwa"/>
+
+			
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -848,7 +852,7 @@
 			<property name="MissingParameter" value="E0000004"/>
 			<property name="GetContractError" value="E0000551"/>
 			<property name="StatusIdOne" value="1"/>
-			<property name="UrlPart" value="http://icp-proxy.qiwa.sa:32409/internal/tc/searchtermconreq"/>
+			<property name="UrlPart" value="http://tc-tcutility-is.ace.svc.cluster.local:7800/internal/tc/searchtermconreq"/>
 			<property name="StatusCodeTwenty" value="20"/>
 			<property name="IsApprovedZero" value="0"/>
 			<property name="IsApprovedOne" value="1"/>
@@ -997,8 +1001,7 @@
 			<property name="spResultError" value="-2"/>
 			<property name="ExcludedChannelId" value="unifiedPortal"/>
 			<property name="HistoryError" value="E0001544"/>
-			<property name="Zero" value="0" />
-
+			<property name="Zero" value="0"/>
 			<property name="One" value="1"/>
 			<property name="Ninety" value="90"/>
 			<property name="TwentyOne" value="21"/>
@@ -1014,9 +1017,9 @@
 			<property name="ErrorVacPeriod" value="E0000170"/>
 			<property name="ErrorNotPeriod" value="E0001498"/>
 			<property name="UpdateCtrtFailed" value="E0001545"/>
-			<property name="ProbTermRightError" value="E0001557" />
-			<property name="IsDeletedFlag" value="1" />
-			<property name="Deleteflagvalue" value="E0001559" />
+			<property name="ProbTermRightError" value="E0001557"/>
+			<property name="IsDeletedFlag" value="1"/>
+			<property name="Deleteflagvalue" value="E0001559"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -1066,16 +1069,16 @@
 			<property name="RelatedToSponsor" value="E0000320"/>
 			<property name="PendingReqError" value="E0000570"/>
 			<property name="ValidateOccupationCode" value="VO000001"/>
-			<property name="ValidateOccupationURL" value="http://icp-proxy.qiwa.sa:31473/internal/occmng/validateoccupation"/>
+			<property name="ValidateOccupationURL" value="http://ocpm-occmgmtpost-is.ace.svc.cluster.local:7800/internal/occmng/validateoccupation"/>
 			<property name="NoData" value="E0000735"/>
 			<property name="InvalidJob" value="E0000744"/>
 			<property name="MissingPercentage" value="E0000741"/>
 			<property name="PendingContract" value="E0000820"/>
 			<property name="ActiveContract" value="E0000819"/>
-			<property name="HTTPurl" value="http://datapower.qiwa.info:7089/GetEstablishmentAllData"/>
+			<property name="HTTPurl" value="http://qiwadp.ace.svc.cluster.local:7089/GetEstablishmentAllData"/>
 			<property name="Entity" value="1"/>
 			<property name="dpdown" value="E0000616"/>
-			<property name="DPURL" value="http://datapower.qiwa.info:7089/GetSaudiNonSaudiLaborerInfo"/>
+			<property name="DPURL" value="http://qiwadp.ace.svc.cluster.local:7089/GetSaudiNonSaudiLaborerInfo"/>
 			<property name="ValError" value="E0000022"/>
 			<property name="SchemaError" value="ESBSCHEMA"/>
 			<property name="RuntimeTechError" value="99999999"/>
@@ -1100,10 +1103,10 @@
 			<property name="HTTPFail" value="E1111111"/>
 			<property name="GetEstabInfoErr" value="E0001528"/>
 			<property name="getEstDown" value="E0000142"/>
-			<property name="valempcontract" value="http://icp-proxy.qiwa.sa:30937/internal/contractmanagement/valempcontract"/>
+			<property name="valempcontract" value="http://cntm-contractutilities-is.ace.svc.cluster.local:7800/internal/contractmanagement/valempcontract"/>
 			<property name="valempcontractSC" value="VEC00001"/>
-			<property name="ProbPeriodEffecValueZero" value="0" />
-			<property name="ProbPeriodEffecValueError" value="E0001557" />
+			<property name="ProbPeriodEffecValueZero" value="0"/>
+			<property name="ProbPeriodEffecValueError" value="E0001557"/>
 			<group name="column">
 				<property name="column1" value="PK_UnifiedNumberId"/>
 				<property name="column2" value="UnifiedNationalNumber"/>
@@ -1279,9 +1282,9 @@
 			<property name="RejectedStatusId" value="3"/>
 			<property name="CreateContractDraftSC" value="CCRD0001"/>
 			<property name="ExcludeChannel" value="unifiedPortal"/>
-			<property name="IdNumMissing" value="E0000217" />
-			<property name="ProbTermRightZero" value="0" />
-			<property name="ProbTermRightError" value="E0001557" />
+			<property name="IdNumMissing" value="E0000217"/>
+			<property name="ProbTermRightZero" value="0"/>
+			<property name="ProbTermRightError" value="E0001557"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -1317,7 +1320,7 @@
 			<property name="Unified" value="FK_UnifiedNumberId"/>
 			<property name="TechError" value="E0000771"/>
 			<property name="CheckSubscribtion" value="TRUE"/>
-			<property name="DPURL" value="http://datapower.qiwa.info:7089/GetSaudiNonSaudiLaborerInfo"/>
+			<property name="DPURL" value="http://qiwadp.ace.svc.cluster.local:7089/GetSaudiNonSaudiLaborerInfo"/>
 			<property name="Noprivilege" value="E0000545"/>
 			<property name="SPResult0" value="0"/>
 			<property name="SPResult1" value="1"/>
@@ -1512,17 +1515,17 @@
 		</group>
 		<group name="Variables">
 			<property name="HTTPVersion" value="HTTP/1.1"/>
-			<property name="TokenURL" value="http://datapower.qiwa.info:9056/v1/token"/>
-			<property name="TerminateURL" value="http://datapower.qiwa.info:9056/v1/thirdparty/registration/contributor/terminate-hrsd-contributor"/>
-			<property name="AddURL" value="http://datapower.qiwa.info:9056/v1/thirdparty/registration/establishment/add-hrsd-contributor"/>
+			<property name="TokenURL" value="http://qiwadp.ace.svc.cluster.local:9056/v1/token"/>
+			<property name="TerminateURL" value="http://qiwadp.ace.svc.cluster.local:9056/v1/thirdparty/registration/contributor/terminate-hrsd-contributor"/>
+			<property name="AddURL" value="http://qiwadp.ace.svc.cluster.local:9056/v1/thirdparty/registration/establishment/add-hrsd-contributor"/>
 			<property name="PageSize" value="100"/>
 			<property name="ContentType" value="application/json"/>
-			<property name="Host" value="datapower.qiwa.info:9056"/>
+			<property name="Host" value="qiwadp.ppd.qiwa-prod.local:9056"/>
 			<property name="Connection" value="Keep-Alive"/>
 			<property name="UserAgent" value="Apache-HttpClient/4.5.5 (Java/12.0.1)"/>
 			<property name="MethodType" value="POST"/>
-			<property name="UpdateURL" value="http://datapower.qiwa.info:9056/v1/thirdparty/registration/contributor/hrsd-wage-update"/>
-			<property name="GetToken" value="http://icp-proxy.qiwa.sa:31003/gosi/gettoken"/>
+			<property name="UpdateURL" value="http://qiwadp.ace.svc.cluster.local:9056/v1/thirdparty/registration/contributor/hrsd-wage-update"/>
+			<property name="GetToken" value="http://http://cntm-getscontract-http-ace.apps.ppd.qiwa-prod.local/gosi/gettoken"/>
 			<property name="nLoops" value="50"/>
 			<property name="Apikey" value="RJ8OwCcp3rSBMzAGmS9h5nL7ibsancMu"/>
 			<property name="NbErrors1" value="15"/>
@@ -1597,10 +1600,10 @@
 			<!-- Either LaborOfficeId or EstablishmentSequence is missing -->
 			<property name="Error_6" value="E0000772"/>
 			<!-- Laborer Id Number is Empty -->
-			<property name="ServiceCodeCUE" value="CUE00001"/>  
-			<property name="unifiedPortal" value="unifiedPortal"/>  
-			<property name="ServiceId" value="18" /> 
-			<property name="TimeOutError" value="E9999998" />   
+			<property name="ServiceCodeCUE" value="CUE00001"/>
+                        <property name="unifiedPortal" value="unifiedPortal"/>
+                        <property name="ServiceId" value="18"/>
+                        <property name="TimeOutError" value="E9999998"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -1633,10 +1636,10 @@
 			<!-- Either LaborOfficeId or EstablishmentSequence is missing -->
 			<property name="Error_6" value="E0000772"/>
 			<!-- Laborer Id Number is Empty -->
-			<property name="ServiceCodeCUE" value="CUE00001"/>  
-			<property name="unifiedPortal" value="unifiedPortal"/>  
-			<property name="ServiceId" value="18" /> 
-			<property name="TimeOutError" value="E9999998" />   
+			    <property name="ServiceCodeCUE" value="CUE00001"/>
+                        <property name="unifiedPortal" value="unifiedPortal"/>
+                        <property name="ServiceId" value="18"/>
+                        <property name="TimeOutError" value="E9999998"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -1661,7 +1664,7 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="HRSDUrl" value="http://datapower.qiwa.info:7089/GetEstablishmentLaborersInfo"/>
+			<property name="HRSDUrl" value="http://qiwadp.ace.svc.cluster.local:7089/GetEstablishmentLaborersInfo"/>
 			<property name="ServerDown" value="E0000616"/>
 			<property name="TimeOutError" value="E9999998"/>
 		</group>
@@ -1694,7 +1697,7 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="HRSDUrl" value="http://datapower.qiwa.info:7089/GetEstablishmentLaborersInfo"/>
+			<property name="HRSDUrl" value="http://qiwadp.ace.svc.cluster.local:7089/GetEstablishmentLaborersInfo"/>
 			<property name="ServerDown" value="E0000616"/>
 			<property name="TimeOutError" value="E9999998"/>
 		</group>
@@ -1729,10 +1732,10 @@
 		<group name="Variables">
 			<property name="OneHundred" value="100"/>
 			<property name="To" value="To"/>
-			<property name="ArabisContent" value="يوجد لديك عقد عمل جديد بانتظار مراجعتك واعتمادك، يرجى العلم بأن الطلب يلغى خلال 10 أيام في حال لم يتخذ أي إجراء، للاطلاع على العقد: sso.qiwa.sa"/>
-			<property name="EnglishContent" value="You have a new work contract waiting for your review, and approval. Please note that the contract will be expired in 10 days if no action was taken. To view the contract: sso.qiwa.sa"/>
-			<property name="UpdtArabisContent" value="يوجد لديك تحديث على عقدك الوظيفي  بانتظار مراجعتك واعتمادك. يرجى الدخول إلى حسابك الشخصي في منصة قوى للاطلاع على العقد: sso.qiwa.sa"/>
-			<property name="UpdtEnglishContent" value="You have new changes on your contract waiting for your review and approval. Please log in to your Qiwa Individual Account to view the contract: sso.qiwa.sa"/>
+			<property name="ArabisContent" value="يوجد لديك عقد عمل جديد بانتظار مراجعتك واعتمادك، يرجى العلم بأن الطلب يلغى خلال 10 أيام في حال لم يتخذ أي إجراء، للاطلاع على العقد: qiwa.sa/ar"/>
+			<property name="EnglishContent" value="You have a new work contract waiting for your review, and approval. Please note that the contract will be expired in 10 days if no action was taken. To view the contract: qiwa.sa"/>
+			<property name="UpdtArabisContent" value="يوجد لديك تحديث على عقدك الوظيفي  بانتظار مراجعتك واعتمادك. يرجى الدخول إلى حسابك الشخصي في منصة قوى للاطلاع على العقد: qiwa.sa/ar"/>
+			<property name="UpdtEnglishContent" value="You have new changes on your contract waiting for your review and approval. Please log in to your Qiwa Individual Account to view the contract: qiwa.sa"/>
 			<property name="FromRec" value="noreply@qiwa.sa"/>
 			<property name="FromName" value="Qiwa"/>
 			<property name="Subject" value="New Employment Contract | عقد عمل جديد"/>
@@ -1805,12 +1808,12 @@
 		</group>
 		<group name="Variables">
 			<property name="HTTPVersion" value="HTTP/1.1"/>
-			<property name="DownloadFilesURL" value="http://icp-proxy.qiwa.sa:30069/internal/qiwalo/downloadfiles"/>
-			<property name="UploadURL" value="http://datapower.qiwa.info:9056/v2/file-upload/checkinuniversal"/>
-			<property name="GetToken" value="http://icp-proxy.qiwa.sa:31003/gosi/gettoken"/>
+			<property name="DownloadFilesURL" value="http://cmpm-files-is.ace.svc.cluster.local:7800/internal/qiwalo/downloadfiles"/>
+			<property name="UploadURL" value="http://qiwadp.ace.svc.cluster.local:9056/v2/file-upload/checkinuniversal"/>
+			<property name="GetToken" value="http://http://cntm-getscontract-http-ace.apps.ppd.qiwa-prod.local/gosi/gettoken"/>
 			<property name="PageSize" value="100"/>
 			<property name="ContentType" value="application/json"/>
-			<property name="Host" value="datapower.qiwa.info:9056"/>
+			<property name="Host" value="qiwadp.ppd.qiwa-prod.local:9056"/>
 			<property name="Connection" value="Keep-Alive"/>
 			<property name="UserAgent" value="Apache-HttpClient/4.5.5 (Java/12.0.1)"/>
 			<property name="MethodType" value="POST"/>
@@ -1836,17 +1839,16 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-		<property name="Nodata" value="E0000340" />  
-		<property name="Nodata" value="E0000340"/>
-<property name="Conditional" value="E0000004"/>
-<property name="DPURL" value="http://datapower.qiwa.info:7089/GetUserEstablishments"/>
-<property name="TechError" value="E0000436"/>
-<property name="TimeOutError" value="E9999998"/>
-<property name="Error_Contract" value="E0000545"/>
-<property name="CheckUserCode" value="CUE00001"/>
-<property name="ChannelId" value="ESB"/>
-<property name="NoIdNumber" value="E0000168"/>
-<property name="ServiceId" value="18"/>
+			<property name="Nodata" value="E0000340"/>
+			<property name="Conditional" value="E0000004"/>
+			<property name="DPURL" value="http://qiwadp.ace.svc.cluster.local:7089/GetUserEstablishments"/>
+			<property name="TechError" value="E0000436"/>
+			<property name="TimeOutError" value="E9999998"/>
+			<property name="Error_Contract" value="E0000545"/>
+			<property name="CheckUserCode" value="CUE00001"/>
+			<property name="ChannelId" value="ESB"/>
+			<property name="NoIdNumber" value="E0000168"/>
+			<property name="ServiceId" value="18"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -1871,17 +1873,16 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-				<property name="Nodata" value="E0000340" />  
-		<property name="Nodata" value="E0000340"/>
-<property name="Conditional" value="E0000004"/>
-<property name="DPURL" value="http://datapower.qiwa.info:7089/GetUserEstablishments"/>
-<property name="TechError" value="E0000436"/>
-<property name="TimeOutError" value="E9999998"/>
-<property name="Error_Contract" value="E0000545"/>
-<property name="CheckUserCode" value="CUE00001"/>
-<property name="ChannelId" value="ESB"/>
-<property name="NoIdNumber" value="E0000168"/>
-<property name="ServiceId" value="18"/>
+			<property name="Nodata" value="E0000340"/>
+			<property name="Conditional" value="E0000004"/>
+			<property name="DPURL" value="http://qiwadp.ace.svc.cluster.local:7089/GetUserEstablishments"/>
+			<property name="TechError" value="E0000436"/>
+			<property name="TimeOutError" value="E9999998"/>
+			<property name="Error_Contract" value="E0000545"/>
+			<property name="CheckUserCode" value="CUE00001"/>
+			<property name="ChannelId" value="ESB"/>
+			<property name="NoIdNumber" value="E0000168"/>
+			<property name="ServiceId" value="18"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -1960,7 +1961,7 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="ODMURL" value="https://dbamc-odm-odm-decisionserverruntime.odm.svc:9443/DecisionService/ws/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/1.12/v75"/>
+			<property name="ODMURL" value="http://external-odm-service.odm.svc.cluster.local/odm/DecisionService/ws/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/v75"/>
 			<property name="Authorization" value="Basic cmVzQWRtaW4xOnJlc0FkbWlu"/>
 			<property name="ODMError" value="ODM00110"/>
 			<property name="ValidationError" value="E0000022"/>
@@ -1970,7 +1971,7 @@
 			<property name="ODMSuccess" value="I0000000"/>
 			<property name="ChannelId" value="ESB"/>
 			<property name="Zero" value="0"/>
-			<property name="AuthURL" value="http://icp-proxy.qiwa.sa:30028/internal/contractmanagement/contractauthindicator"/>
+			<property name="AuthURL" value="http://cntm-contractauth-is.ace.svc.cluster.local:7800/internal/contractmanagement/contractauthindicator"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -1995,7 +1996,7 @@
 			<property name="value4" value=""/>
 		</group>
 		<group name="Variables">
-			<property name="ODMURL" value="https://dbamc-odm-odm-decisionserverruntime.odm.svc:9443/DecisionService/ws/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/1.12/v75"/>
+			<property name="ODMURL" value="http://external-odm-service.odm.svc.cluster.local/odm/DecisionService/ws/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/v75"/>
 			<property name="Authorization" value="Basic cmVzQWRtaW4xOnJlc0FkbWlu"/>
 			<property name="ODMError" value="ODM00110"/>
 			<property name="ValidationError" value="E0000022"/>
@@ -2005,7 +2006,7 @@
 			<property name="ODMSuccess" value="I0000000"/>
 			<property name="ChannelId" value="ESB"/>
 			<property name="Zero" value="0"/>
-			<property name="AuthURL" value="http://icp-proxy.qiwa.sa:30028/internal/contractmanagement/contractauthindicator"/>
+			<property name="AuthURL" value="http://cntm-contractauth-is.ace.svc.cluster.local:7800/internal/contractmanagement/contractauthindicator"/>
 		</group>
 		<group name="SchemaValidation">
 			<property name="ValidationEnabled" value="TRUE"/>
@@ -2068,7 +2069,7 @@
 		</group>
 	</group>
 	
-	<group name="EmpAuthInd.HTTP_EmpAuthInd"> 
+		<group name="EmpAuthInd.HTTP_EmpAuthInd"> 
 		<group name="Logging">
 			<property name="LogEnabled" value="FALSE" /> 
 			<property name="AuditEnabled" value="FALSE" />
@@ -2083,7 +2084,7 @@
 		</group>
 	<group name="Variables">
 			<property name="ODMURL"
-				value="https://dbamc-odm-odm-decisionserverruntime.odm.svc:9443/DecisionService/ws/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/1.12/v75" />
+				value="http://external-odm-service.odm.svc.cluster.local/odm/DecisionService/ws/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/v75" />
 			<property name="ODMError" value="ODM00110" />
 			<property name="ServiceCode" value="EAI00001" /> 
 			<property name="FailureError" value="E0001436" />
@@ -2094,7 +2095,7 @@
 			<property name="DPError" value="E0000616" />
 			<property name="Zero" value="0" />
 			<property name="percentage" value="%" />
-			<property name="DPURL" value="http://datapower.qiwa.info:7089/LaborerCountsByLaborerType_Get" />
+			<property name="DPURL" value="http://qiwadp.ace.svc.cluster.local:7089/LaborerCountsByLaborerType_Get" />
 			
 		</group>
 
@@ -2125,7 +2126,7 @@
 		</group>
 	<group name="Variables">
 			<property name="ODMURL"
-				value="https://dbamc-odm-odm-decisionserverruntime.odm.svc:9443/DecisionService/ws/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/1.12/v75" />
+				value="http://external-odm-service.odm.svc.cluster.local/odm/DecisionService/ws/CheckContractCompliancePercentage_DC/CheckContractCompliancePercentage/v75" />
 			<property name="ODMError" value="ODM00110" />
 			<property name="FailureError" value="E0001436" />
 			<property name="ServiceCode" value="EAI00001" /> 
@@ -2136,7 +2137,7 @@
 			<property name="ChannelId" value="ESB" />
 			<property name="Zero" value="0" />
 			<property name="percentage" value="%" />
-			<property name="DPURL" value="http://datapower.qiwa.info:7089/LaborerCountsByLaborerType_Get" />
+			<property name="DPURL" value="http://qiwadp.ace.svc.cluster.local:7089/LaborerCountsByLaborerType_Get" />
 			
 		</group>
 		<group name="SchemaValidation">
