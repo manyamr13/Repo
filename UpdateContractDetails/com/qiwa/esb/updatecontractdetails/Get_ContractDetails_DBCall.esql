@@ -1,0 +1,60 @@
+BROKER SCHEMA com.qiwa.esb.updatecontractdetails
+PATH Qiwa.Framework.Lib;
+
+
+CREATE FILTER MODULE Get_ContractDetails_DBCall
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE loadedPropertiesRef REFERENCE TO Environment.Properties.UpdateContractDetails.UpdateContractDetailsFlow.Variables;
+		DECLARE EV REFERENCE TO Environment.Variables;
+		DECLARE rInputHeader REFERENCE TO EV.XMLNSC.UpdateContractDetailsRq.Header;
+		DECLARE resHeader REFERENCE TO Root.XMLNSC.CheckUserEligibilityRs.Header;
+		
+		-- Validate Check User Eligibility Response 
+		IF resHeader.ResponseStatus.Code = GetESBSuccessCode() OR CONTAINS(UPPER(loadedPropertiesRef.ExcludedChannelId), UPPER(rInputHeader.ChannelId)) THEN
+			DECLARE rInputBody REFERENCE TO EV.XMLNSC.UpdateContractDetailsRq.Body;
+			
+			-- Call Get_ContractDetails SP
+			CALL Get_ContractDetails( CAST(rInputBody.ContractId AS INTEGER),
+									  Environment.Variables.DB.ResultSet[]);
+			
+			--If the ContractId Exists
+			IF EXISTS (Environment.Variables.DB.ResultSet[]) THEN
+				
+				IF (CAST(Environment.Variables.DB.ResultSet.LaborOfficeId AS INT) <> CAST (rInputBody.LaborOfficeId AS INT) OR CAST(Environment.Variables.DB.ResultSet.SequenceNumber AS INT) <> CAST (rInputBody.SequenceNumber AS INT)) THEN
+					SET Environment.Variables.MWResponse.status = loadedPropertiesRef.LabSeqNotMatching; --E0001005
+					RETURN FALSE;
+				END IF;
+				
+				IF Environment.Variables.DB.ResultSet.StatusId <> loadedPropertiesRef.StatusId19 AND (rInputBody.UpdateReason IS NULL )  THEN
+					SET Environment.Variables.MWResponse.status = loadedPropertiesRef.MissingUpdatereason; -- E0001547 
+					RETURN FALSE;
+				END IF;
+				
+				-- Unlimited contract is not allowed for non-saudi laborer
+				IF (CAST(Environment.Variables.DB.ResultSet.LaborerTypeId AS INT) = CAST (loadedPropertiesRef.Two AS INT) AND CAST(rInputBody.ContractDetails.ContractDurationId AS INT) = CAST (loadedPropertiesRef.Two AS INT)) THEN
+					SET Environment.Variables.MWResponse.status = loadedPropertiesRef.NonSaudiLabError; --E0000171
+					RETURN FALSE;
+				END IF;
+				--If the status is valid (status = 4, 6, 8, 12 ,15,19)
+				IF Environment.Variables.DB.ResultSet.StatusId IN ( loadedPropertiesRef.StatusId04, loadedPropertiesRef.StatusId06, loadedPropertiesRef.StatusId08, loadedPropertiesRef.StatusId12, loadedPropertiesRef.StatusId15, loadedPropertiesRef.StatusId19 ) THEN
+					-- Call for Update Contract SP
+					RETURN TRUE;
+				ELSE
+					SET Environment.Variables.MWResponse.status = loadedPropertiesRef.GetCtrtErrorCOde; --E0000166
+					RETURN FALSE;
+				END IF;
+			ELSE
+				SET Environment.Variables.MWResponse.status = loadedPropertiesRef.GetCtrtErrorCOde; --E0000166
+				RETURN FALSE;
+			END IF;
+		ELSE
+			SET Environment.Variables.MWResponse.status = loadedPropertiesRef.CheckUsrErrorCOde; -- E0000193
+			RETURN FALSE;
+		END IF;
+
+	END;
+
+CREATE PROCEDURE Get_ContractDetails (IN RequestId INTEGER)
+LANGUAGE DATABASE DYNAMIC RESULT SETS 1 EXTERNAL NAME "dbo.Get_ContractDetails";
+END MODULE;

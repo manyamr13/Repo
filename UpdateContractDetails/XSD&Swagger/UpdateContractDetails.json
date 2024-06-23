@@ -1,0 +1,591 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "UpdateContractDetails ",
+        "version": "1.0.0",
+        "description": "UpdateContractDetails "
+    },
+    "paths": {
+        "/updatecontractdetails": {
+            "post": {
+                "operationId": "UpdateContractDetails ",
+                "responses": {
+                    "200": {
+                        "description": "The operation was successful.",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateContractDetailsRs_MessageType"
+                        }
+                    }
+                },
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "description": "UpdateContractDetails ",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateContractDetailsRq_MessageType"
+                        },
+                        "description": "UpdateContractDetails ",
+                        "required": true
+                    }
+                ]
+            }
+        }
+    },
+    "basePath": "/contractmanagement",
+    "definitions": {
+        "UpdateContractDetailsRq_MessageType": {
+            "type": "object",
+            "properties": {
+                "UpdateContractDetailsRq": {
+                    "$ref": "#/definitions/UpdateContractDetailsRq_Type"
+                }
+            }
+        },
+        "UpdateContractDetailsRs_MessageType": {
+            "type": "object",
+            "properties": {
+                "UpdateContractDetailsRs": {
+                    "$ref": "#/definitions/UpdateContractDetailsRs_Type"
+                }
+            }
+        },
+        "UpdateContractDetailsRq_Type": {
+            "type": "object",
+            "properties": {
+                "Header": {
+                    "$ref": "#/definitions/ESBXMLRequestHeader_Type"
+                },
+                "Body": {
+                    "$ref": "#/definitions/UpdateContractDetailsRq_BodyType"
+                }
+            }
+        },
+        "UpdateContractDetailsRq_BodyType": {
+            "type": "object",
+            "properties": {
+                "LaborOfficeId": {
+                    "type": "integer"
+                },
+                "SequenceNumber": {
+                    "type": "integer"
+                },
+                "LaborerEmail": {
+                    "type": "string"
+                },
+                "LaborerMobileNumber": {
+                    "type": "string"
+                },
+                "Nationality": {
+                    "type": "integer"
+                },
+                "Gender": {
+                    "type": "integer"
+                },
+                "Religion": {
+                    "type": "integer"
+                },
+                "MaritalStatus": {
+                    "type": "integer"
+                },
+                "EducationId": {
+                    "type": "integer"
+                },
+                "SpecialtyId": {
+                    "type": "integer"
+                },
+                "WorkLocationId": {
+                    "type": "integer"
+                },
+                "IBAN": {
+                    "type": "string"
+                },
+                "EstablishmentEmail": {
+                    "type": "string"
+                },
+                "ContractId": {
+                    "type": "integer"
+                },
+                "RequesterDetails": {
+                    "$ref": "#/definitions/RequesterDetails_Type"
+                },
+                "UpdateRequesterDetails": {
+                    "$ref": "#/definitions/UpdateRequesterDetails_Type"
+                },
+                "LanguageId": {
+                    "type": "integer"
+                },
+                "DateTypeId": {
+                    "type": "integer"
+                },
+                "ContractDetails": {
+                    "$ref": "#/definitions/ContractDetails_Type"
+                },
+                "UpdateReason": {
+                    "type": "integer"
+                },
+                "ReasonText": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "LaborOfficeId",
+                "SequenceNumber",
+                "ContractId",
+                "RequesterDetails",
+                "UpdateRequesterDetails"
+            ]
+        },
+        "RequesterDetails_Type": {
+            "type": "object",
+            "properties": {
+                "RequesterIdNo": {
+                    "type": "string"
+                },
+                "RequesterName": {
+                    "type": "string"
+                },
+                "RequesterUserId": {
+                    "type": "integer"
+                },
+                "RequesterRole": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "RequesterIdNo",
+                "RequesterName",
+                "RequesterUserId"
+            ]
+        },
+        "UpdateRequesterDetails_Type": {
+            "type": "object",
+            "properties": {
+                "IdNumber": {
+                    "type": "integer"
+                },
+                "Name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "IdNumber",
+                "Name"
+            ]
+        },
+        "ContractDetails_Type": {
+            "type": "object",
+            "properties": {
+                "JobTitle": {
+                    "$ref": "#/definitions/JobTitle_Type"
+                },
+                "LaborerJobNumber": {
+                    "type": "string"
+                },
+                "ContractTypeId": {
+                    "type": "integer"
+                },
+                "ContractDuration": {
+                    "type": "integer"
+                },
+                "ContractPeriod": {
+                    "type": "integer"
+                },
+                "ProbationPeriod": {
+                    "type": "integer"
+                },
+                "ProbationTerminationRight": {
+                    "type": "integer"
+                },
+                "ExtendProbationPeriod": {
+                    "type": "integer"
+                },
+                "WorkingHoursTypeId": {
+                    "type": "integer"
+                },
+                "VacationPeriod": {
+                    "type": "integer"
+                },
+                "Salary": {
+                    "type": "number"
+                },
+                "SalaryTypeId": {
+                    "type": "integer"
+                },
+                "PercentageReasonEN": {
+                    "type": "string"
+                },
+                "PercentageReasonAR": {
+                    "type": "string"
+                },
+                "Allowances": {
+                    "$ref": "#/definitions/Allowances_Type"
+                },
+  			  	"DeleteAllAllowances" : {
+  			    	"type" : "integer"
+  			  	},
+                "CurrentStartDate": {
+                    "$ref": "#/definitions/HGDate_Type"
+                },
+                "CurrentExpiryDate": {
+                    "$ref": "#/definitions/HGDate_Type"
+                },
+                "OriginalStartDate": {
+                    "$ref": "#/definitions/HGDate_Type"
+                },
+                "OriginalEndDate": {
+                    "$ref": "#/definitions/HGDate_Type"
+                },
+                "RenewalStatusId": {
+                    "type": "integer"
+                },
+                "NoticePeriod": {
+                    "type": "integer"
+                },
+                "SalaryFrequency": {
+                    "type": "integer"
+                },
+                "OptionalClauses": {
+                    "$ref": "#/definitions/OptionalClauses_Type"
+                },
+  			  	"DeleteAllOptionalClauses" : {
+  			    	"type" : "integer"
+  			  	},
+                "AdditionalTerms": {
+                    "$ref": "#/definitions/AdditionalTerms_Type"
+                },
+  			  	"DeleteAllAdditionalTerms" : {
+  			    	"type" : "integer"
+  			  	},
+                "HoursPerWeek": {
+                    "type": "integer"
+                },
+                "DaysPerWeek": {
+                    "type": "integer"
+                },
+                "HoursPerDay": {
+                    "type": "integer"
+                },
+                "Terms": {
+                    "$ref": "#/definitions/Terms_Type"
+                },
+                "OccupationId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "JobTitle_Type": {
+            "type": "object",
+            "properties": {
+                "JobTitleAr": {
+                    "type": "string"
+                },
+                "JobTitleEng": {
+                    "type": "string"
+                }
+            }
+        },
+        "HGDate_Type": {
+            "type": "object",
+            "properties": {
+                "HijriDate": {
+                    "type": "integer"
+                },
+                "GregDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "Allowances_Type": {
+            "type": "object",
+            "properties": {
+                "AllowancesItem": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AllowancesItem_Type"
+                    }
+                }
+            }
+        },
+        "AllowancesItem_Type": {
+            "type": "object",
+            "properties": {
+                "AllowanceType": {
+                    "type": "integer"
+                },
+                "NameAr": {
+                    "type": "string"
+                },
+                "NameEn": {
+                    "type": "string"
+                },
+                "Frequency": {
+                    "type": "integer"
+                },
+                "IsProvidedByEstablishment": {
+                    "type": "integer"
+                },
+                "AmountType": {
+                    "type": "integer"
+                },
+                "Amount": {
+                    "type": "number"
+                }
+            }
+        },
+        "OptionalClauses_Type": {
+            "type": "object",
+            "properties": {
+                "OptionalClausesItem": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/OptionalClausesItem_Type"
+                    }
+                }
+            }
+        },
+        "OptionalClausesItem_Type": {
+            "type": "object",
+            "properties": {
+                "OptionalClausesType": {
+                    "type": "integer"
+                },
+                "Field": {
+                    "type": "string"
+                },
+                "Period": {
+                    "type": "integer"
+                },
+                "Location": {
+                    "type": "string"
+                },
+                "FirstParty": {
+                    "type": "string"
+                },
+                "SecondParty": {
+                    "type": "string"
+                }
+            }
+        },
+        "AdditionalTerms_Type": {
+            "type": "object",
+            "properties": {
+                "AdditionalTermsItem": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AdditionalTermsItem_Type"
+                    }
+                }
+            }
+        },
+        "AdditionalTermsItem_Type": {
+            "type": "object",
+            "properties": {
+                "NameEn": {
+                    "type": "string"
+                },
+                "NameAr": {
+                    "type": "string"
+                }
+            }
+        },
+        "Terms_Type": {
+            "type": "object",
+            "properties": {
+                "TermsItem": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TermsItem_Type"
+                    }
+                }
+            }
+        },
+        "TermsItem_Type": {
+            "type": "object",
+            "properties": {
+                "TermId": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "TermId"
+            ]
+        },
+        "UpdateContractDetailsRs_Type": {
+            "type": "object",
+            "properties": {
+                "Header": {
+                    "$ref": "#/definitions/ESBXMLResponseHeader_Type"
+                },
+                "Body": {
+                    "$ref": "#/definitions/UpdateContractDetailsRs_BodyType"
+                }
+            }
+        },
+        "UpdateContractDetailsRs_BodyType": {
+            "type": "object",
+            "properties": {}
+        },
+        "ESBXMLRequestHeader_Type": {
+            "type": "object",
+            "properties": {
+                "TransactionId": {
+                    "type": "string"
+                },
+                "ChannelId": {
+                    "type": "string"
+                },
+                "SessionId": {
+                    "type": "string"
+                },
+                "RequestTime": {
+                    "type": "string"
+                },
+                "MWRequestTime": {
+                    "type": "string"
+                },
+                "ServiceCode": {
+                    "type": "string"
+                },
+                "DebugFlag": {
+                    "type": "integer"
+                },
+                "UserInfo": {
+                    "$ref": "#/definitions/UserInfo_Type"
+                },
+                "UDF": {
+                    "$ref": "#/definitions/UDF_Type"
+                }
+            },
+            "required": [
+                "ServiceCode",
+                "ChannelId",
+                "TransactionId",
+                "RequestTime"
+            ]
+        },
+        "ESBXMLResponseHeader_Type": {
+            "type": "object",
+            "properties": {
+                "TransactionId": {
+                    "type": "string"
+                },
+                "ChannelId": {
+                    "type": "string"
+                },
+                "SessionId": {
+                    "type": "string"
+                },
+                "RequestTime": {
+                    "type": "string"
+                },
+                "MWRequestTime": {
+                    "type": "string"
+                },
+                "MWResponseime": {
+                    "type": "string"
+                },
+                "ServiceCode": {
+                    "type": "string"
+                },
+                "DebugFlag": {
+                    "type": "integer"
+                },
+                "UserInfo": {
+                    "$ref": "#/definitions/UserInfo_Type"
+                },
+                "UDF": {
+                    "$ref": "#/definitions/UDF_Type"
+                },
+                "ResponseStatus": {
+                    "$ref": "#/definitions/MWResponseStatus_Type"
+                },
+                "BackendError": {
+                    "$ref": "#/definitions/BackendError_Type"
+                }
+            },
+            "required": [
+                "TransactionId",
+                "ChannelId",
+                "RequestTime",
+                "ServiceCode"
+            ]
+        },
+        "UDF_Type": {
+            "type": "object",
+            "properties": {
+                "KeyValueArr": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/KeyValueArr_Type"
+                    }
+                }
+            }
+        },
+        "KeyValueArr_Type": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "Tmstmp_Type": {
+            "type": "object"
+        },
+        "UserInfo_Type": {
+            "type": "object",
+            "properties": {
+                "UserId": {
+                    "type": "integer"
+                },
+                "IDNumber": {
+                    "type": "integer"
+                }
+            }
+        },
+        "MWResponseStatus_Type": {
+            "type": "object",
+            "properties": {
+                "Status": {
+                    "type": "string"
+                },
+                "Code": {
+                    "type": "string"
+                },
+                "ArabicMsg": {
+                    "type": "string"
+                },
+                "EnglishMsg": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "Code",
+                "Status",
+                "ArabicMsg",
+                "EnglishMsg"
+            ]
+        },
+        "BackendError_Type": {
+            "type": "object",
+            "properties": {
+                "ErrorCode": {
+                    "type": "string"
+                },
+                "ErrorDescription": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
